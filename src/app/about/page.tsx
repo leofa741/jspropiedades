@@ -171,7 +171,7 @@ export default function AboutPage() {
               <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-2xl">
                 <div className="relative overflow-hidden rounded-xl aspect-[4/5] lg:aspect-square">
                   <Image
-                    src="/img/about.png"
+                    src="/img/about-2.png"
                     alt="Jimena Sánchez - Asesora Inmobiliaria"
                     fill
                     className="object-cover object-center transition-transform duration-700 hover:scale-105"
@@ -192,6 +192,8 @@ export default function AboutPage() {
                   </div>*/}
                 </div>
               </div>
+
+              
             </div>
 
             {/* Columna derecha: Contenido */}

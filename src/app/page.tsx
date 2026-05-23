@@ -305,7 +305,7 @@ export default async function Home() {
                     <br />
                     <br />
                     <Image
-                      src="/img/Logo-Image_removebg.png"
+                      src="/img/logo-dorado-removebg.png"
                       alt="Propiedad exclusiva - Jimena Sánchez Propiedades"
                       className="w-full h-auto object-cover rounded-xl transition-transform duration-700 group-hover:scale-105"
                       width={480}

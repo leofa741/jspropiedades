@@ -137,7 +137,7 @@ const Footer = () => {
                   <span className="relative">
                     <span className={`absolute inset-0 bg-gradient-to-r ${gradients.accent} rounded-xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-700`} />
                     <Image
-                      src="/img/Logo-Image_removebg.png"
+                      src="/img/logo-dorado-removebg.png"
                       alt={companyName}
                       width={200}
                       height={95}

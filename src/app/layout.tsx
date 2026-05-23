@@ -31,24 +31,24 @@ const montserrat = Montserrat({
 
 
 export const metadata: Metadata = {
-  title: "Distribuidora El Vaquiano - Venta Mayorista y Minorista",
+  title: "Inmobiliaria Jimena Sánchez",
   description:
-    "Bienvenido a Distribuidora El Vaquiano, donde encontrarás Todo lo que necesitas para tu negocio",
+    "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
   keywords:
-    "distribuidora, venta mayorista, venta minorista, productos para negocios, suministros comerciales, El Vaquiano",
-  authors: [{ name: "Distribuidora El Vaquiano", url: "https://elvaquiano.com.ar" }],
+    "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
+  authors: [{ name: "Inmobiliaria Jimena Sánchez", url: "https://inmobiliariajimena.com.ar" }],
   openGraph: {
-    title: "Distribuidora El Vaquiano - Venta Mayorista y Minorista",
+    title: "Inmobiliaria Jimena Sánchez",
     description:
-      "Bienvenido a Distribuidora El Vaquiano, donde encontrarás Todo lo que necesitas para tu negocio",
-    url: "https://elvaquiano.com.ar",
-    siteName: "Distribuidora El Vaquiano",
+      "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
+    url: "https://inmobiliariajimena.com.ar",
+    siteName: "Inmobiliaria Jimena Sánchez",
     images: [
       {
-        url: "https://elvaquiano.com.ar/og-image.jpg",
+        url: "https://inmobiliariajimena.com.ar/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Distribuidora El Vaquiano",
+        alt: "Inmobiliaria Jimena Sánchez",
       },
     ],
     locale: "es_AR",

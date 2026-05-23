@@ -213,10 +213,10 @@ export default function LoginForm() {
               <br />
 
               <Image
-                src="/img/Logo-Image_removebg.png"
+                src="/img/logo-dorado-removebg.png"
                 alt="Jimena Sánchez Propiedades"
-                width={170}
-                height={45}
+                width={240}
+                height={160}
                 className="relative transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
