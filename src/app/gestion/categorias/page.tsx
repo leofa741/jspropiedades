@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-import { 
-  Pencil, 
-  Trash2, 
-  ArrowRight, 
-  Plus, 
-  Package, 
-  FolderOpen, 
+import {
+  Pencil,
+  Trash2,
+  ArrowRight,
+  Plus,
+  Package,
+  FolderOpen,
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function CategoriasPage() {
       const res = await fetch('/api/gestion/categorias?includeCount=true');
       if (res.ok) {
         const data = await res.json();
-        setCategorias(data.sort((a: Categoria, b: Categoria) => 
+        setCategorias(data.sort((a: Categoria, b: Categoria) =>
           a.nombre.localeCompare(b.nombre)
         ));
       } else {
@@ -298,12 +298,21 @@ export default function CategoriasPage() {
   const totalCategorias = categorias.length;
   const totalProductos = categorias.reduce((sum, cat) => sum + cat.productoCount, 0);
   const categoriasConProductos = categorias.filter(cat => cat.productoCount > 0).length;
-  const categoriaMasGrande = categorias.length > 0 
+  const categoriaMasGrande = categorias.length > 0
     ? categorias.reduce((max, cat) => cat.productoCount > max.productoCount ? cat : max)
     : null;
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 sm:p-6 md:p-8">
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+
       {/* Header con estadísticas */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -423,8 +432,8 @@ export default function CategoriasPage() {
               </thead>
               <tbody className="divide-y divide-gray-700/50">
                 {categorias.map((cat) => (
-                  <tr 
-                    key={cat.nombre} 
+                  <tr
+                    key={cat.nombre}
                     className="hover:bg-gray-750/50 transition-all duration-200 group"
                   >
                     <td className="py-4 px-6">
@@ -442,11 +451,10 @@ export default function CategoriasPage() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
-                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          cat.productoCount > 0 
-                            ? 'bg-blue-500/20 text-blue-300' 
-                            : 'bg-gray-600 text-gray-400'
-                        }`}>
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${cat.productoCount > 0
+                          ? 'bg-blue-500/20 text-blue-300'
+                          : 'bg-gray-600 text-gray-400'
+                          }`}>
                           {cat.productoCount}
                         </div>
                         <Package className="text-gray-500" size={16} />
@@ -510,11 +518,10 @@ export default function CategoriasPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bg-gray-800 rounded-2xl p-8 w-full max-w-md border border-gray-700 text-white shadow-2xl">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-700">
-              <div className={`p-3 rounded-xl ${
-                editingCategoria 
-                  ? 'bg-blue-500/20 text-blue-400' 
-                  : 'bg-amber-500/20 text-amber-400'
-              }`}>
+              <div className={`p-3 rounded-xl ${editingCategoria
+                ? 'bg-blue-500/20 text-blue-400'
+                : 'bg-amber-500/20 text-amber-400'
+                }`}>
                 {editingCategoria ? <Pencil size={24} /> : <Plus size={24} />}
               </div>
               <h3 className="text-2xl font-bold">
@@ -621,11 +628,10 @@ export default function CategoriasPage() {
                 <button
                   onClick={handleReasignarConfirm}
                   disabled={!categoriaDestino}
-                  className={`flex-1 px-6 py-3 rounded-xl font-medium transition ${
-                    categoriaDestino
-                      ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-amber-900/30'
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  }`}
+                  className={`flex-1 px-6 py-3 rounded-xl font-medium transition ${categoriaDestino
+                    ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-amber-900/30'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }`}
                 >
                   Reasignar Productos
                 </button>

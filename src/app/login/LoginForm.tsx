@@ -81,7 +81,7 @@ export default function LoginForm() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const callbackUrl = searchParams.get('callbackUrl') || '/gestion';
 
   const { data: session, status } = useSession();
   const { setUserRole } = useContext(AuthContext);

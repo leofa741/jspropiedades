@@ -158,8 +158,8 @@ export default function Navbar() {
           ═══════════════════════════════════════════════════════ */}
       <nav
         className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled
-            ? 'bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-900/20 border-b border-white/5'
-            : 'bg-gradient-to-b from-slate-900/70 via-slate-900/30 to-transparent'
+          ? 'bg-slate-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-900/20 border-b border-white/5'
+          : 'bg-gradient-to-b from-slate-900/70 via-slate-900/30 to-transparent'
           }`}
       >
         {/* ✨ Glow ambiental sutil */}
@@ -385,9 +385,20 @@ export default function Navbar() {
                   )}
 
                   <button
-                    onClick={handleLogout}
-                    className={`text-[10px] tracking-[0.25em] uppercase transition-all duration-300 ${scrolled ? 'text-slate-500 hover:text-purple-400' : 'text-slate-400 hover:text-purple-300'
-                      } hover:translate-x-0.5`}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (typeof handleLogout === "function") {
+                        handleLogout();
+                      }
+                    }}
+                    className={`
+    relative z-50 pointer-events-auto cursor-pointer
+    text-[10px] tracking-[0.25em] uppercase transition-all duration-300 
+    ${scrolled ? 'text-slate-500 hover:text-purple-400' : 'text-slate-400 hover:text-purple-300'}
+    hover:translate-x-0.5
+  `}
                   >
                     Salir
                   </button>
