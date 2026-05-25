@@ -1,80 +1,224 @@
 // app/page.tsx
+'use client';
 
-import { Metadata } from "next";
-import Image from "next/image";
-import CategoryResumenCard from "./components/categoryresumencard/CategoryResumenCard";
-import VideoHero from "./components/ui/VideoHero";
+import { useEffect, useState, Suspense } from 'react';
+import Link from 'next/link';
+import { FaHome, FaSearch, FaBuilding, FaMapMarkerAlt, FaMoneyBillWave, FaStar, FaFilter, FaArrowRight } from 'react-icons/fa';
+import { formatARS } from '@/app/lib/formatcurrenci';
+
+import VideoHero from './components/ui/VideoHero';
+import Image from 'next/image';
+import PropertyCard from './components/public/PropertyCard';
+import { useRouter } from 'next/navigation';
+import router from 'next/router';
 
 
 
-export const metadata: Metadata = {
-  title: "Jimena Sanchez Propiedades | Desarrollo e Inversiones Inmobiliarias",
-  description:
-    "Jimena Sanchez Propiedades, desarrollo e inversiones inmobiliarias. Lotes y propiedades en venta en San Vicente, Buenos Aires. Asesoramiento profesional y atención personalizada.",
-  keywords:
-    "Jimena Sanchez Propiedades, inversiones inmobiliarias, lotes en venta, propiedades San Vicente, desarrollo inmobiliario, Real Estate Buenos Aires",
+
+// ─────────────────────────────────────────────────────────────
+// 🔹 Tipos (basados en tu JSON real)
+// ─────────────────────────────────────────────────────────────
+
+interface PublicProperty {
+  _id: string;
+  titulo: string;
+  descripcion: string;
+  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph';
+  tipoOperacion: 'venta' | 'alquiler' | 'ambos';
+  categoria: 'residencial' | 'comercial' | 'industrial' | 'inversion';
+  ubicacion: {
+    barrio: string;
+    ciudad: string;
+    provincia: string;
+    zona?: string;
+    mostrarExacta: boolean;
+    calle?: string;
+    numero?: string;
+  };
+  precio: {
+    monto?: number;
+    moneda: 'ARS' | 'USD';
+    tipo: 'venta' | 'alquiler';
+  };
+  imagen?: string;
+  slug?: string;
+  destacado: boolean;
+  urgente: boolean;
+  caracteristicas?: {
+    ambientes?: number;
+    dormitorios?: number;
+    banios?: number;
+    metrosCubiertos?: number;
+    cochera?: boolean;
+    balcon?: boolean;
+    pileta?: boolean;
+  };
+}
+
+interface CategoryCount {
+  slug: string;
+  name: string;
+  count: number;
+  tipos?: string[];
+}
+
+interface ApiResponse {
+  propiedades: PublicProperty[];
+  counts: { venta: number; alquiler: number; ambos: number };
+  total: number;
+}
+
+interface CategoriesResponse {
+  categorias: CategoryCount[];
+  tiposPropiedad: CategoryCount[];
+  barrios: Array<{ slug: string; name: string; count: number; ciudad: string }>;
+  totals: { venta: number; alquiler: number; total: number };
+}
+
+// ─────────────────────────────────────────────────────────────
+// 🔹 Helpers de formato (basados en tus datos reales)
+// ─────────────────────────────────────────────────────────────
+
+const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta' | 'alquiler' = 'venta') => {
+  if (!monto) return 'Consultar';
+  if (moneda === 'ARS') return formatARS(monto);
+  const suffix = tipo === 'alquiler' ? '/mes' : '';
+  return `$ ${monto.toLocaleString('es-AR')} ${moneda}${suffix}`;
 };
 
+const getTipoIcon = (tipo: string) => {
+  const icons: Record<string, string> = {
+    departamento: '🏢', casa: '🏠', local: '🏪', oficina: '🏢',
+    terreno: '🌳', cochera: '🚗', galpon: '🏭', ph: '🏘️',
+  };
+  return icons[tipo] || '🏠';
+};
 
-const BenefitCard = ({
-  icon,
-  title,
-  description,
-  delay
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  delay: number;
-}) => (
-  <div
-    className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 animate-fadeInUp"
-    style={{ animationDelay: `${delay + 200}ms` }}
-  >
-    {/* Glow exterior al hover */}
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
+// ─────────────────────────────────────────────────────────────
+// 🔹 Componente Principal con Suspense
+// ─────────────────────────────────────────────────────────────
 
-    {/* Marco interno */}
-    <div className="absolute inset-[1px] rounded-2xl bg-slate-900/90 -z-10" />
+export default function HomePage() {
+  return (
+    <Suspense fallback={<HomeLoader />}>
+      <PageContent />
+    </Suspense>
+  );
+}
 
-    {/* Icono con fondo degradado */}
-    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/10 to-purple-500/10 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:from-cyan-400/20 group-hover:to-purple-500/20 transition-all duration-300">
-      <span className="text-purple-400 group-hover:text-white transition-colors duration-300">
-        {icon}
-      </span>
+function HomeLoader() {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-transparent border-t-violet-500 border-r-purple-500 mx-auto mb-4" />
+        <p className="text-slate-400">Cargando propiedades...</p>
+      </div>
     </div>
+  );
+}
 
-    {/* Contenido */}
-    <h3 className="relative text-lg font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors duration-300">
-      {title}
-    </h3>
-    <p className="relative text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
-      {description}
-    </p>
-  </div>
-);
-// Datos de categorías destacadas (de base de datos)
+function PageContent() {
+  const [propiedades, setPropiedades] = useState<PublicProperty[]>([]);
+  const [destacadas, setDestacadas] = useState<PublicProperty[]>([]);
+  const [counts, setCounts] = useState({ venta: 0, alquiler: 0, ambos: 0 });
+  const [categorias, setCategorias] = useState<CategoryCount[]>([]);
+  const [barrios, setBarrios] = useState<Array<{ slug: string; name: string; count: number; ciudad: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
 
-export default async function Home() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/gestion/public/categorias/resumen`,
-    { cache: "no-store" }
+  // 📥 Cargar datos desde tus endpoints públicos
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Propiedades destacadas
+        const resDestacadas = await fetch('/api/gestion/public/propiedades?destacado=true&limit=6');
+        if (resDestacadas.ok) {
+          const data: ApiResponse = await resDestacadas.json();
+          setDestacadas(data.propiedades);
+          setCounts(data.counts);
+        }
+
+        // 2. Todas las propiedades para listado general
+        const resTodas = await fetch('/api/gestion/public/propiedades?limit=12');
+        if (resTodas.ok) {
+          const data: ApiResponse = await resTodas.json();
+          setPropiedades(data.propiedades);
+        }
+
+        // 3. Categorías con counts (para navbar y home)
+        const resCats = await fetch('/api/gestion/public/categorias');
+        if (resCats.ok) {
+          const cats: CategoriesResponse = await resCats.json();
+          setCategorias(cats.categorias);
+          setBarrios(cats.barrios);
+        }
+      } catch (err) {
+        console.error('Error loading public data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 🔍 Búsqueda simple en frontend
+  const filteredProperties = propiedades.filter(prop =>
+    searchQuery === '' ||
+    prop.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prop.ubicacion.barrio.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prop.ubicacion.ciudad.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prop.tipoPropiedad.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (!res.ok) {
-    throw new Error("Error al cargar categorías");
-  }
 
-  const categorias: {
-    _id: string;
-    totalProductos: number;
-    precioDesde: number;
-  }[] = await res.json();
+  const BenefitCard = ({
+    icon,
+    title,
+    description,
+    delay
+  }: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    delay: number;
+  }) => (
+    <div
+      className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 animate-fadeInUp"
+      style={{ animationDelay: `${delay + 200}ms` }}
+    >
+      {/* Glow exterior al hover */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
 
+      {/* Marco interno */}
+      <div className="absolute inset-[1px] rounded-2xl bg-slate-900/90 -z-10" />
 
+      {/* Icono con fondo degradado */}
+      <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/10 to-purple-500/10 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:from-cyan-400/20 group-hover:to-purple-500/20 transition-all duration-300">
+        <span className="text-purple-400 group-hover:text-white transition-colors duration-300">
+          {icon}
+        </span>
+      </div>
+
+      {/* Contenido */}
+      <h3 className="relative text-lg font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors duration-300">
+        {title}
+      </h3>
+      <p className="relative text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
+        {description}
+      </p>
+    </div>
+  );
+
+  if (loading) return <HomeLoader />;
 
   return (
-    <>
+
+
+
+    <div className="min-h-screen bg-slate-950 text-white">
+
       {/* Hero Banner (ya lo tienes en Banner.tsx) */}
       <div className="relative w-full top-0 left-0 right-0 ">
 
@@ -98,8 +242,8 @@ export default async function Home() {
 
                 <div className="space-y-2">
                   {/* <p className="text-sm md:text-lg uppercase tracking-[0.3em] text-purple-300 font-semibold">
-                Congreso de 
-                </p> */}
+                      Congreso de 
+                      </p> */}
 
                   <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tight">
                     Desarrollo <br />
@@ -140,6 +284,7 @@ export default async function Home() {
       </div>
 
 
+
       {/* ═══════════════════════════════════════════════════════
     SECCIÓN VALOR PRINCIPAL - JIMENA SÁNCHEZ PROPIEDADES
     ═══════════════════════════════════════════════════════ */}
@@ -175,7 +320,7 @@ export default async function Home() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-cyan-400 to-purple-500" />
                 </span>
                 <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
-                  Real Estate Premium
+                  Jimena Sanchez Propiedades
                 </span>
               </div>
 
@@ -241,7 +386,7 @@ export default async function Home() {
 
                 {/* CTA Secundario - Glassmorphism */}
                 <a
-                  href="/contacto"
+                  href="/contact"
                   className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-white backdrop-blur-sm"
                 >
                   <span>Agendar Consulta Gratuita</span>
@@ -301,23 +446,16 @@ export default async function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent z-10" aria-hidden="true" />
                     <br />
                     <br />
-                    <br />
-                    <br />
-                    <br />
+
                     <Image
-                      src="/img/logo-dorado-removebg.png"
-                      alt="Propiedad exclusiva - Jimena Sánchez Propiedades"
+                      src={destacadas[0]?.imagen || '/img/logo-dorado-removebg.png'}
+                      alt={destacadas[0]?.titulo || 'Propiedad exclusiva - Jimena Sánchez Propiedades'}
                       className="w-full h-auto object-cover rounded-xl transition-transform duration-700 group-hover:scale-105"
-                      width={480}
-                      height={980}
+                      width={780}
+                      height={780}
                       priority
                     />
-
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
+                    <br /> <br />
 
                     {/* Badge flotante premium */}
                     <div className="absolute top-4 right-4 z-20 animate-float">
@@ -327,12 +465,19 @@ export default async function Home() {
                     </div>
 
                     {/* Precio badge */}
-                    <div className="absolute bottom-4 left-4 z-20">
-                      <div className="px-4 py-2 rounded-lg bg-slate-900/90 backdrop-blur-sm border border-white/10">
-                        <span className="text-sm font-bold text-white">USD 450.000</span>
-                        <span className="text-xs text-slate-400 block">Palermo Soho</span>
+                    {/* Badge de precio - dentro del div de la imagen */}
+                    {destacadas[0] && (
+                      <div className="absolute bottom-4 left-4 z-20">
+                        <div className="px-4 py-2 rounded-lg bg-slate-900/90 backdrop-blur-sm border border-white/10">
+                          <span className="text-sm font-bold text-white">
+                            {formatPrice(destacadas[0].precio.monto, destacadas[0].precio.moneda, destacadas[0].precio.tipo)}
+                          </span>
+                          <span className="text-xs text-slate-400 block">
+                            {destacadas[0].ubicacion.barrio}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Footer de la card con stats */}
@@ -362,137 +507,357 @@ export default async function Home() {
 
 
 
-
-
-
-  {/* ═══════════════════════════════════════════════════════
+      {/* ═══════════════════════════════════════════════════════
     SECCIÓN BENEFICIOS - JIMENA SÁNCHEZ PROPIEDADES
     ═══════════════════════════════════════════════════════ */}
-<section className="relative py-20 lg:py-28 overflow-hidden bg-slate-950">
-  
-  {/* ✨ Background ambiental coherente */}
-  <div className="absolute inset-0">
-    <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/15 to-cyan-500/15 opacity-40" style={{ filter: 'blur(150px)' }} />
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" aria-hidden="true" />
-  </div>
+      <section className="relative py-20 lg:py-28 overflow-hidden bg-slate-950">
 
-  <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8">
-    
-    {/* ───────── HEADER ───────── */}
-    <div className="text-center max-w-3xl mx-auto mb-16 animate-fadeInUp">
-      <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gradient-to-r from-cyan-400 to-purple-500" />
-        </span>
-        <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
-          Nuestra Diferencia
-        </span>
-      </span>
-      
-      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-        ¿Por qué confiar en Jimena Sánchez?
-      </h2>
-      
-      <p className="text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
-        Una experiencia inmobiliaria transparente, personalizada y orientada a resultados reales para tu inversión.
-      </p>
-    </div>
+        {/* ✨ Background ambiental coherente */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/15 to-cyan-500/15 opacity-40" style={{ filter: 'blur(150px)' }} />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" aria-hidden="true" />
+        </div>
 
-    {/* ───────── GRID DE BENEFICIOS ───────── */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <BenefitCard
-        icon={
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-          </svg>
-        }
-        title="Asesoramiento Experto"
-        description="Guía profesional en cada paso: desde la búsqueda hasta la firma. Conocimiento profundo del mercado inmobiliario."
-        delay={0}
-      />
-      <BenefitCard
-        icon={
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-          </svg>
-        }
-        title="Negociación Estratégica"
-        description="Maximizo el valor de tu operación con técnicas de negociación probadas y conocimiento del mercado local."
-        delay={100}
-      />
-      <BenefitCard
-        icon={
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-          </svg>
-        }
-        title="Transacciones Seguras"
-        description="Verificación legal completa de cada propiedad. Acompañamiento en documentación, escrituración y trámites."
-        delay={200}
-      />
-      <BenefitCard
-        icon={
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-          </svg>
-        }
-        title="Atención Personalizada"
-        description="Un asesor comercial dedicado a tu negocio. Sin chatbots, sin demoras, solo soluciones."
-        delay={300}
-      />
-    </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8">
 
-    {/* ───────── CTA INFERIOR ───────── */}
-    <div className="text-center mt-16 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
-      <a
-        href="/contacto"
-        className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
-      >
-        {/* Shine effect */}
-        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-        <span className="absolute inset-0 rounded-xl border border-white/20 group-hover:border-white/40 transition-colors duration-300" />
-        
-        <span className="relative z-10">Agendar una Consulta Gratuita</span>
-        <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
-      </a>
-    </div>
-  </div>
-</section>
+          {/* ───────── HEADER ───────── */}
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fadeInUp">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gradient-to-r from-cyan-400 to-purple-500" />
+              </span>
+              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
+                Nuestra Diferencia
+              </span>
+            </span>
 
-
-
-      {/* Categorías destacadas */}
-      <section className="py-16 dark:bg-gray-900">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold dark:text-white">
-              Nuestras Categorías
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              ¿Por qué confiar en Jimena Sánchez?
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-4">
-              Explorá lo que tenemos disponible hoy
+
+            <p className="text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
+              Una experiencia inmobiliaria transparente, personalizada y orientada a resultados reales para tu inversión.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categorias.map((cat: any) => (
-              <CategoryResumenCard
-                key={cat._id}
-                categoria={cat._id}
-                total={cat.totalProductos}
-                desde={cat.precioDesde}
-              />
-            ))}
+          {/* ───────── GRID DE BENEFICIOS ───────── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+              }
+              title="Asesoramiento Experto"
+              description="Guía profesional en cada paso: desde la búsqueda hasta la firma. Conocimiento profundo del mercado inmobiliario."
+              delay={0}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                </svg>
+              }
+              title="Negociación Estratégica"
+              description="Maximizo el valor de tu operación con técnicas de negociación probadas y conocimiento del mercado local."
+              delay={100}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              }
+              title="Transacciones Seguras"
+              description="Verificación legal completa de cada propiedad. Acompañamiento en documentación, escrituración y trámites."
+              delay={200}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+              }
+              title="Atención Personalizada"
+              description="Un asesor comercial dedicado a tu negocio. Sin chatbots, sin demoras, solo soluciones."
+              delay={300}
+            />
+          </div>
+
+          {/* ───────── CTA INFERIOR ───────── */}
+          <div className="text-center mt-16 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
+            <a
+              href="/contacto"
+              className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {/* Shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <span className="absolute inset-0 rounded-xl border border-white/20 group-hover:border-white/40 transition-colors duration-300" />
+
+              <span className="relative z-10">Agendar una Consulta Gratuita</span>
+              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
 
 
-   
-    </>
+      {/* 🔍 Barra de búsqueda funcional */}
+      <div className="max-w-2xl mx-auto">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const query = searchQuery.trim();
+            if (query) {
+              // 🔹 Redirigir a listado con parámetro de búsqueda
+              router.push(`/propiedades?search=${encodeURIComponent(query)}`);
+            }
+          }}
+          className="relative"
+        >
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              // Permitir Enter para buscar
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchQuery.trim();
+                if (query) {
+                  router.push(`/propiedades?search=${encodeURIComponent(query)}`)
+                }
+              }
+            }}
+            placeholder="Buscar por barrio, ciudad o tipo de propiedad..."
+            className="w-full pl-12 pr-16 py-4 bg-slate-900/80 border border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+          />
+
+          {/* 🔹 Botón de buscar (visible siempre o al escribir) */}
+          {searchQuery.trim() && (
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-all"
+            >
+              Buscar
+            </button>
+          )}
+        </form>
+
+        <p className="text-sm text-slate-500 mt-3">
+          Ej: "Palermo", "departamento", "venta"
+        </p>
+
+        {/* 🔹 Feedback visual si hay búsqueda activa */}
+        {searchQuery.trim() && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-slate-400">
+            <span>Buscando:</span>
+            <span className="text-violet-400 font-medium">"{searchQuery}"</span>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+              aria-label="Limpiar búsqueda"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
+
+
+      
+
+      <br />
+
+      {/* 🏆 Propiedades Destacadas - USANDO TU CAMPO `destacado: true` */}
+      <section className="py-16 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                <FaStar className="text-amber-400" />
+                Propiedades Destacadas
+              </h2>
+              <p className="text-slate-400 mt-2">Las mejores oportunidades seleccionadas para vos</p>
+            </div>
+            <Link
+              href="/propiedades?destacado=true"
+              className="text-violet-400 hover:text-violet-300 font-medium flex items-center gap-2"
+            >
+              Ver todas <FaArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {destacadas.length === 0 ? (
+            <div className="text-center py-12 text-slate-500">
+              <FaBuilding className="text-4xl mb-3 mx-auto opacity-50" />
+              <p>No hay propiedades destacadas en este momento</p>
+              <Link href="/propiedades" className="text-violet-400 hover:text-violet-300 mt-4 inline-block">
+                Ver todas las  propiedades →
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {destacadas.map((prop) => (
+                <PropertyCard key={prop._id} property={prop} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 📂 Explorar por Categoría - USANDO TU CAMPO `categoria` */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              Explorar por Categoría
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Encontrá exactamente lo que buscás filtrando por tipo de propiedad o ubicación
+            </p>
+          </div>
+
+          {/* Grid de categorías - BASADO EN TU ENDPOINT `/api/gestion/public/categorias` */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {categorias.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/propiedades?categoria=${cat.slug}`}
+                className="group p-5 rounded-2xl bg-slate-900/80 border border-slate-700/50 hover:border-violet-500/40 hover:bg-slate-800/90 transition-all duration-300"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">{getTipoIcon(cat.slug)}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-400 text-xs font-medium">
+                    {cat.count}
+                  </span>
+                </div>
+                <h3 className="text-white font-semibold group-hover:text-violet-400 transition-colors">
+                  {cat.name}
+                </h3>
+                <p className="text-slate-500 text-sm mt-1">
+                  {cat.tipos?.slice(0, 2).join(', ')}{cat.tipos && cat.tipos.length > 2 ? '...' : ''}
+                </p>
+              </Link>
+            ))}
+          </div>
+
+          {/* Barrios populares - BASADO EN TU CAMPO `direccion.barrio` */}
+          {barrios.length > 0 && (
+            <div className="mt-12">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-violet-400" />
+                Barrios Populares
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {barrios.map((barrio) => (
+                  <Link
+                    key={barrio.slug}
+                    href={`/propiedades?barrio=${barrio.slug}`}
+                    className="px-4 py-2 rounded-full bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:bg-violet-500/20 hover:border-violet-500/40 hover:text-violet-400 transition-all text-sm flex items-center gap-2"
+                  >
+                    {barrio.name}
+                    <span className="px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 text-xs">
+                      {barrio.count}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 🏠 Listado General - USANDO TU CAMPO `estado: 'publicado'` */}
+      <section className="py-16 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Todas las Propiedades
+              </h2>
+              <p className="text-slate-400 mt-2">
+                {filteredProperties.length} propiedad{filteredProperties.length !== 1 ? 'es' : ''} disponible{filteredProperties.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <Link
+              href="/propiedades"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-all shadow-lg shadow-violet-900/30"
+            >
+              <FaFilter className="w-4 h-4" />
+              Ver todos los filtros
+            </Link>
+          </div>
+
+          {filteredProperties.length === 0 ? (
+            <div className="text-center py-12 text-slate-500">
+              <FaSearch className="text-4xl mb-3 mx-auto opacity-50" />
+              <p>No se encontraron propiedades para "{searchQuery}"</p>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-4 text-violet-400 hover:text-violet-300 font-medium"
+              >
+                Limpiar búsqueda
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProperties.slice(0, 6).map((prop) => (
+                <PropertyCard key={prop._id} property={prop} />
+              ))}
+            </div>
+          )}
+
+          {/* Ver más */}
+          <div className="text-center mt-10">
+            <Link
+              href="/propiedades"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:bg-slate-700/60 hover:border-violet-500/40 hover:text-white transition-all font-medium"
+            >
+              Ver más propiedades
+              <FaArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 📞 CTA Section */}
+      <section className="py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            ¿Necesitás ayuda para encontrar tu propiedad?
+          </h2>
+          <p className="text-xl text-slate-400 mb-10">
+            Nuestro equipo de expertos está listo para asesorarte y encontrar la opción perfecta para tus necesidades.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://wa.me/541112345678"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-all shadow-lg shadow-emerald-900/30"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
+              Contactar por WhatsApp
+            </a>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:bg-slate-700/60 hover:border-violet-500/40 hover:text-white transition-all font-semibold"
+            >
+              Enviar consulta
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
+

@@ -12,7 +12,7 @@ export default function EditUserPage() {
   const params = useParams();
   const userId = params?.id;
 
-  
+
 
   const [user, setUser] = useState<null | {
     name: string;
@@ -182,11 +182,11 @@ export default function EditUserPage() {
     );
   }
 
-  if(!session || (session.user.role !== 'admin' && session.user.role !== 'superadmin')) {
+  if (!session || (session.user.role !== 'admin' && session.user.role !== 'superadmin')) {
     router.push('/');
     return null;
   }
-  
+
 
 
   // Clase reutilizable para inputs
@@ -196,6 +196,8 @@ export default function EditUserPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
+      <br /><br /><br />
+      <br /><br /><br />
       <header className="py-8 bg-red-800 text-white text-center shadow-lg">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-wide">Editar Usuario</h1>
       </header>

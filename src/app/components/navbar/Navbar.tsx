@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useContext, useEffect, useCallback } from 'react';
+import { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBars,
@@ -56,12 +56,21 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDesktopCategoriesOpen, setIsDesktopCategoriesOpen] = useState(false);
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
-  const [categories, setCategories] = useState<{ name: string; slug: string }[]>([]);
+  const [categories, setCategories] = useState<{ name: string; slug: string; count?: number }[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -85,14 +94,28 @@ export default function Navbar() {
     }
   }, [isDarkMode]);
 
+  // En tu Navbar.tsx, dentro del useEffect que carga categorías:
+
+  // 🔹 En el useEffect que carga categorías (dentro de Navbar):
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch('/api/gestion/public/categorias');
         const data = await res.json();
-        setCategories(data);
-      } catch (error) { console.error('Error:', error); }
-      finally { setLoadingCategories(false); }
+
+        // ✅ CORREGIDO: Usar tiposPropiedad en lugar del objeto completo
+        // Esto muestra: terreno, departamento, casa, etc.
+        setCategories(data.tiposPropiedad || []);
+
+        // Si querés mostrar categorías (residencial, comercial, etc.), usá:
+        // setCategories(data.categorias || []);
+
+      } catch (error) {
+        console.error('Error:', error);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
     };
     fetchCategories();
   }, []);
@@ -134,6 +157,8 @@ export default function Navbar() {
   const role = session?.user?.role || userRole;
   const name = session?.user?.name || userName;
   const email = session?.user?.email || userEmail;
+  const image = session?.user?.image;
+
 
   // 🎨 Paleta Premium - Gradientes sofisticados
   const gradients = {
@@ -255,15 +280,32 @@ export default function Navbar() {
                 Inicio
               </NavLink>
 
-              {/* ✨ Dropdown Categorías Premium */}
+
+              {/* ✨ Dropdown Categorías Premium - CON DELAY Y MEJOR UX */}
               <div
                 className="relative"
-                onMouseEnter={() => { setIsDesktopCategoriesOpen(true); setHoveredLink('properties'); }}
-                onMouseLeave={() => { setIsDesktopCategoriesOpen(false); setHoveredLink(null); }}
+                onMouseEnter={() => {
+                  // Limpiar timeout de cierre si existe
+                  if (closeTimeoutRef.current) {
+                    clearTimeout(closeTimeoutRef.current);
+                    closeTimeoutRef.current = null;
+                  }
+                  setIsDesktopCategoriesOpen(true);
+                  setHoveredLink('properties');
+                }}
+                onMouseLeave={() => {
+                  // 🔹 Delay de 200ms antes de cerrar (da tiempo de mover el mouse)
+                  closeTimeoutRef.current = setTimeout(() => {
+                    setIsDesktopCategoriesOpen(false);
+                    setHoveredLink(null);
+                  }, 200);
+                }}
               >
                 <button
                   className={`flex items-center space-x-1.5 text-[11px] tracking-[0.3em] uppercase font-medium transition-all duration-300 py-2 group ${scrolled ? 'text-slate-300' : 'text-white'
                     } hover:text-white`}
+                  aria-haspopup="true"
+                  aria-expanded={isDesktopCategoriesOpen}
                 >
                   <span className="relative">
                     Propiedades
@@ -271,57 +313,104 @@ export default function Navbar() {
                   </span>
                   <FontAwesomeIcon
                     icon={isDesktopCategoriesOpen ? faChevronUp : faChevronDown}
-                    className={`text-[10px] transition-all duration-500 ${isDesktopCategoriesOpen ? 'text-purple-400 rotate-180' : 'text-slate-500 group-hover:text-purple-400'
+                    className={`text-[10px] transition-all duration-300 ${isDesktopCategoriesOpen ? 'text-purple-400 rotate-180' : 'text-slate-500 group-hover:text-purple-400'
                       }`}
                   />
                 </button>
 
+                {/* 🔹 Dropdown con área de hover extendida */}
                 {isDesktopCategoriesOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-5 w-72 z-50 animate-fadeInUp">
-                    {/* Glow exterior */}
-                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${gradients.accent} opacity-40 blur-lg rounded-2xl`} />
+                  <>
+                    {/* 🔹 Zona "puente" invisible entre botón y menú (evita cierre accidental) */}
+                    <div
+                      className="absolute top-full left-1/2 -translate-x-1/2 w-72 h-4 z-40"
+                      onMouseEnter={() => {
+                        if (closeTimeoutRef.current) {
+                          clearTimeout(closeTimeoutRef.current);
+                          closeTimeoutRef.current = null;
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        closeTimeoutRef.current = setTimeout(() => {
+                          setIsDesktopCategoriesOpen(false);
+                          setHoveredLink(null);
+                        }, 200);
+                      }}
+                    />
 
-                    <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/30">
-                      {/* Header con gradiente */}
-                      <div className={`h-px bg-gradient-to-r ${gradients.accent} opacity-60`} />
+                    {/* 🔹 Menú principal con animación y delay de entrada */}
+                    <div
+                      className="absolute top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 w-72 z-50 animate-fadeInUp"
+                      onMouseEnter={() => {
+                        if (closeTimeoutRef.current) {
+                          clearTimeout(closeTimeoutRef.current);
+                          closeTimeoutRef.current = null;
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        closeTimeoutRef.current = setTimeout(() => {
+                          setIsDesktopCategoriesOpen(false);
+                          setHoveredLink(null);
+                        }, 200);
+                      }}
+                    >
+                      {/* Glow exterior */}
+                      <div className={`absolute -inset-0.5 bg-gradient-to-r ${gradients.accent} opacity-40 blur-lg rounded-2xl transition-opacity duration-300 ${isDesktopCategoriesOpen ? 'opacity-40' : 'opacity-0'}`} />
 
-                      <div className="py-2">
-                        {loadingCategories ? (
-                          <span className="block px-6 py-4 text-slate-500 text-sm italic">Cargando...</span>
-                        ) : categories.length > 0 ? (
-                          categories.map((cat, index) => (
-                            <Link
-                              key={cat.slug}
-                              href={`/categoria/${cat.slug}`}
-                              className="group/item relative block px-6 py-3.5 text-sm text-slate-300 hover:text-white transition-all duration-300 overflow-hidden"
-                              onClick={closeMenu}
-                              style={{ animationDelay: `${index * 30}ms` }}
-                            >
-                              {/* Background hover con gradiente */}
-                              <span className={`absolute inset-0 bg-gradient-to-r ${gradients.glow} opacity-0 group-hover/item:opacity-100 transition-opacity duration-500`} />
+                      <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/30">
+                        {/* Header con gradiente */}
+                        <div className={`h-px bg-gradient-to-r ${gradients.accent} opacity-60 transition-opacity duration-300 ${isDesktopCategoriesOpen ? 'opacity-60' : 'opacity-0'}`} />
 
-                              {/* Indicador lateral animado */}
-                              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-gradient-to-b from-cyan-400 to-violet-500 group-hover/item:h-full transition-all duration-500 rounded-r" />
+                        <div className="py-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                          {loadingCategories ? (
+                            <span className="block px-6 py-4 text-slate-500 text-sm italic">Cargando...</span>
+                          ) : categories.length > 0 ? (
+                            categories.map((cat, index) => (
+                              <Link
+                                key={cat.slug}
+                                href={`/propiedades?tipo=${cat.slug}`}
+                                className="group/item relative block px-6 py-3.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-all duration-200 overflow-hidden"
+                                onClick={() => {
+                                  closeMenu();
+                                  setIsDesktopCategoriesOpen(false);
+                                }}
+                                onMouseEnter={(e) => {
+                                  // Efecto hover sutil en el item
+                                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = '';
+                                }}
+                                style={{ animationDelay: `${index * 25}ms` }}
+                              >
+                                {/* Background hover con gradiente sutil */}
+                                <span className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-purple-500/5 opacity-0 group-hover/item:opacity-100 transition-opacity duration-200" />
 
-                              <span className="relative flex items-center justify-between pl-3">
-                                {cat.name}
-                                <FontAwesomeIcon
-                                  icon={faArrowRight}
-                                  className="text-xs text-slate-600 group-hover/item:text-purple-400 transition-all duration-300 transform group-hover/item:translate-x-1"
-                                />
-                              </span>
-                            </Link>
-                          ))
-                        ) : (
-                          <span className="block px-6 py-4 text-slate-500 text-sm italic">Sin categorías</span>
-                        )}
+                                {/* Indicador lateral animado */}
+                                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-gradient-to-b from-cyan-400 to-violet-500 group-hover/item:h-full transition-all duration-300 rounded-r" />
+
+                                <span className="relative flex items-center justify-between pl-3">
+                                  {cat.name}
+                                  {/* Badge con count */}
+                                  <span className="ml-2 px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-400 text-[10px] font-medium">
+                                    {cat.count}
+                                  </span>
+                                  <FontAwesomeIcon icon={faArrowRight} className="text-xs text-slate-600 group-hover/item:text-purple-400 transition-all duration-300 transform group-hover/item:translate-x-1" />
+                                </span>
+                              </Link>
+                            ))
+                          ) : (
+                            <span className="block px-6 py-4 text-slate-500 text-sm italic">Sin categorías</span>
+                          )}
+                        </div>
+
+                        <div className={`h-px bg-gradient-to-r ${gradients.accent} opacity-30 transition-opacity duration-300 ${isDesktopCategoriesOpen ? 'opacity-30' : 'opacity-0'}`} />
                       </div>
-
-                      <div className={`h-px bg-gradient-to-r ${gradients.accent} opacity-30`} />
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
+
 
               <NavLink href="/contact" scrolled={scrolled}>Contacto</NavLink>
               <NavLink href="/about" scrolled={scrolled}>Nosotros</NavLink>
@@ -330,36 +419,9 @@ export default function Navbar() {
             {/* ───────── RIGHT ACTIONS ───────── */}
             <div className="order-2 lg:order-4 flex items-center space-x-3">
 
-              {/* Search - Desktop */}
-              <div className="hidden lg:block">
-                <button
-                  className={`group relative p-2.5 rounded-xl transition-all duration-300 ${scrolled ? 'text-slate-300' : 'text-white'
-                    } hover:text-white`}
-                  aria-label="Buscar"
-                >
-                  {/* Efecto hover premium */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-purple-500/10 to-pink-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="absolute inset-0 rounded-xl border border-transparent group-hover:border-purple-500/30 transition-colors duration-300" />
-                  <FontAwesomeIcon icon={faSearch} className="relative text-sm group-hover:scale-110 transition-transform duration-300" />
-                </button>
-              </div>
 
-              {/* Dark Mode Toggle Premium 
-              <div className="hidden lg:block">
-                <button
-                  onClick={toggleDarkMode}
-                  className={`group relative p-2.5 rounded-xl transition-all duration-300 ${
-                    scrolled ? 'text-slate-300' : 'text-white'
-                  } hover:text-white`}
-                  aria-label={isDarkMode ? 'Modo claro' : 'Modo oscuro'}
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-purple-500/10 to-pink-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <FontAwesomeIcon 
-                    icon={isDarkMode ? faSun : faMoon} 
-                    className="relative text-sm group-hover:rotate-12 group-hover:scale-110 transition-all duration-500" 
-                  />
-                </button>
-              </div>*/}
+
+
 
               {/* Auth - Desktop con botones premium */}
               {session ? (
@@ -368,7 +430,7 @@ export default function Navbar() {
                     } hover:text-white`}>
                     <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-xs font-medium shadow-lg shadow-purple-900/40 group-hover:shadow-purple-900/60 transition-shadow duration-300`}>
                       <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {name?.charAt(0) || 'U'}
+                      {image ? (<img src={image} alt="Profile" className="w-8 h-8 rounded-full" />) : (name?.charAt(0) || 'U')}
                     </div>
                     <span className="font-medium tracking-wide">{name?.split(' ')[0]}</span>
                   </Link>
@@ -490,10 +552,6 @@ export default function Navbar() {
                 </button>
               </div>
 
-              {/* Search Mobile */}
-              <div className="p-7 border-b border-white/10">
-                <MobileSearchBar isMenuOpen={isMenuOpen} closeMenu={closeMenu} />
-              </div>
 
               {/* Navigation Links con stagger animation */}
               <nav className="flex-1 overflow-y-auto py-4 px-6 space-y-1">
@@ -557,7 +615,7 @@ export default function Navbar() {
                     >
                       <div className={`relative w-11 h-11 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-sm font-medium shadow-lg`}>
                         <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        {name?.charAt(0) || 'U'}
+                        {image ? (<img src={image} alt="Profile" className="w-8 h-8 rounded-full" />) : (name?.charAt(0) || 'U')}
                       </div>
                       <div>
                         <p className="font-medium">{name || email}</p>
@@ -627,7 +685,7 @@ export default function Navbar() {
                   ))}
                 </div>
                 <p className="text-center text-[10px] text-slate-600 mt-5 tracking-[0.3em] uppercase">
-                  © 2026 Luxury Real Estate
+                  Jimena Propiedades
                 </p>
               </div>
             </div>

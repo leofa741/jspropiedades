@@ -171,6 +171,7 @@ export default function EditarClientePage() {
   // ─────────────────────────────────────────────────────
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.textPrimary} relative overflow-hidden`}>
+      <br/><br/><br/>
       
       {/* ✨ Background decorativo sutil */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">

@@ -45,6 +45,14 @@ const modules = [
         accent: 'from-purple-500 to-violet-600',
     },
     {
+        id: 'usuarios',
+        title: 'Usuarios Adminstradores',
+        description: 'Gestionar propietarios, inquilinos, compradores y sus preferencias.',
+        icon: <FaUsers className="text-3xl text-violet-400" />,
+        href: '/admin',
+        accent: 'from-violet-500 to-indigo-600',
+    },
+    {
         id: 'clientes',
         title: 'Clientes',
         description: 'Gestionar propietarios, inquilinos, compradores y sus preferencias.',

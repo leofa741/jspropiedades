@@ -7,6 +7,9 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 interface User {
   _id: string;
@@ -103,6 +106,7 @@ export default function AdminPage() {
     }
 
     if (userId === session?.user?.id) {
+      console.log(userId, session?.user?.id);
       toast.error('No puedes eliminar tu propia cuenta.');
       return;
     }
@@ -141,32 +145,38 @@ export default function AdminPage() {
   };
 
   // 🔒 NUNCA renderices contenido sensible hasta que isAuthorized sea true
- // if (!isAuthorized) {
-    // Opcional: puedes mostrar un loader sutil aquí, pero no contenido
+  // if (!isAuthorized) {
+  // Opcional: puedes mostrar un loader sutil aquí, pero no contenido
   //  return null; // ← Esto evita el "flash" de contenido no autorizado
- // }
+  // }
 
   if (!isAuthorized) {
-  return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <p className="text-gray-400 text-lg">Verificando permisos...</p>
-     
-      {
-        isLoading && (
-          <div className="ml-4 loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6"></div>
-        ) 
-      }    
-    </div>
-  );
-}
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <p className="text-gray-400 text-lg">Verificando permisos...</p>
+
+        {
+          isLoading && (
+            <div className="ml-4 loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6"></div>
+          )
+        }
+      </div>
+    );
+  }
 
   const cardClasses = "border border-gray-700 rounded-lg shadow-md p-4 bg-gray-800";
   const tableHeaderClasses = "p-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-800";
   const tableCellClasses = "p-4 text-xs text-gray-300 border-t border-gray-700";
 
- return (
+  return (
     <div className="max-w-6xl mx-auto p-4 md:p-6">
+      <br /><br /><br />
+      <br /><br /><br />
       <h1 className="text-2xl font-bold mb-6 text-white text-center md:text-left">Administrar Usuarios</h1>
+
+      <Link href="/gestion" className="text-blue-400 hover:text-blue-500">
+        <FontAwesomeIcon icon={faArrowLeft} />Volver
+      </Link>
 
       {isLoading ? (
         <div className="flex items-center justify-center min-h-[400px]">
@@ -267,11 +277,10 @@ export default function AdminPage() {
                 <td className={tableCellClasses}>{user.phone}</td>
                 <td className={`${tableCellClasses} break-all max-w-[150px]`}>{user.email}</td>
                 <td className={tableCellClasses}>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    user.role === 'admin' 
-                      ? 'bg-red-900/50 text-amber-400' 
+                  <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin'
+                      ? 'bg-red-900/50 text-amber-400'
                       : 'bg-gray-700 text-gray-300'
-                  }`}>
+                    }`}>
                     {user.role}
                   </span>
                 </td>
