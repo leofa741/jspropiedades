@@ -20,6 +20,7 @@ import { AuthContext } from '@/app/context/AuthContext';
 
 import MobileSearchBar from '../mobilesearch/MobileSearchBar';
 import { faInstagram, faLinkedin, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import { DivideCircle } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────
 // TIPOS
@@ -431,8 +432,18 @@ export default function Navbar() {
                     <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-xs font-medium shadow-lg shadow-purple-900/40 group-hover:shadow-purple-900/60 transition-shadow duration-300`}>
                       <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       {image ? (<img src={image} alt="Profile" className="w-8 h-8 rounded-full" />) : (name?.charAt(0) || 'U')}
+
                     </div>
-                    <span className="font-medium tracking-wide">{name?.split(' ')[0]}</span>
+                    <div className='flex flex-col'>
+                      <span
+                        className="text-xs font-light">Mi perfil</span>
+
+                   
+
+                    <div>
+                      <span className="font-medium tracking-wide">{name?.split(' ')[0]}</span>
+                    </div>
+ </div>
                   </Link>
 
                   {(role === 'admin' || role === 'vendedor') && (

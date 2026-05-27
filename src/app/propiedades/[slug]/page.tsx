@@ -11,6 +11,7 @@ import {
   FaChevronLeft, FaChevronRight
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
+import AlertButton from '@/app/components/ui/AlertButton';
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
@@ -202,6 +203,7 @@ function PageContent() {
 
   // 🔒 Extraer datos
   const {
+    _id,
     titulo,
     descripcion,
     tipoPropiedad,
@@ -462,6 +464,13 @@ function PageContent() {
                   <FaEnvelope className="w-5 h-5" />
                   Enviar email
                 </a>
+              </div>
+
+              <div className="absolute top-4 right-4 z-10">
+                <AlertButton
+                  propiedadId={_id}
+                  propiedadTitulo={titulo}
+                />
               </div>
               
               {/* Información adicional */}

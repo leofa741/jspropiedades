@@ -219,6 +219,7 @@ function PageContent() {
 
     <div className="min-h-screen bg-slate-950 text-white">
 
+
       {/* Hero Banner (ya lo tienes en Banner.tsx) */}
       <div className="relative w-full top-0 left-0 right-0 ">
 
@@ -227,6 +228,57 @@ function PageContent() {
           overlayOpacity={0.4}
         >
           <div className="w-full max-w-7xl mx-auto px-6 pt-60">
+
+            <div className="absolute bottom-0 left-0 right-0 pb-120 px-4 opacity-80">
+              <div className="max-w-4xl mx-auto">
+
+                {/* Search Container con glassmorphism */}
+                <div className="relative group">
+                  {/* Glow exterior */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/30 via-purple-500/30 to-cyan-500/30 rounded-2xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-500" />
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const query = searchQuery.trim();
+                      if (query) router.push(`/propiedades?search=${encodeURIComponent(query)}`);
+                    }}
+                    className="relative flex items-center gap-2 p-2 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
+                  >
+                    {/* Icono */}
+                    <div className="pl-3 text-slate-400">
+                      <FaSearch className="w-5 h-5" />
+                    </div>
+
+                    {/* Input principal */}
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="¿Qué estás buscando? Ej: Palermo, departamento, inversión..."
+                      className="flex-1 bg-transparent text-white placeholder-slate-500 focus:outline-none py-3 text-base"
+                    />
+
+
+
+                    {/* Botón de búsqueda */}
+                    <button
+                      type="submit"
+                      className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50"
+                    >
+                      Buscar
+                    </button>
+                  </form>
+
+                  {/* Helper text */}
+                  <p className="text-center text-xs text-slate-500 mt-3">
+                    Ej: <button onClick={() => setSearchQuery('Palermo')} className="text-violet-400 hover:underline">Palermo</button> ·
+                    <button onClick={() => setSearchQuery('departamento')} className="text-violet-400 hover:underline ml-1">departamento</button> ·
+                    <button onClick={() => setSearchQuery('venta')} className="text-violet-400 hover:underline ml-1">venta</button>
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-8 items-center">
 
@@ -607,73 +659,8 @@ function PageContent() {
       </section>
 
 
-      {/* 🔍 Barra de búsqueda funcional */}
-      <div className="max-w-2xl mx-auto">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const query = searchQuery.trim();
-            if (query) {
-              // 🔹 Redirigir a listado con parámetro de búsqueda
-              router.push(`/propiedades?search=${encodeURIComponent(query)}`);
-            }
-          }}
-          className="relative"
-        >
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+    
 
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              // Permitir Enter para buscar
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = searchQuery.trim();
-                if (query) {
-                  router.push(`/propiedades?search=${encodeURIComponent(query)}`)
-                }
-              }
-            }}
-            placeholder="Buscar por barrio, ciudad o tipo de propiedad..."
-            className="w-full pl-12 pr-16 py-4 bg-slate-900/80 border border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
-          />
-
-          {/* 🔹 Botón de buscar (visible siempre o al escribir) */}
-          {searchQuery.trim() && (
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-all"
-            >
-              Buscar
-            </button>
-          )}
-        </form>
-
-        <p className="text-sm text-slate-500 mt-3">
-          Ej: "Palermo", "departamento", "venta"
-        </p>
-
-        {/* 🔹 Feedback visual si hay búsqueda activa */}
-        {searchQuery.trim() && (
-          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-slate-400">
-            <span>Buscando:</span>
-            <span className="text-violet-400 font-medium">"{searchQuery}"</span>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-slate-500 hover:text-slate-300 transition-colors"
-              aria-label="Limpiar búsqueda"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </div>
-
-
-
-      
 
       <br />
 

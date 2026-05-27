@@ -112,6 +112,11 @@ export default function NuevoClientePage() {
   // ─────────────────────────────────────────────────────
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.textPrimary} relative overflow-hidden`}>
+      <br />
+      <br />
+      <br />
+      <br />
+     
       
       {/* ✨ Background decorativo sutil */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -307,7 +312,7 @@ export default function NuevoClientePage() {
                 </div>
               </section>
 
-              {/* 💳 Sección: Forma de Pago */}
+              {/* 💳 Sección: Forma de Pago 
               <section>
                 <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-xs font-bold">4</span>
@@ -354,7 +359,7 @@ export default function NuevoClientePage() {
                     })}
                   </div>
                 </div>
-              </section>
+              </section>*/}
 
               {/* ✨ Divider decorativo */}
               <div className={`h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent`} />

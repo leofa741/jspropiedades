@@ -1390,7 +1390,7 @@ function PageContent() {
               <p className="text-white font-medium mb-1">
                 {previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 10 
                   ? 'Límite de imágenes alcanzado' 
-                  : 'Arrastrar imágenes o hacer click para subir'}
+                  : 'hacer click para subir'}
               </p>
               <p className="text-xs text-slate-500">
                 JPG, PNG o WebP • Máx. 5MB cada una • Máx. 10 imágenes

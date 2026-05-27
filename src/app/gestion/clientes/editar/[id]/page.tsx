@@ -367,7 +367,7 @@ export default function EditarClientePage() {
                 </div>
               </section>
 
-              {/* 💳 Sección: Forma de Pago */}
+              {/* 💳 Sección: Forma de Pago 
               <section>
                 <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-xs font-bold">4</span>
@@ -414,7 +414,7 @@ export default function EditarClientePage() {
                     })}
                   </div>
                 </div>
-              </section>
+              </section> */}
 
               {/* ✨ Divider decorativo */}
               <div className={`h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent`} />

@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { FaMapMarkerAlt, FaStar, FaArrowRight, FaBuilding } from 'react-icons/fa';
+import AlertButton from '../ui/AlertButton';
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos (copiá los que ya tenés en tu home o importalos)
@@ -154,6 +155,9 @@ export default function PropertyCard({
           <FaMapMarkerAlt className="w-4 h-4 text-violet-400 flex-shrink-0" />
           <span className="truncate">{ubicacion.barrio}, {ubicacion.ciudad}</span>
         </div>
+
+
+        
         
         {/* Características - Solo en variante default */}
         {!isCompact && caracteristicas && (
@@ -164,6 +168,8 @@ export default function PropertyCard({
             {caracteristicas.metrosCubiertos && <span>{caracteristicas.metrosCubiertos} m²</span>}
           </div>
         )}
+
+
         
         {/* Footer */}
         <div className={`flex items-center justify-between pt-${isCompact ? '3' : '4'} border-t border-slate-700/50`}>
@@ -172,6 +178,9 @@ export default function PropertyCard({
           </span>
           <FaArrowRight className="w-4 h-4 text-slate-500 group-hover:text-violet-400 group-hover:translate-x-1 transition-all" />
         </div>
+
+
+
       </div>
     </Link>
   );

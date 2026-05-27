@@ -366,11 +366,11 @@ export default function ClientesPage() {
                                     Inactivo
                                   </span>
                                 )}
-                                {cliente.alerta?.umbralDeuda && (
+                                 {/* {cliente.alerta?.umbralDeuda && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/30" title="Tiene umbral de alerta configurado">
                                     <FaBell className="w-2.5 h-2.5" /> Alerta
                                   </span>
-                                )}
+                                )}*/}
                               </div>
                               
                               <p className="text-sm text-slate-400 mt-0.5">{cliente.nombre} {cliente.apellido}</p>
@@ -404,13 +404,15 @@ export default function ClientesPage() {
                                 </div>
                               )}
                               
-                              {/* Forma de pago */}
+                              {/* Forma de pago 
                               <div className="mt-2">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium uppercase tracking-wide ${pagoStyle.bg} ${pagoStyle.text} border border-transparent`}>
                                   <FaCreditCard className="w-3 h-3" />
                                   {pagoStyle.label}
                                 </span>
-                              </div>
+                              </div>*/}
+
+
                             </div>
                           </div>
                         </div>
@@ -447,6 +449,9 @@ export default function ClientesPage() {
                             </button>
                           )}
                           
+
+                            
+
                           {cliente.formaPago === 'cuenta_corriente' && (
                             <button
                               onClick={() => editarUmbralConModal(cliente)}
@@ -462,6 +467,10 @@ export default function ClientesPage() {
                     </article>
                   );
                 })}
+
+
+
+
               </div>
 
               {/* 📄 Paginación Premium */}

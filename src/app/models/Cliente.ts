@@ -13,22 +13,25 @@ const normalizeRazonSocial = (text: string): string => {
     .replace(/[^a-z0-9]/g, ''); // Solo letras y números
 };
 
-const normalizeTelefono = (text: string): string => {
-  if (!text) return '';
-  return text
+function normalizeTelefono(text?: string): string | null {
+  if (!text) return null;
+
+  const normalized = text
     .trim()
     .replace(/\s+/g, '')
-    .replace(/[^0-9+]/g, ''); // Solo números y +
-};
+    .replace(/[^0-9+]/g, '');
+
+  return normalized || null;
+}
 
 const ClienteSchema = new Schema({
   razonSocial: { type: String, required: true, trim: true },
-  razonSocialNormalized: { 
-    type: String, 
+  razonSocialNormalized: {
+    type: String,
     required: true,
     unique: true,
     index: true,
-    trim: true 
+    trim: true
   },
   nombre: { type: String, required: true, trim: true },
   apellido: { type: String, required: true, trim: true },
@@ -42,12 +45,12 @@ const ClienteSchema = new Schema({
       message: 'DNI debe tener 7 u 8 dígitos'
     }
   },
-  telefono: { type: String, required: true, trim: true },
-  telefonoNormalized: { 
-    type: String, 
-    required: true,
-    index: true,
-    trim: true 
+  telefono: { type: String, trim: true},
+  telefonoNormalized: {
+    type: String,
+    trim: true,
+    sparse: true,
+    unique: true
   },
   email: {
     type: String,
@@ -78,48 +81,56 @@ const ClienteSchema = new Schema({
 });
 
 // 🔧 Middleware para normalizar automáticamente antes de guardar
-ClienteSchema.pre('save', function(next) {
+ClienteSchema.pre('save', function (next) {
   if (this.razonSocial && !this.razonSocialNormalized) {
     this.razonSocialNormalized = normalizeRazonSocial(this.razonSocial);
   }
-  if (this.telefono && !this.telefonoNormalized) {
-    this.telefonoNormalized = normalizeTelefono(this.telefono);
+
+  if (this.telefono) {
+    (this as any).telefonoNormalized = normalizeTelefono(this.telefono);
+  } else {
+    (this as any).telefonoNormalized;
   }
+
   next();
 });
 
 // 🔧 Middleware para validación antes de guardar
-ClienteSchema.pre('save', async function(next) {
+ClienteSchema.pre('save', async function (next) {
   const ClienteModel = this.constructor as any;
-  
+
   // Si es nuevo o si cambió la razón social
   if (this.isNew || this.isModified('razonSocial')) {
     const existing = await ClienteModel.findOne({
       razonSocialNormalized: this.razonSocialNormalized,
       _id: { $ne: this._id }
     });
-    
+
     if (existing) {
       const error = new Error('Ya existe un cliente con esta razón social');
       (error as any).statusCode = 409;
       return next(error);
     }
   }
-  
+
   // Si es nuevo o si cambió el teléfono
-  if (this.isNew || this.isModified('telefono')) {
-    const existing = await ClienteModel.findOne({
-      telefonoNormalized: this.telefonoNormalized,
-      _id: { $ne: this._id }
-    });
-    
-    if (existing) {
-      const error = new Error('Ya existe un cliente con este teléfono');
-      (error as any).statusCode = 409;
-      return next(error);
-    }
+ // ✅ Validar teléfono SOLO si existe
+if (
+  (this.isNew || this.isModified('telefono')) &&
+  this.telefonoNormalized
+) {
+  const existing = await ClienteModel.findOne({
+    telefonoNormalized: this.telefonoNormalized,
+    _id: { $ne: this._id }
+  });
+
+  if (existing) {
+    const error = new Error('Ya existe un cliente con este teléfono');
+    (error as any).statusCode = 409;
+    return next(error);
   }
-  
+}
+
   next();
 });
 

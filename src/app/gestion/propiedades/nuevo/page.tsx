@@ -1,7 +1,7 @@
 // app/app/gestion/propiedades/nuevo/page.tsx
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
@@ -14,6 +14,7 @@ import { Loader2, AlertCircle, X } from 'lucide-react';
 import { parseArgentineNumber, formatArgentineInput, formatArgentineFinal } from '@/app/lib/formatArgentine';
 import { parseJwt } from '@/app/lib/jwt';
 import { isValidObjectId } from '@/app/lib/validateObjectId';
+import NuevoClienteModal from '@/app/components/modals/NuevoClienteModal';
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
@@ -53,6 +54,7 @@ export default function NuevaPropiedadPage() {
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isClienteModalOpen, setIsClienteModalOpen] = useState(false);
 
     // 💰 Precios con formato argentino
     const [displayPrecios, setDisplayPrecios] = useState({
@@ -139,23 +141,24 @@ export default function NuevaPropiedadPage() {
     }, [status, session, router]);
 
     // 📥 Cargar opciones dinámicas
-    useEffect(() => {
-        const fetchOptions = async () => {
-            if (!isAuthorized) return;
-            try {
-                const res = await fetch('/api/gestion/propiedades/opciones');
-                if (res.ok) {
-                    const data: OpcionesAPI = await res.json();
-                    setOpciones(data);
-                }
-            } catch (err) {
-                console.error('Error loading options:', err);
-            } finally {
-                setLoadingOptions(false);
+    const fetchOpciones = useCallback(async () => {
+        if (!isAuthorized) return;
+        try {
+            const res = await fetch('/api/gestion/propiedades/opciones');
+            if (res.ok) {
+                const data: OpcionesAPI = await res.json();
+                setOpciones(data);
             }
-        };
-        fetchOptions();
+        } catch (err) {
+            console.error('Error loading options:', err);
+        } finally {
+            setLoadingOptions(false);
+        }
     }, [isAuthorized]);
+
+    useEffect(() => {
+        fetchOpciones();
+    }, [fetchOpciones]);
 
     // 💰 Handlers de precios con formato argentino
     const handlePriceChange = (section: 'venta' | 'alquiler' | 'expensas' | 'impuestos', rawValue: string) => {
@@ -375,6 +378,13 @@ export default function NuevaPropiedadPage() {
 
     return (
         <div className="p-4 sm:p-6 md:p-8">
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+
             {/* Header */}
             <div className="flex items-center gap-4 mb-6">
                 <Link href="/gestion/propiedades" className="text-violet-400 hover:text-violet-300 flex items-center gap-1">
@@ -697,7 +707,6 @@ export default function NuevaPropiedadPage() {
                     </section>
 
                     {/* 👥 Equipo: Propietario + Agente */}
-                    {/* 👥 Equipo: Propietario + Agente */}
                     <section>
                         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <FaUser className="text-violet-400" /> Equipo *
@@ -713,8 +722,9 @@ export default function NuevaPropiedadPage() {
                                             value={form.propietario}
                                             onChange={(e) => {
                                                 if (e.target.value === '__OTRO__') {
-                                                    setPropietarioMode('custom');
-                                                    setForm(prev => ({ ...prev, propietario: '' }));
+                                                    // 🔹 Abrir modal en vez de modo custom
+                                                    setIsClienteModalOpen(true);
+                                                    // No cambiamos propietarioMode, mantenemos 'select'
                                                 } else {
                                                     setForm(prev => ({ ...prev, propietario: e.target.value }));
                                                 }
@@ -752,7 +762,7 @@ export default function NuevaPropiedadPage() {
                                 <p className="text-xs text-slate-500 mt-1">Buscá por ID o seleccioná de la lista</p>
                             </div>
 
-                            {/* Agente - SOLO si NO es agente logueado */}
+                       
                             {/* Agente - SOLO si NO es agente logueado */}
                             {userRole !== 'agente' && (
                                 <div>
@@ -788,7 +798,7 @@ export default function NuevaPropiedadPage() {
                                                 ) : (
                                                     <option value="" disabled>{loadingOptions ? 'Cargando...' : 'Sin agentes en sistema'}</option>
                                                 )}
-                                                <option value="__OTRO__">➕ Ingresar ID manualmente</option>
+                                             
                                             </select>
                                             <button
                                                 type="button"
@@ -835,6 +845,10 @@ export default function NuevaPropiedadPage() {
 
 
 
+
+
+
+
                     {/* ⚙️ Configuración */}
                     <section>
                         <h2 className="text-lg font-semibold text-white mb-4">Configuración</h2>
@@ -872,6 +886,24 @@ export default function NuevaPropiedadPage() {
                     </div>
                 </form>
             </div>
+
+            {/* 🎭 Modal: Agregar Nuevo Cliente/Propietario */}
+            <NuevoClienteModal
+                isOpen={isClienteModalOpen}
+                onClose={() => setIsClienteModalOpen(false)}
+                onSuccess={(clienteId, clienteData) => {
+                    // ✅ 1. Actualizar el form principal con el nuevo ID
+                    setForm(prev => ({ ...prev, propietario: clienteId }));
+
+                    // ✅ 2. Opcional: recargar la lista de propietarios si tenés la función
+                    if (typeof  fetchOpciones==='function') {
+                        fetchOpciones();
+                    }
+
+                    // ✅ 3. Feedback visual (el toast ya lo muestra el modal, pero podés agregar más)
+                    console.log('Cliente creado:', clienteData);
+                }}
+            />
         </div>
     );
 }

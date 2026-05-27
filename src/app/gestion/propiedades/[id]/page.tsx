@@ -447,14 +447,14 @@ function PageContent() {
                 {property.destacado ? <FaStar className="w-4 h-4" /> : <FaRegStar className="w-4 h-4" />}
               </button>
               
-              {/* Compartir */}
+              {/* Compartir 
               <button
                 onClick={compartirPropiedad}
                 className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400 hover:text-violet-400 hover:border-violet-500/30 transition-all"
                 title="Copiar enlace"
               >
                 <FaShareAlt className="w-4 h-4" />
-              </button>
+              </button>*/}
               
               {/* Editar */}
               <Link
