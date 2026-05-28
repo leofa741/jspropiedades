@@ -5,19 +5,15 @@ import { SessionProvider } from 'next-auth/react';
 import { AuthProvider } from '../context/AuthContext';
 import { LoadingProvider } from '../context/LoadingContext';
 import { ThemeProvider } from 'next-themes';
-import { CartProvider } from '../context/CartContext';
-import CartDrawer from '../components/cart/CartDrawer';
+
+
 
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
 
-    <CartProvider>
-
-
-      <CartDrawer />
+  
       <SessionProvider>
-
         <AuthProvider>
           <LoadingProvider>
             <ThemeProvider
@@ -29,7 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </AuthProvider>
 
       </SessionProvider>
-    </CartProvider>
+  
 
   );
 }

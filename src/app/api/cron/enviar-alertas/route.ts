@@ -85,7 +85,7 @@ export async function GET(req: Request) {
             tipoOperacion: propiedad.tipoOperacion,            
             slug: propiedad.seo?.slug,            
           },
-          baseUrl: process.env.NEXT_PUBLIC_URL || 'https://tumarca.ar'
+          baseUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://tumarca.ar'
         });
 
         // Enviar
@@ -196,7 +196,7 @@ export async function GET(req: Request) {
           alertaTipo: 'busqueda',
           nuevasPropiedades: nuevasPropiedadesParaEmail,
           criterios: alerta.criterios,
-          baseUrl: process.env.NEXT_PUBLIC_URL || 'https://tumarca.ar'
+          baseUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://tumarca.ar'
           
         });
 
