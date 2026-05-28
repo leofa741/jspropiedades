@@ -55,6 +55,7 @@ export const VideoHero: React.FC<VideoHeroProps> = ({
         {/* Fallback para navegadores sin soporte de video */}
         <div className={`absolute inset-0 ${overlayColor}`} style={{ opacity: overlayOpacity }} />
       </video>
+      
 
       {/* Overlay de oscuridad para legibilidad */}
       <div 

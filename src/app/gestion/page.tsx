@@ -68,14 +68,14 @@ const modules = [
     //href: '/gestion/operaciones',
     //accent: 'from-indigo-500 to-blue-600',
     //  },
-    //  {
-    //    id: 'documentos',
-    //    title: 'Documentación',
-    //    description: 'Contratos, escrituras, certificados y archivos digitales organizados.',
-    //    icon: <FaFileInvoice className="text-3xl text-cyan-400" />,
-    //    href: '/gestion/documentos',
-    //    accent: 'from-cyan-500 to-teal-600',
-    // },
+    {
+        id: 'documentos',
+        title: 'Documentación',
+        description: 'Contratos, escrituras, certificados y archivos digitales organizados.',
+        icon: <FaFileInvoice className="text-3xl text-cyan-400" />,
+        href: '/gestion/documentos',
+        accent: 'from-cyan-500 to-teal-600',
+    },
     // {
     //    id: 'categorias',
     //    title: 'Tipologías',

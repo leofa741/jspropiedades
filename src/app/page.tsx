@@ -11,7 +11,8 @@ import Image from 'next/image';
 import PropertyCard from './components/public/PropertyCard';
 import { useRouter } from 'next/navigation';
 import router from 'next/router';
-
+import RotatingCircle from './components/ui/RotatingCircle';
+import { useRef } from 'react';
 
 
 
@@ -127,6 +128,34 @@ function PageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    const move = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      container.style.setProperty('--x', `${x}px`);
+      container.style.setProperty('--y', `${y}px`);
+    };
+
+    container.addEventListener('mousemove', move);
+
+    return () => {
+      container.removeEventListener('mousemove', move);
+    };
+  }, []);
+
+
+
+
   // 📥 Cargar datos desde tus endpoints públicos
   useEffect(() => {
     const fetchData = async () => {
@@ -227,7 +256,15 @@ function PageContent() {
           videoSrc="/videos/videoblocks-od13382-hd_1.mp4"
           overlayOpacity={0.4}
         >
+
+
           <div className="w-full max-w-7xl mx-auto px-6 pt-60">
+            <RotatingCircle
+              text="✦ ANEMIJ ✦ SEDADEIPORP  "
+              size={200}
+              duration={10}
+
+            />
 
             <div className="absolute bottom-0 left-0 right-0 pb-120 px-4 opacity-80">
               <div className="max-w-4xl mx-auto">
@@ -297,11 +334,23 @@ function PageContent() {
                       Congreso de 
                       </p> */}
 
-                  <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tight">
-                    Desarrollo <br />
-                    e Inversiones <br />
-                    Inmobiliarias
-                  </h1>
+                  <div className="group relative inline-block overflow-hidden rounded-2xl">
+                    {/* 1. Gradiente base sutil */}
+                    <span className="absolute inset-0 bg-gradient-to-r from-white/[0.03] via-white/[0.08] to-white/[0.03] transition-opacity duration-500 " />
+
+                    {/* 2. Shine effect (luz que atraviesa al hover) */}
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out rounded-2xl" />
+
+                    {/* 3. Borde/Glow que se intensifica 
+                    <span className="absolute inset-0 border border-white/10 group-hover:border-white/30 transition-colors duration-300 rounded-2xl" />
+*/}
+                    {/* 4. Texto con transparencia base que se ilumina */}
+                    <h1 className="relative z-10 text-4xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tight text-white/60 group-hover:text-white/90 group-hover:[text-shadow:0_0_30px_rgba(255,255,255,0.15)] transition-all duration-500 ease-out selection:bg-white/20 rounded-2xl">
+                      Desarrollo <br />
+                      e Inversiones <br />
+                      Inmobiliarias
+                    </h1>
+                  </div>
 
                   <p className="text-lg md:text-2xl uppercase tracking-[0.25em] text-gray-200">
                     Argentina
@@ -330,10 +379,13 @@ function PageContent() {
                 </div>
               </div>
             </div>
+
           </div>
         </VideoHero>
 
+
       </div>
+
 
 
 
@@ -659,7 +711,6 @@ function PageContent() {
       </section>
 
 
-    
 
 
       <br />

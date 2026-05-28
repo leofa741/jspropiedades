@@ -173,7 +173,7 @@ async function sendLoginEmail(to: string) {
       subject: "Nuevo inicio de sesión detectado",
       html: `
         <h2>Hola!</h2>
-        <p>Se ha detectado un nuevo inicio de sesión en tu cuenta de El Vaquiano Digital.</p>
+        <p>Se ha detectado un nuevo inicio de sesión en tu cuenta de Jimena Sanchez Propiedades.</p>
         <p><strong>Email:</strong> ${to}</p>
         <p><strong>Fecha:</strong> ${new Date().toLocaleString("es-AR")}</p>
         <br/>

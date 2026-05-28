@@ -167,24 +167,65 @@ body {
   }
 
 
-    /* Pulse suave */
+  /* Pulse suave */
   @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
   }
+
   .animate-pulse {
     animation: pulse 3s ease-in-out infinite;
+  }
+
+  /* 🔹 Keyframes para la animación de giro */
+  @keyframes spin {
+    from {
+      transform: rotate(360deg);
+    }
+
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  /* 🔹 Opcional: pausa la animación al hover para leer mejor */
+  button:hover [style*="animation"] {
+    animation-play-state: paused;
+  }
+
+  .animate-spin-cw {
+    animation: spin-clockwise 12s linear infinite;
+  }
+
+  .animate-spin-ccw {
+    animation: spin-counter 12s linear infinite;
   }
 }
 
 
 
 @layer utilities {
+
   /* Fade In Up */
   @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   .animate-fadeInUp {
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     opacity: 0;
