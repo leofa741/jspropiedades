@@ -33,7 +33,7 @@ export const VideoHero: React.FC<VideoHeroProps> = ({
   const heightClass = height === 'screen' 
     ? 'h-screen' 
     : height === 'auto' 
-      ? 'h-auto min-h-[60vh]' 
+      ? 'h-auto min-h-[80vh]' 
       : height;
 
   return (

@@ -250,7 +250,7 @@ function PageContent() {
 
 
       {/* Hero Banner (ya lo tienes en Banner.tsx) */}
-      <div className="relative w-full top-0 left-0 right-0 ">
+      <div className="relative w-full -top-10 left-0 right-0 ">
 
         <VideoHero
           videoSrc="/videos/videoblocks-od13382-hd_1.mp4"
@@ -258,7 +258,7 @@ function PageContent() {
         >
 
 
-          <div className="w-full max-w-7xl mx-auto px-6 pt-60">
+          <div className="w-full max-w-7xl mx-auto px-6 pt-50">
             <RotatingCircle
               text="✦ ANEMIJ ✦ SEDADEIPORP  "
               size={200}
@@ -392,7 +392,7 @@ function PageContent() {
       {/* ═══════════════════════════════════════════════════════
     SECCIÓN VALOR PRINCIPAL - JIMENA SÁNCHEZ PROPIEDADES
     ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-20 lg:py-28 overflow-hidden bg-slate-950">
+      <section className="relative -mt-10 py-40 lg:py-28 overflow-hidden bg-slate-950">
 
         {/* ✨ Background ambiental con gradientes */}
         <div className="absolute inset-0">

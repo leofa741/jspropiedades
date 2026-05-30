@@ -200,53 +200,10 @@ export default function Navbar() {
           aria-hidden="true"
         />
 
-        {/* ───────── TOP BAR ELEGANTE ───────── 
-        <div
-          className={`hidden lg:block transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-16 opacity-100'
-            }`}
-        >
-          <div className="bg-slate-900/50 text-slate-400 text-[11px] tracking-[0.3em] uppercase">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex justify-between items-center">
-              <div className="flex items-center space-x-10">
-                <a href={`https://wa.me/${watsapp}?text=${mensaje}`} className="group flex items-center space-x-3 hover:text-white transition-all duration-300">
-                  <span className="relative">
-                    <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-violet-500 rounded-full blur opacity-50 group-hover:opacity-100 transition-opacity" />
-                    <FontAwesomeIcon icon={faPhone} className="relative text-purple-400" />
-                  </span>
-                  <span className="group-hover:text-white transition-colors">+54 9 11 3253-8837</span>
-                </a>
-                <a href="mailto:[EMAIL_ADDRESS]" className="relative group hover:text-white transition-colors">
-                  contacto@luxuryre.com
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 transition-all duration-500 group-hover:w-full" />
-                </a>
-              </div>
-              <div className="flex items-center space-x-8">
-                <span className="flex items-center space-x-2.5 text-slate-400">
-                  <FontAwesomeIcon icon={faLocationDot} className="text-purple-400" />
-                  <span className="group-hover:text-white transition-colors">Buenos Aires, Argentina</span>
-                </span>
-                <div className="flex space-x-5 border-l border-slate-700/50 pl-8">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative text-slate-500 hover:text-white transition-all duration-300"
-                      aria-label={social.label}
-                    >
-                      <span className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-violet-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <FontAwesomeIcon icon={social.icon} className="relative text-sm group-hover:scale-110 transition-transform duration-300" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>*/}
+    
 
         {/* ───────── MAIN NAV ───────── */}
-        <div className={`max-w-7xl mx-auto px-4 lg:px-8 transition-all duration-500 ${scrolled ? 'py-3' : 'py-4'}`}>
+        <div className={`max-w-7xl mx-auto px-4 lg:px-8 transition-all duration-500 ${scrolled ? 'py-3' : 'py-6'}`}>
           <div className="flex items-center justify-between">
 
             {/* ✨ LOGO CON EFECTO HOVER */}
