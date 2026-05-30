@@ -353,11 +353,12 @@ function PageContent() {
                     </p>
                   </div>
                   <a
-                    href="https://wa.me/+5491161959365"
+                    href='/contact'
                     className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-bold uppercase tracking-wide hover:bg-purple-300 transition-all duration-300"
                   >
                     Reservar
                   </a>
+                  <br />
                 </div>
               </div>
             </div>
