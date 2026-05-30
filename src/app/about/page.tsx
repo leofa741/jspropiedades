@@ -60,23 +60,18 @@ export default function AboutPage() {
 
   useEffect(() => {
     setIsVisible(true);
-
-    // Animación escalonada de stats
     const interval = setInterval(() => {
       setActiveStat(prev => (prev + 1) % 4);
     }, 3000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // 🎨 Paleta Premium - Coherente con el resto del sitio
   const gradients = {
     primary: 'from-indigo-500 via-purple-500 to-pink-500',
     accent: 'from-cyan-400 via-blue-500 to-violet-500',
     glow: 'from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20',
   };
 
-  // Datos de la sección "Mi Historia"
   const timeline = [
     { year: '2015', title: 'Inicio en el sector', desc: 'Comencé mi carrera en una inmobiliaria tradicional, aprendiendo los fundamentos del mercado.' },
     { year: '2018', title: 'Especialización en lujo', desc: 'Me enfoqué en propiedades premium y desarrollé mi metodología de asesoramiento personalizado.' },
@@ -84,7 +79,6 @@ export default function AboutPage() {
     { year: '2024', title: '+150 operaciones', desc: 'Hoy acompaño a familias e inversores en sus proyectos más importantes con resultados comprobados.' },
   ];
 
-  // Valores fundamentales
   const values = [
     {
       icon: <Icons.Heart />,
@@ -112,7 +106,6 @@ export default function AboutPage() {
     },
   ];
 
-  // Stats animados
   const stats = [
     { value: '150+', label: 'Operaciones exitosas', suffix: '' },
     { value: '98%', label: 'Clientes satisfechos', suffix: '' },
@@ -120,7 +113,6 @@ export default function AboutPage() {
     { value: '25', label: 'Barrios de CABA', suffix: '+' },
   ];
 
-  // Testimonios
   const testimonials = [
     {
       name: 'María L.',
@@ -143,90 +135,73 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-slate-950 overflow-hidden">
-
-      <br />
-      <br />
-      <br />
-      <br />
-
-
-      {/* ✨ Background ambiental */}
-      <div className="absolute inset-0">
+    <div className="relative min-h-screen bg-slate-950 overflow-x-hidden">
+      
+      {/* ✅ KEY FIX: Background con pointer-events-none para no interferir */}
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" aria-hidden="true" />
       </div>
 
       {/* ═══════════════════════════════════════════════════════
           HERO SECTION - MI HISTORIA
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative pt-24 lg:pt-32 pb-16 lg:pb-24">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <section className="relative pt-20 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
 
-            {/* Columna izquierda: Foto premium */}
+            {/* Columna izquierda: Foto premium - ✅ CORREGIDO PARA MÓVIL */}
             <div className={`relative order-2 lg:order-1 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              {/* Glow exterior */}
-              <div className={`absolute -inset-4 bg-gradient-to-r ${gradients.accent} rounded-3xl blur-2xl opacity-30 animate-pulse`} aria-hidden="true" />
+              
+              {/* Glow exterior - ✅ Contained para no causar scroll horizontal */}
+              <div className={`absolute -inset-2 sm:-inset-4 bg-gradient-to-r ${gradients.accent} rounded-3xl blur-2xl opacity-20 sm:opacity-30 animate-pulse`} aria-hidden="true" />
 
               {/* Marco con gradiente */}
-              <div className={`absolute -inset-1 bg-gradient-to-r ${gradients.primary} rounded-2xl opacity-50 blur-sm`} aria-hidden="true" />
+              <div className={`absolute -inset-0.5 sm:-inset-1 bg-gradient-to-r ${gradients.primary} rounded-2xl opacity-40 sm:opacity-50 blur-sm`} aria-hidden="true" />
 
-              {/* Contenedor principal */}
-              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-2xl">
-                <div className="relative overflow-hidden rounded-xl aspect-[4/5] lg:aspect-square">
+              {/* Contenedor principal - ✅ KEY FIXES para móvil */}
+              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl p-2 sm:p-3 border border-white/10 shadow-2xl w-full max-w-md mx-auto">
+                <div className="relative overflow-hidden rounded-xl bg-slate-800/50 aspect-square sm:aspect-[4/5]">
                   <Image
                     src="/img/about-2.png"
                     alt="Jimena Sánchez - Asesora Inmobiliaria"
                     fill
                     className="object-cover object-center transition-transform duration-700 hover:scale-105"
                     priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                   />
                   {/* Overlay gradiente sutil */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" aria-hidden="true" />
-
-                  {/* Badge flotante 
-                  <div className="absolute bottom-6 left-6 right-6 flex items-center gap-3 p-4 rounded-xl bg-slate-900/90 backdrop-blur-sm border border-white/10">
-                    <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white font-bold shadow-lg`}>
-                      JS
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">Jimena Sánchez</p>
-                      <p className="text-slate-400 text-sm">Asesora Inmobiliaria Premium</p>
-                    </div>
-                  </div>*/}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
                 </div>
               </div>
-
-
             </div>
 
             {/* Columna derecha: Contenido */}
-            <div className={`order-1 lg:order-2 space-y-6 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className={`order-1 lg:order-2 space-y-5 sm:space-y-6 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
 
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-cyan-400 to-purple-500" />
                 </span>
-                <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
+                <span className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
                   Sobre Mí
                 </span>
               </div>
 
               {/* Título con gradiente */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white">
                 <span className="text-white">Más que una inmobiliaria,</span>
-                <br />
+                <br className="hidden sm:block" />
                 <span className={`bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent`}>
                   tu aliada estratégica
                 </span>
               </h1>
 
               {/* Descripción */}
-              <p className="text-lg text-slate-400 leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
                 Hola, soy <span className="text-white font-medium">Jimena Sánchez</span>.
                 Desde hace más de una década, ayudo a personas e inversores a concretar
                 sus proyectos inmobiliarios con <span className="text-white">asesoramiento experto,
@@ -234,7 +209,7 @@ export default function AboutPage() {
               </p>
 
               {/* Features */}
-              <ul className="space-y-3 pt-2">
+              <ul className="space-y-2.5 sm:space-y-3 pt-1">
                 {[
                   'Asesoramiento 100% personalizado',
                   'Conocimiento profundo del mercado porteño',
@@ -245,7 +220,7 @@ export default function AboutPage() {
                     <span className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-xs mt-0.5 group-hover:scale-110 transition-transform duration-300`}>
                       <Icons.Check />
                     </span>
-                    <span className="text-slate-300 group-hover:text-white transition-colors duration-300">
+                    <span className="text-slate-300 group-hover:text-white transition-colors duration-300 text-sm sm:text-base">
                       {item}
                     </span>
                   </li>
@@ -253,18 +228,18 @@ export default function AboutPage() {
               </ul>
 
               {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
                 <Link
                   href="/contact"
-                  className={`group relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
+                  className={`group relative inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative z-10">Agendar Consulta Gratuita</span>
+                  <span className="relative z-10">Agendar Consulta</span>
                   <Icons.ArrowRight />
                 </Link>
                 <Link
                   href="/propiedades"
-                  className="group inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-white backdrop-blur-sm"
+                  className="group inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-white backdrop-blur-sm active:scale-[0.98]"
                 >
                   <span>Ver Propiedades</span>
                   <Icons.ArrowRight />
@@ -278,15 +253,15 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           TIMELINE - MI TRAYECTORIA
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
 
           {/* Header de sección */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               Mi trayectoria
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-base sm:text-lg text-slate-400 px-2">
               Cada etapa construida con dedicación, aprendizaje y el compromiso de ofrecer
               un servicio inmobiliario diferente.
             </p>
@@ -297,29 +272,29 @@ export default function AboutPage() {
             {/* Línea central */}
             <div className="absolute left-4 lg:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-purple-500/50 to-transparent" aria-hidden="true" />
 
-            <div className="space-y-12">
+            <div className="space-y-8 sm:space-y-10 lg:space-y-12">
               {timeline.map((item, index) => (
                 <div
                   key={index}
-                  className={`relative flex flex-col lg:flex-row gap-6 lg:gap-12 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                  className={`relative flex flex-col lg:flex-row gap-4 lg:gap-12 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
                     }`}
                 >
                   {/* Punto de la línea */}
-                  <div className="absolute left-4 lg:left-1/2 top-8 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 border-4 border-slate-950 z-10" aria-hidden="true" />
+                  <div className="absolute left-4 lg:left-1/2 top-6 lg:top-8 -translate-x-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 border-4 border-slate-950 z-10" aria-hidden="true" />
 
                   {/* Contenido */}
                   <div className={`lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-16 lg:text-right' : 'lg:pl-16'}`}>
-                    <div className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 ml-12 lg:ml-0">
+                    <div className="group relative p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 ml-10 lg:ml-0">
                       {/* Glow al hover */}
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
 
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-3 bg-gradient-to-r ${gradients.accent} bg-clip-text text-transparent border border-purple-500/30`}>
+                      <span className={`inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide mb-2 sm:mb-3 bg-gradient-to-r ${gradients.accent} bg-clip-text text-transparent border border-purple-500/30`}>
                         {item.year}
                       </span>
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1.5 sm:mb-2 group-hover:text-purple-300 transition-colors duration-300">
                         {item.title}
                       </h3>
-                      <p className="text-slate-400 text-sm leading-relaxed">
+                      <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
                         {item.desc}
                       </p>
                     </div>
@@ -337,47 +312,46 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           VALORES - POR QUÉ ELEGIRME
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-16 lg:py-24 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+      <section className="relative py-12 sm:py-16 lg:py-24 bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
 
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-4 sm:mb-6">
               <Icons.Star />
-              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
+              <span className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
                 Mis Valores
               </span>
             </span>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               Lo que me diferencia
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-base sm:text-lg text-slate-400 px-2">
               No solo vendo propiedades. Construyo relaciones de confianza basadas en
               principios que guían cada decisión.
             </p>
           </div>
 
           {/* Grid de valores */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {values.map((value, index) => (
               <div
                 key={index}
-                className="group relative p-6 lg:p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 animate-fadeInUp"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="group relative p-5 sm:p-6 lg:p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500"
               >
                 {/* Glow exterior */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
 
                 {/* Icono con gradiente */}
-                <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${value.color} flex items-center justify-center text-white mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${value.color} flex items-center justify-center text-white mb-4 sm:mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                   {value.icon}
                 </div>
 
                 {/* Contenido */}
-                <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-purple-300 transition-colors duration-300">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 group-hover:text-purple-300 transition-colors duration-300">
                   {value.title}
                 </h3>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-slate-400 text-sm leading-relaxed">
                   {value.desc}
                 </p>
               </div>
@@ -389,24 +363,24 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           STATS ANIMADOS
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className={`group relative p-6 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-sm text-center transition-all duration-500 hover:border-purple-500/40 ${activeStat === index ? 'scale-105 border-purple-500/60' : ''
+                className={`group relative p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-sm text-center transition-all duration-500 hover:border-purple-500/40 ${activeStat === index ? 'scale-[1.02] border-purple-500/60' : ''
                   }`}
               >
                 {/* Glow al activo */}
                 {activeStat === index && (
-                  <div className={`absolute inset-0 bg-gradient-to-r ${gradients.accent} rounded-2xl opacity-20 blur-lg -z-10 animate-pulse`} aria-hidden="true" />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${gradients.accent} rounded-2xl opacity-20 blur-lg -z-10 animate-pulse pointer-events-none`} aria-hidden="true" />
                 )}
 
-                <div className={`text-3xl lg:text-4xl font-bold bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent mb-2 transition-all duration-500`}>
+                <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent mb-1 sm:mb-2 transition-all duration-500`}>
                   {stat.value}{stat.suffix}
                 </div>
-                <div className="text-slate-400 text-sm font-medium">
+                <div className="text-slate-400 text-[10px] sm:text-sm font-medium px-1">
                   {stat.label}
                 </div>
               </div>
@@ -418,50 +392,50 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           TESTIMONIOS
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-16 lg:py-24 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+      <section className="relative py-12 sm:py-16 lg:py-24 bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
 
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               Lo que dicen mis clientes
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-base sm:text-lg text-slate-400 px-2">
               Cada historia de éxito es mi mayor satisfacción. Estas son algunas voces
               que confían en mi trabajo.
             </p>
           </div>
 
           {/* Grid de testimonios */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500"
+                className="group relative p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500"
               >
                 {/* Quote decorativo */}
-                <div className="absolute top-6 right-6 text-purple-400/30">
+                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 text-purple-400/30 pointer-events-none">
                   <Icons.Quote />
                 </div>
 
                 {/* Avatar */}
-                <div className="flex items-center gap-4 mb-5">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}>
                     {testimonial.avatar}
                   </div>
-                  <div>
-                    <p className="text-white font-semibold">{testimonial.name}</p>
-                    <p className="text-slate-500 text-xs">{testimonial.role}</p>
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold text-sm sm:text-base truncate">{testimonial.name}</p>
+                    <p className="text-slate-500 text-[10px] sm:text-xs truncate">{testimonial.role}</p>
                   </div>
                 </div>
 
                 {/* Texto */}
-                <p className="text-slate-300 leading-relaxed relative z-10">
+                <p className="text-slate-300 text-sm leading-relaxed relative z-10">
                   "{testimonial.text}"
                 </p>
 
                 {/* Estrellas */}
-                <div className="flex gap-1 mt-4 text-amber-400">
+                <div className="flex gap-0.5 sm:gap-1 mt-3 sm:mt-4 text-amber-400">
                   {[...Array(5)].map((_, i) => (
                     <Icons.Star key={i} />
                   ))}
@@ -475,29 +449,29 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           CTA FINAL
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-16 lg:py-24">
-        <div className="max-w-4xl mx-auto px-4 lg:px-8 text-center">
+      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
 
           {/* Card CTA premium */}
-          <div className="group relative p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-white/10 backdrop-blur-xl overflow-hidden">
+          <div className="group relative p-6 sm:p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-white/10 backdrop-blur-xl overflow-hidden">
 
             {/* Glow interior */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${gradients.glow} opacity-30`} style={{ filter: 'blur(100px)' }} aria-hidden="true" />
+            <div className={`absolute inset-0 bg-gradient-to-r ${gradients.glow} opacity-30 pointer-events-none`} style={{ filter: 'blur(100px)' }} aria-hidden="true" />
 
             {/* Contenido */}
             <div className="relative z-10">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
                 ¿Listo para comenzar tu próximo proyecto?
               </h2>
-              <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto px-1">
                 Ya sea que quieras comprar, vender o invertir, estoy aquí para guiarte
                 con la experiencia y el compromiso que merecés.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   href="/contact"
-                  className={`group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
+                  className={`group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                   <span className="relative z-10">Agendar Consulta Gratuita</span>
@@ -507,12 +481,12 @@ export default function AboutPage() {
                   href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 hover:border-emerald-500/50 text-white backdrop-blur-sm"
+                  className="group inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 hover:border-emerald-500/50 text-white backdrop-blur-sm active:scale-[0.98]"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                   </svg>
-                  <span>WhatsApp Directo</span>
+                  <span>WhatsApp</span>
                 </a>
               </div>
             </div>
