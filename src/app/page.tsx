@@ -269,10 +269,10 @@ function PageContent() {
             <div className="absolute bottom-0 left-0 right-0 pb-120 px-4 opacity-80">
               <div className="max-w-4xl mx-auto">
 
-                {/* Search Container con glassmorphism */}
-                <div className="relative group">
+                {/* Search Container con glassmorphism optimizado para móvil */}
+                <div className="relative w-full max-w-2xl mx-auto group">
                   {/* Glow exterior */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/30 via-purple-500/30 to-cyan-500/30 rounded-2xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-500" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/30 via-purple-500/30 to-cyan-500/30 rounded-2xl blur opacity-30 group-hover:opacity-60 group-focus-within:opacity-60 transition-opacity duration-500 pointer-events-none" />
 
                   <form
                     onSubmit={(e) => {
@@ -280,11 +280,11 @@ function PageContent() {
                       const query = searchQuery.trim();
                       if (query) router.push(`/propiedades?search=${encodeURIComponent(query)}`);
                     }}
-                    className="relative flex items-center gap-2 p-2 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
+                    className="relative flex items-center w-full p-2 sm:p-2.5 gap-2 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl focus-within:border-white/20 transition-all duration-300"
                   >
                     {/* Icono */}
-                    <div className="pl-3 text-slate-400">
-                      <FaSearch className="w-5 h-5" />
+                    <div className="pl-2 sm:pl-3 text-slate-400 flex-shrink-0">
+                      <FaSearch className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
 
                     {/* Input principal */}
@@ -292,28 +292,35 @@ function PageContent() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="¿Qué estás buscando? Ej: Palermo, departamento, inversión..."
-                      className="flex-1 bg-transparent text-white placeholder-slate-500 focus:outline-none py-3 text-base"
+                      placeholder="Palermo, departamento, inversión..."
+                      className="flex-1 min-w-0 bg-transparent text-white placeholder-slate-500 focus:outline-none py-2 sm:py-3 text-sm sm:text-base"
                     />
-
-
 
                     {/* Botón de búsqueda */}
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50"
+                      className="flex-shrink-0 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white text-sm sm:text-base font-medium rounded-xl transition-all duration-300 shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50 active:scale-95 whitespace-nowrap"
                     >
                       Buscar
                     </button>
                   </form>
 
-                  {/* Helper text */}
-                  <p className="text-center text-xs text-slate-500 mt-3">
-                    Ej: <button onClick={() => setSearchQuery('Palermo')} className="text-violet-400 hover:underline">Palermo</button> ·
-                    <button onClick={() => setSearchQuery('departamento')} className="text-violet-400 hover:underline ml-1">departamento</button> ·
-                    <button onClick={() => setSearchQuery('venta')} className="text-violet-400 hover:underline ml-1">venta</button>
-                  </p>
+                  {/* Helper text con pills interactivos */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-3 text-xs text-slate-500">
+                    <span>Ej:</span>
+                    {['Palermo', 'departamento', 'venta'].map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => setSearchQuery(term)}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-violet-400 hover:text-violet-300 transition-all duration-200 active:scale-95"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+
               </div>
             </div>
 
