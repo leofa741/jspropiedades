@@ -62,6 +62,9 @@ export default function Contact() {
   const [status, setStatus] = useState<{ type: 'success' | 'error' | ''; message: string }>({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
 
+  const watsapp = 5491132538837
+  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
+
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.id]: e.target.value }));
   }, []);
@@ -182,8 +185,8 @@ export default function Contact() {
               
               <div className="relative space-y-4">
                 {/* WhatsApp - CTA principal */}
-                <a
-                  href="https://wa.me/5491112345678?text=Hola%20Jimena,%20quiero%20consultar%20sobre%20una%20propiedad"
+                <a  
+                  href={`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me interesa consultarte sobre una propiedad`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group/whatsapp flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-600/20 to-teal-600/20 hover:from-emerald-600/30 hover:to-teal-600/30 border border-emerald-500/30 hover:border-emerald-500/50 transition-all duration-300"
@@ -209,7 +212,7 @@ export default function Contact() {
                 {/* Teléfono */}
                 <a href="tel:+541112345678" className="group/phone flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
                   <span className="text-purple-400"><Icons.Phone /></span>
-                  <span className="text-slate-300 group-hover/phone:text-white transition-colors text-sm">+54 11 1234-5678</span>
+                  <span className="text-slate-300 group-hover/phone:text-white transition-colors text-sm">+54 9 11 3253 8837</span>
                 </a>
 
                 {/* Ubicación */}

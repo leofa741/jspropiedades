@@ -694,7 +694,7 @@ function PageContent() {
           {/* ───────── CTA INFERIOR ───────── */}
           <div className="text-center mt-16 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
             <a
-              href="/contacto"
+              href="/contact"
               className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
             >
               {/* Shine effect */}
@@ -878,7 +878,7 @@ function PageContent() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://wa.me/541112345678"
+              href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-all shadow-lg shadow-emerald-900/30"

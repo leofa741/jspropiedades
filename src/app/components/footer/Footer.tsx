@@ -9,6 +9,9 @@ const Footer = () => {
   const companyName = 'Jimena Propiedades';
   const [showShareModal, setShowShareModal] = useState(false);
 
+  const watsapp = 5491132538837
+  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
+
   // ─────────────────────────────────────────────────────────
   // FUNCIONES DE COMPARTIR
   // ─────────────────────────────────────────────────────────
@@ -31,7 +34,7 @@ const Footer = () => {
   }, []);
 
   const shareWhatsApp = useCallback(() => {
-    const text = encodeURIComponent('Te comparto esta inmobiliaria premium: Luxury Real Estate - Propiedades exclusivas');
+    const text = encodeURIComponent('Te comparto esta inmobiliaria: Jimena Propiedades');
     const url = encodeURIComponent(window.location.href);
     window.open(`https://api.whatsapp.com/send?text=${text}%20${url}`, '_blank');
     setShowShareModal(false);
@@ -220,7 +223,7 @@ const Footer = () => {
               {/* Info de contacto */}
               <div className="space-y-4 mb-6">
                 <a 
-                  href="tel:+541112345678" 
+                  href={`https://wa.me/${watsapp}?text=${mensaje}`}
                   className="group flex items-center space-x-3 text-slate-400 hover:text-white transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-lg bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-sm shadow-lg shadow-purple-900/30 group-hover:shadow-purple-900/50 transition-shadow duration-300`}>
@@ -228,11 +231,11 @@ const Footer = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </span>
-                  <span className="group-hover:text-white transition-colors">+54 11 1234-5678</span>
+                  <span className="group-hover:text-white transition-colors">+54 9 11 3253-8837</span>
                 </a>
                 
                 <a 
-                  href="mailto:contacto@luxuryre.com" 
+                  href="mailto:[EMAIL_ADDRESS]" 
                   className="group flex items-center space-x-3 text-slate-400 hover:text-white transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-lg bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-sm shadow-lg shadow-purple-900/30 group-hover:shadow-purple-900/50 transition-shadow duration-300`}>
@@ -277,7 +280,7 @@ const Footer = () => {
                   }
                 />
                 <SocialButton 
-                  href="https://whatsapp.com" 
+                  href={`https://wa.me/${watsapp}?text=${mensaje}`}
                   label="WhatsApp"
                   gradient="from-green-500 via-emerald-500 to-teal-400"
                   icon={

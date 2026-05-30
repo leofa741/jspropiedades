@@ -109,6 +109,9 @@ function PageContent() {
   const [activeImage, setActiveImage] = useState(0);
   const [initialImageSet, setInitialImageSet] = useState(false); // 🔹 NUEVO: para evitar reseteos
 
+  const watsapp = 5491132538837
+  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
+
   // 📥 Cargar propiedad por slug
   useEffect(() => {
     if (!slug) return;
@@ -448,7 +451,7 @@ function PageContent() {
               
               <div className="space-y-4">
                 <a
-                  href={`https://wa.me/541112345678?text=Hola, me interesa la propiedad: ${encodeURIComponent(titulo)}`}
+                  href={`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${titulo}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all"
