@@ -371,7 +371,7 @@ function PageContent() {
                   </div>
 
                   <a
-                    href="#tickets"
+                    href="https://wa.me/+5491161959365"
                     className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-bold uppercase tracking-wide hover:bg-purple-300 transition-all duration-300"
                   >
                     Reservar
