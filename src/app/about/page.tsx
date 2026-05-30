@@ -1,7 +1,7 @@
 // app/about/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -49,6 +49,109 @@ const Icons = {
       <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
     </svg>
   ),
+  Sparkles: () => (
+    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  ),
+};
+
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE DE IMAGEN PREMIUM CON EFECTOS
+// ─────────────────────────────────────────────────────────────
+const PremiumImageFrame = ({ src, alt, isVisible }: { src: string; alt: string; isVisible: boolean }) => {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!frameRef.current) return;
+      const rect = frameRef.current.getBoundingClientRect();
+      setMousePos({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div 
+      ref={frameRef}
+      className={`relative transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    >
+      {/* ✨ Orbes de luz flotantes */}
+      <div className="absolute -top-8 -left-8 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-violet-500/30 to-fuchsia-500/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0s' }} />
+      <div className="absolute -bottom-6 -right-6 w-20 h-20 sm:w-28 sm:h-28 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+
+      {/* 🖼️ Marco principal con efecto cristal premium */}
+      <div className="relative group">
+        {/* Glow dinámico que sigue el mouse (desktop) */}
+        <div 
+          className="hidden lg:block absolute -inset-1 bg-gradient-to-r from-violet-500/40 via-fuchsia-500/40 to-cyan-500/40 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(139, 92, 246, 0.4), transparent 40%)`,
+          }}
+        />
+
+        {/* Borde animado con gradiente */}
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm animate-gradient-xy" />
+        
+        {/* Contenedor de cristal */}
+        <div className="relative bg-slate-900/60 backdrop-blur-2xl rounded-3xl p-1.5 sm:p-2 border border-white/10 shadow-2xl shadow-violet-900/20">
+          
+          {/* Imagen principal con parallax sutil */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-800/50 aspect-[4/5] sm:aspect-[3/4] lg:aspect-auto lg:h-[520px] xl:h-[580px]">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              className="object-cover object-top sm:object-center transition-transform duration-700 group-hover:scale-105"
+              priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
+            />
+            
+            {/* Overlay gradiente elegante */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent pointer-events-none" />
+            
+            {/* Badge flotante premium */}
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10 animate-float">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                <Icons.Sparkles />
+                <span className="text-xs sm:text-sm font-medium text-white">Asesora Premium</span>
+              </div>
+            </div>
+
+            {/* Decoración de esquina */}
+            <div className="absolute top-4 right-4 w-16 h-16 sm:w-20 sm:h-20 border border-white/10 rounded-tr-2xl pointer-events-none" />
+            <div className="absolute bottom-4 left-4 w-12 h-12 sm:w-16 sm:h-16 border border-white/10 rounded-bl-2xl pointer-events-none" />
+          </div>
+
+          {/* Footer decorativo con nombre */}
+          <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-10">
+            <div className="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/10">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg">
+                JS
+              </div>
+              <div className="min-w-0">
+                <p className="text-white font-semibold text-sm sm:text-base truncate">Jimena Sánchez</p>
+                <p className="text-slate-400 text-xs">Asesora Inmobiliaria</p>
+              </div>
+              <div className="ml-auto hidden sm:flex items-center gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => <Icons.Star key={i} />)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Partículas decorativas flotantes */}
+        <div className="absolute -top-2 -right-2 w-3 h-3 bg-violet-400 rounded-full animate-ping opacity-70" />
+        <div className="absolute top-1/4 -left-1 w-2 h-2 bg-cyan-400 rounded-full animate-ping opacity-50" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute bottom-1/4 -right-1 w-2.5 h-2.5 bg-fuchsia-400 rounded-full animate-ping opacity-60" style={{ animationDelay: '1s' }} />
+      </div>
+    </div>
+  );
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -60,9 +163,7 @@ export default function AboutPage() {
 
   useEffect(() => {
     setIsVisible(true);
-    const interval = setInterval(() => {
-      setActiveStat(prev => (prev + 1) % 4);
-    }, 3000);
+    const interval = setInterval(() => setActiveStat(prev => (prev + 1) % 4), 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -80,30 +181,10 @@ export default function AboutPage() {
   ];
 
   const values = [
-    {
-      icon: <Icons.Heart />,
-      title: 'Pasión por lo que hago',
-      desc: 'Cada propiedad representa un sueño, una inversión, un nuevo comienzo. Me involucro personalmente en cada proceso.',
-      color: 'from-pink-400 to-rose-500',
-    },
-    {
-      icon: <Icons.Shield />,
-      title: 'Transparencia absoluta',
-      desc: 'Sin letras chicas, sin sorpresas. Te explico cada paso, cada costo y cada posibilidad con claridad total.',
-      color: 'from-cyan-400 to-blue-500',
-    },
-    {
-      icon: <Icons.Target />,
-      title: 'Resultados comprobados',
-      desc: 'Mi éxito se mide por el tuyo. +150 operaciones cerradas con satisfacción garantizada son mi mejor carta de presentación.',
-      color: 'from-purple-400 to-indigo-500',
-    },
-    {
-      icon: <Icons.Users />,
-      title: 'Relaciones a largo plazo',
-      desc: 'No busco una transacción, busco ser tu referente inmobiliario de confianza por años. Tu satisfacción es mi mejor marketing.',
-      color: 'from-emerald-400 to-teal-500',
-    },
+    { icon: <Icons.Heart />, title: 'Pasión por lo que hago', desc: 'Cada propiedad representa un sueño, una inversión, un nuevo comienzo. Me involucro personalmente en cada proceso.', color: 'from-pink-400 to-rose-500' },
+    { icon: <Icons.Shield />, title: 'Transparencia absoluta', desc: 'Sin letras chicas, sin sorpresas. Te explico cada paso, cada costo y cada posibilidad con claridad total.', color: 'from-cyan-400 to-blue-500' },
+    { icon: <Icons.Target />, title: 'Resultados comprobados', desc: 'Mi éxito se mide por el tuyo. +150 operaciones cerradas con satisfacción garantizada son mi mejor carta de presentación.', color: 'from-purple-400 to-indigo-500' },
+    { icon: <Icons.Users />, title: 'Relaciones a largo plazo', desc: 'No busco una transacción, busco ser tu referente inmobiliario de confianza por años. Tu satisfacción es mi mejor marketing.', color: 'from-emerald-400 to-teal-500' },
   ];
 
   const stats = [
@@ -114,134 +195,104 @@ export default function AboutPage() {
   ];
 
   const testimonials = [
-    {
-      name: 'María L.',
-      role: 'Compradora - Palermo',
-      text: 'Jimena entendió exactamente lo que buscaba. En 3 semanas ya tenía las llaves de mi nuevo departamento. Profesional, cercana y eficiente.',
-      avatar: 'ML',
-    },
-    {
-      name: 'Carlos R.',
-      role: 'Vendedor - Nordelta',
-      text: 'Vendí mi propiedad por encima del precio de mercado gracias a su estrategia de marketing y negociación. 100% recomendada.',
-      avatar: 'CR',
-    },
-    {
-      name: 'Ana & Diego',
-      role: 'Inversores',
-      text: 'Nos asesoró en la compra de nuestra primera propiedad para alquiler. Hoy tenemos un ingreso pasivo gracias a su guía experta.',
-      avatar: 'AD',
-    },
+    { name: 'María L.', role: 'Compradora - Palermo', text: 'Jimena entendió exactamente lo que buscaba. En 3 semanas ya tenía las llaves de mi nuevo departamento. Profesional, cercana y eficiente.', avatar: 'ML' },
+    { name: 'Carlos R.', role: 'Vendedor - Nordelta', text: 'Vendí mi propiedad por encima del precio de mercado gracias a su estrategia de marketing y negociación. 100% recomendada.', avatar: 'CR' },
+    { name: 'Ana & Diego', role: 'Inversores', text: 'Nos asesoró en la compra de nuestra primera propiedad para alquiler. Hoy tenemos un ingreso pasivo gracias a su guía experta.', avatar: 'AD' },
   ];
 
   return (
     <div className="relative min-h-screen bg-slate-950 overflow-x-hidden">
       
-      {/* Background ambiental */}
+      {/* ✨ Background ambiental premium */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" aria-hidden="true" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[600px] bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(180px)' }} />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_90%)]" aria-hidden="true" />
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          HERO SECTION - MI HISTORIA
+          HERO SECTION - DISEÑO SUPER PREMIUM
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative pt-20 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-24 px-4 sm:px-6 lg:px-8">
+      <section className="relative pt-8 sm:pt-16 lg:pt-24 pb-12 sm:pb-20 lg:pb-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 xl:gap-20 items-center">
 
-            {/* Columna izquierda: Foto premium - ✅ CORREGIDO PARA MÓVIL Y ESCRITORIO */}
-            <div className={`relative order-2 lg:order-1 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            {/* Columna izquierda: Imagen Premium Rediseñada */}
+            <PremiumImageFrame 
+              src="/img/about-2.png" 
+              alt="Jimena Sánchez - Asesora Inmobiliaria Premium" 
+              isVisible={isVisible} 
+            />
+
+            {/* Columna derecha: Contenido Premium */}
+            <div className={`order-1 lg:order-2 space-y-6 sm:space-y-8 transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               
-              {/* Glow exterior - contenido para no causar scroll horizontal */}
-              <div className={`absolute -inset-2 sm:-inset-4 lg:-inset-6 bg-gradient-to-r ${gradients.accent} rounded-3xl blur-2xl opacity-20 sm:opacity-30 lg:opacity-40 animate-pulse`} aria-hidden="true" />
-
-              {/* Marco con gradiente */}
-              <div className={`absolute -inset-0.5 sm:-inset-1 lg:-inset-1.5 bg-gradient-to-r ${gradients.primary} rounded-2xl lg:rounded-3xl opacity-40 sm:opacity-50 lg:opacity-60 blur-sm`} aria-hidden="true" />
-
-              {/* Contenedor principal - ✅ KEY FIXES responsive */}
-              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl lg:rounded-3xl p-2 sm:p-3 lg:p-4 border border-white/10 shadow-2xl w-full max-w-sm sm:max-w-md mx-auto lg:mx-0 lg:max-w-lg">
-                
-                {/* ✅ IMAGEN CON ASPECT RATIO RESPONSIVO */}
-                <div className="relative overflow-hidden rounded-xl lg:rounded-2xl bg-slate-800/50 aspect-[4/5] sm:aspect-[3/4] lg:aspect-auto lg:h-[500px] xl:h-[550px]">
-                  <Image
-                    src="/img/about-2.png"
-                    alt="Jimena Sánchez - Asesora Inmobiliaria"
-                    fill
-                    className="object-cover object-top sm:object-center transition-transform duration-700 hover:scale-105"
-                    priority
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
-                  />
-                  {/* Overlay gradiente sutil */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
-                </div>
-              </div>
-            </div>
-
-            {/* Columna derecha: Contenido */}
-            <div className={`order-1 lg:order-2 space-y-5 sm:space-y-6 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+              {/* Badge animado */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20 backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-cyan-400 to-purple-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-cyan-400 to-violet-500" />
                 </span>
-                <span className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
+                <span className="text-[11px] tracking-[0.3em] uppercase text-violet-300 font-semibold">
                   Sobre Mí
                 </span>
               </div>
 
-              {/* Título con gradiente */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white">
-                <span className="text-white">Más que una inmobiliaria,</span>
-                <br className="hidden sm:block" />
-                <span className={`bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent`}>
-                  tu aliada estratégica
+              {/* Título con efecto gradiente animado */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tight">
+                <span className="text-white block">Más que una</span>
+                <span className={`block bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient`}>
+                  inmobiliaria,
+                </span>
+                <span className="text-white block mt-1">tu aliada</span>
+                <span className={`block bg-gradient-to-r ${gradients.accent} bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient`} style={{ animationDelay: '0.2s' }}>
+                  estratégica
                 </span>
               </h1>
 
-              {/* Descripción */}
-              <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
-                Hola, soy <span className="text-white font-medium">Jimena Sánchez</span>.
-                Desde hace más de una década, ayudo a personas e inversores a concretar
-                sus proyectos inmobiliarios con <span className="text-white">asesoramiento experto,
-                  transparencia y resultados reales</span>.
+              {/* Descripción elegante */}
+              <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-xl">
+                Hola, soy <span className="text-white font-semibold">Jimena Sánchez</span>. 
+                Desde hace más de una década, ayudo a personas e inversores a concretar 
+                sus proyectos inmobiliarios con <span className="text-white font-medium">asesoramiento experto</span>, 
+                transparencia y resultados reales.
               </p>
 
-              {/* Features */}
-              <ul className="space-y-2.5 sm:space-y-3 pt-1">
+              {/* Features con iconos animados */}
+              <ul className="space-y-4 pt-2">
                 {[
                   'Asesoramiento 100% personalizado',
                   'Conocimiento profundo del mercado porteño',
                   'Acompañamiento en cada etapa del proceso',
                   'Red de contactos premium para oportunidades exclusivas',
                 ].map((item, index) => (
-                  <li key={index} className="flex items-start gap-3 group">
-                    <span className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-xs mt-0.5 group-hover:scale-110 transition-transform duration-300`}>
+                  <li key={index} className="flex items-start gap-4 group">
+                    <span className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white text-xs shadow-lg shadow-violet-900/30 group-hover:shadow-violet-900/50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                       <Icons.Check />
                     </span>
-                    <span className="text-slate-300 group-hover:text-white transition-colors duration-300 text-sm sm:text-base">
+                    <span className="text-slate-300 group-hover:text-white transition-colors duration-300 text-base">
                       {item}
                     </span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
+              {/* CTAs Premium con efectos */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link
                   href="/contact"
-                  className={`group relative inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
+                  className={`group relative inline-flex items-center justify-center gap-3 px-7 py-4 rounded-2xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-violet-900/50 hover:scale-[1.02] active:scale-[0.98]`}
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative z-10">Agendar Consulta</span>
-                  <Icons.ArrowRight />
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <span className="absolute inset-0 rounded-2xl border border-white/30 group-hover:border-white/50 transition-colors duration-300" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    Agendar Consulta Gratuita
+                    <Icons.ArrowRight />
+                  </span>
                 </Link>
                 <Link
                   href="/propiedades"
-                  className="group inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-white backdrop-blur-sm active:scale-[0.98]"
+                  className="group inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl font-semibold text-sm tracking-wide transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-violet-500/40 text-white backdrop-blur-sm active:scale-[0.98]"
                 >
                   <span>Ver Propiedades</span>
                   <Icons.ArrowRight />
@@ -253,39 +304,46 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          TIMELINE - MI TRAYECTORIA
+          TIMELINE - MI TRAYECTORIA (Estilo Premium)
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Mi trayectoria
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
+              <Icons.Star />
+              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">Mi Trayectoria</span>
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Construyendo excelencia
             </h2>
-            <p className="text-base sm:text-lg text-slate-400 px-2">
-              Cada etapa construida con dedicación, aprendizaje y el compromiso de ofrecer
+            <p className="text-lg text-slate-400">
+              Cada etapa construida con dedicación, aprendizaje y el compromiso de ofrecer 
               un servicio inmobiliario diferente.
             </p>
           </div>
 
           <div className="relative">
-            <div className="absolute left-4 lg:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-purple-500/50 to-transparent" aria-hidden="true" />
-            <div className="space-y-8 sm:space-y-10 lg:space-y-12">
+            {/* Línea central con gradiente animado */}
+            <div className="absolute left-5 lg:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-violet-500/50 to-transparent" aria-hidden="true" />
+            
+            <div className="space-y-10 lg:space-y-16">
               {timeline.map((item, index) => (
-                <div
-                  key={index}
-                  className={`relative flex flex-col lg:flex-row gap-4 lg:gap-12 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
-                >
-                  <div className="absolute left-4 lg:left-1/2 top-6 lg:top-8 -translate-x-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 border-4 border-slate-950 z-10" aria-hidden="true" />
-                  <div className={`lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-16 lg:text-right' : 'lg:pl-16'}`}>
-                    <div className="group relative p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 ml-10 lg:ml-0">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
-                      <span className={`inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide mb-2 sm:mb-3 bg-gradient-to-r ${gradients.accent} bg-clip-text text-transparent border border-purple-500/30`}>
+                <div key={index} className={`relative flex flex-col lg:flex-row gap-6 lg:gap-16 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+                  {/* Punto de la línea animado */}
+                  <div className="absolute left-5 lg:left-1/2 top-8 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 border-4 border-slate-950 z-10 shadow-lg shadow-violet-900/30" aria-hidden="true" />
+                  
+                  <div className={`lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-20 lg:text-right' : 'lg:pl-20'}`}>
+                    <div className="group relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-violet-500/30 transition-all duration-500 ml-14 lg:ml-0">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-cyan-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
+                      
+                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-4 bg-gradient-to-r ${gradients.accent} bg-clip-text text-transparent border border-violet-500/30`}>
+                        <Icons.Sparkles />
                         {item.year}
                       </span>
-                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1.5 sm:mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-violet-300 transition-colors duration-300">
                         {item.title}
                       </h3>
-                      <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                      <p className="text-slate-400 leading-relaxed">
                         {item.desc}
                       </p>
                     </div>
@@ -299,40 +357,40 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          VALORES - POR QUÉ ELEGIRME
+          VALORES - GRID PREMIUM
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-16 lg:py-24 bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 sm:py-20 lg:py-28 bg-gradient-to-b from-slate-950 via-slate-900/50 to-slate-950 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-4 sm:mb-6">
-              <Icons.Star />
-              <span className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
-                Mis Valores
-              </span>
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
+              <Icons.Heart />
+              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">Mis Valores</span>
             </span>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Lo que me diferencia
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Lo que me define
             </h2>
-            <p className="text-base sm:text-lg text-slate-400 px-2">
-              No solo vendo propiedades. Construyo relaciones de confianza basadas en
+            <p className="text-lg text-slate-400">
+              No solo vendo propiedades. Construyo relaciones de confianza basadas en 
               principios que guían cada decisión.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {values.map((value, index) => (
               <div
                 key={index}
-                className="group relative p-5 sm:p-6 lg:p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500"
+                className="group relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-violet-500/30 transition-all duration-500"
               >
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
-                <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${value.color} flex items-center justify-center text-white mb-4 sm:mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-cyan-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
+                
+                <div className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${value.color} flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:rotate-2 transition-all duration-300 shadow-lg shadow-violet-900/30`}>
                   {value.icon}
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 group-hover:text-purple-300 transition-colors duration-300">
+                
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-violet-300 transition-colors duration-300">
                   {value.title}
                 </h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <p className="text-slate-400 leading-relaxed">
                   {value.desc}
                 </p>
               </div>
@@ -342,23 +400,24 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          STATS ANIMADOS
+          STATS ANIMADOS - DISEÑO PREMIUM
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className={`group relative p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-sm text-center transition-all duration-500 hover:border-purple-500/40 ${activeStat === index ? 'scale-[1.02] border-purple-500/60' : ''}`}
+                className={`group relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/[0.03] border border-white/10 backdrop-blur-sm text-center transition-all duration-500 hover:border-violet-500/40 ${activeStat === index ? 'scale-105 border-violet-500/60 shadow-lg shadow-violet-900/20' : ''}`}
               >
                 {activeStat === index && (
-                  <div className={`absolute inset-0 bg-gradient-to-r ${gradients.accent} rounded-2xl opacity-20 blur-lg -z-10 animate-pulse pointer-events-none`} aria-hidden="true" />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${gradients.accent} rounded-3xl opacity-20 blur-lg -z-10 animate-pulse`} aria-hidden="true" />
                 )}
-                <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent mb-1 sm:mb-2 transition-all duration-500`}>
+                
+                <div className={`text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r ${gradients.primary} bg-clip-text text-transparent mb-2 transition-all duration-500`}>
                   {stat.value}{stat.suffix}
                 </div>
-                <div className="text-slate-400 text-[10px] sm:text-sm font-medium px-1">
+                <div className="text-slate-400 text-sm font-medium">
                   {stat.label}
                 </div>
               </div>
@@ -368,45 +427,46 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          TESTIMONIOS
+          TESTIMONIOS - CARDS PREMIUM
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-16 lg:py-24 bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 sm:py-20 lg:py-28 bg-gradient-to-b from-slate-950 via-slate-900/50 to-slate-950 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               Lo que dicen mis clientes
             </h2>
-            <p className="text-base sm:text-lg text-slate-400 px-2">
-              Cada historia de éxito es mi mayor satisfacción. Estas son algunas voces
+            <p className="text-lg text-slate-400">
+              Cada historia de éxito es mi mayor satisfacción. Estas son algunas voces 
               que confían en mi trabajo.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="group relative p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500"
+                className="group relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-violet-500/30 transition-all duration-500"
               >
-                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 text-purple-400/30 pointer-events-none">
+                <div className="absolute top-6 right-6 text-violet-400/30 pointer-events-none">
                   <Icons.Quote />
                 </div>
-                <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}>
+
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white font-bold shadow-lg`}>
                     {testimonial.avatar}
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-white font-semibold text-sm sm:text-base truncate">{testimonial.name}</p>
-                    <p className="text-slate-500 text-[10px] sm:text-xs truncate">{testimonial.role}</p>
+                  <div>
+                    <p className="text-white font-semibold">{testimonial.name}</p>
+                    <p className="text-slate-500 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed relative z-10">
+
+                <p className="text-slate-300 leading-relaxed relative z-10 mb-6">
                   "{testimonial.text}"
                 </p>
-                <div className="flex gap-0.5 sm:gap-1 mt-3 sm:mt-4 text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Icons.Star key={i} />
-                  ))}
+
+                <div className="flex gap-1 text-amber-400">
+                  {[...Array(5)].map((_, i) => <Icons.Star key={i} />)}
                 </div>
               </div>
             ))}
@@ -415,39 +475,47 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          CTA FINAL
+          CTA FINAL - CARD PREMIUM
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="group relative p-6 sm:p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-white/10 backdrop-blur-xl overflow-hidden">
-            <div className={`absolute inset-0 bg-gradient-to-r ${gradients.glow} opacity-30 pointer-events-none`} style={{ filter: 'blur(100px)' }} aria-hidden="true" />
-            <div className="relative z-10">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
+      <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="group relative p-8 sm:p-12 lg:p-16 rounded-3xl bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/90 border border-white/10 backdrop-blur-2xl overflow-hidden">
+            
+            {/* Glow interior animado */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${gradients.glow} opacity-40`} style={{ filter: 'blur(120px)' }} aria-hidden="true" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.15),transparent_70%)]" aria-hidden="true" />
+
+            {/* Contenido */}
+            <div className="relative z-10 text-center">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
                 ¿Listo para comenzar tu próximo proyecto?
               </h2>
-              <p className="text-base sm:text-lg text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto px-1">
-                Ya sea que quieras comprar, vender o invertir, estoy aquí para guiarte
+              <p className="text-lg sm:text-xl text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto px-2">
+                Ya sea que quieras comprar, vender o invertir, estoy aquí para guiarte 
                 con la experiencia y el compromiso que merecés.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/contact"
-                  className={`group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
+                  className={`group relative inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r ${gradients.primary} text-white hover:shadow-2xl hover:shadow-violet-900/50 hover:scale-[1.02] active:scale-[0.98]`}
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative z-10">Agendar Consulta Gratuita</span>
-                  <Icons.ArrowRight />
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    Agendar Consulta Gratuita
+                    <Icons.ArrowRight />
+                  </span>
                 </Link>
                 <a
                   href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 hover:border-emerald-500/50 text-white backdrop-blur-sm active:scale-[0.98]"
+                  className="group inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl font-semibold text-sm tracking-wide transition-all duration-300 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 hover:border-emerald-500/50 text-white backdrop-blur-sm active:scale-[0.98]"
                 >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                   </svg>
-                  <span>WhatsApp</span>
+                  <span>WhatsApp Directo</span>
                 </a>
               </div>
             </div>

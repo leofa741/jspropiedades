@@ -276,10 +276,10 @@ function PageContent() {
           <div className="max-w-7xl mx-auto px-6 pt-40 sm:pt-50">
             <RotatingCircle text="✦ ANEMIJ ✦ SEDADEIPORP  " size={200} duration={10} />
 
-            <div className="absolute bottom-0 left-0 right-0 pb-20 sm:pb-32 px-4 opacity-80">
+            <div className="absolute bottom-100 left-0 right-0 pb-20 sm:pb-32 px-4 opacity-80">
               <div className="max-w-4xl mx-auto">
                 {/* Search Container */}
-                <div className="relative w-full max-w-2xl mx-auto group">
+                <div className="relative w-full max-w-2xl mx-auto group  ">
                   <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/30 via-purple-500/30 to-cyan-500/30 rounded-2xl blur opacity-30 group-hover:opacity-60 group-focus-within:opacity-60 transition-opacity duration-500 pointer-events-none" />
                   <form
                     onSubmit={(e) => {
