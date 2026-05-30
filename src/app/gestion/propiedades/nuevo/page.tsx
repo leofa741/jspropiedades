@@ -377,7 +377,15 @@ export default function NuevaPropiedadPage() {
     if (!isAuthorized) return null;
 
     return (
-        <div className="p-4 sm:p-6 md:p-8">
+        <div className="relative min-h-screen bg-slate-950 p-4 sm:p-6 md:p-8 pb-[env(safe-area-inset-bottom)]">
+
+            {/* ✨ Background ambiental */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" aria-hidden="true" />
+            </div>
+
             <br />
             <br />
             <br />
@@ -762,7 +770,7 @@ export default function NuevaPropiedadPage() {
                                 <p className="text-xs text-slate-500 mt-1">Buscá por ID o seleccioná de la lista</p>
                             </div>
 
-                       
+
                             {/* Agente - SOLO si NO es agente logueado */}
                             {userRole !== 'agente' && (
                                 <div>
@@ -798,7 +806,7 @@ export default function NuevaPropiedadPage() {
                                                 ) : (
                                                     <option value="" disabled>{loadingOptions ? 'Cargando...' : 'Sin agentes en sistema'}</option>
                                                 )}
-                                             
+
                                             </select>
                                             <button
                                                 type="button"
@@ -896,7 +904,7 @@ export default function NuevaPropiedadPage() {
                     setForm(prev => ({ ...prev, propietario: clienteId }));
 
                     // ✅ 2. Opcional: recargar la lista de propietarios si tenés la función
-                    if (typeof  fetchOpciones==='function') {
+                    if (typeof fetchOpciones === 'function') {
                         fetchOpciones();
                     }
 
