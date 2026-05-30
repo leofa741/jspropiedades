@@ -67,7 +67,17 @@ export default function RootLayout({
     <html lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} dark`}
       suppressHydrationWarning={true}>
-      <body className=" dark:bg-[#0d0d0d] dark:text-white transition-colors duration-500">
+      <body
+        className="bg-[#0d0d0d] text-white font-sans transition-colors duration-300"
+        style={{
+          backgroundImage: `
+        radial-gradient(circle at 50% 0%, #040d21 0%, transparent 40%),
+        radial-gradient(circle at 0% 50%, #111827 0%, transparent 40%),
+        radial-gradient(circle at 100% 50%, #0b0c1a 0%, transparent 40%),
+        radial-gradient(circle at 50% 100%, #040b16 0%, transparent 40%)
+      `
+        }}>
+      
 
     
 
