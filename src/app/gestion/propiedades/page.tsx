@@ -93,12 +93,117 @@ interface PropertyResponse {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 🔹 Componente Skeleton Loader Premium para la tabla
+// ─────────────────────────────────────────────────────────────
+
+function PropertiesTableSkeleton() {
+  return (
+    <div className="bg-slate-900/80 rounded-xl border border-slate-700/50 overflow-hidden backdrop-blur-sm animate-pulse">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1200px]">
+          <thead className="bg-slate-800/50 text-slate-300 text-xs uppercase tracking-wider">
+            <tr>
+              <th className="text-left py-3 px-4">Propiedad</th>
+              <th className="text-left py-3 px-4">Ubicación</th>
+              <th className="text-left py-3 px-4">Características</th>
+              <th className="text-left py-3 px-4">Venta</th>
+              <th className="text-left py-3 px-4">Alquiler</th>
+              <th className="text-left py-3 px-4">Estado</th>
+              <th className="text-left py-3 px-4">Agente</th>
+              <th className="text-left py-3 px-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-700/50">
+            {[...Array(5)].map((_, index) => (
+              <tr key={index} className="hover:bg-slate-800/30 transition-colors">
+                {/* 👤 Propiedad + Imagen placeholder */}
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-slate-700/50 flex-shrink-0" />
+                    <div className="min-w-0 space-y-2">
+                      <div className="h-4 bg-slate-700/50 rounded w-32" />
+                      <div className="h-3 bg-slate-700/50 rounded w-20" />
+                    </div>
+                  </div>
+                </td>
+
+                {/* 📍 Ubicación placeholder */}
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3.5 h-3.5 bg-slate-700/50 rounded flex-shrink-0" />
+                    <div className="h-4 bg-slate-700/50 rounded w-24" />
+                  </div>
+                </td>
+
+                {/* 🏠 Características placeholder */}
+                <td className="py-4 px-4">
+                  <div className="space-y-1.5">
+                    <div className="h-3 bg-slate-700/50 rounded w-16" />
+                    <div className="h-3 bg-slate-700/50 rounded w-20" />
+                  </div>
+                </td>
+
+                {/* 💰 Precio Venta placeholder */}
+                <td className="py-4 px-4">
+                  <div className="h-4 bg-slate-700/50 rounded w-20" />
+                </td>
+
+                {/* 💰 Precio Alquiler placeholder */}
+                <td className="py-4 px-4">
+                  <div className="h-4 bg-slate-700/50 rounded w-20" />
+                </td>
+
+                {/* 🏷️ Estado placeholder */}
+                <td className="py-4 px-4">
+                  <div className="flex flex-col gap-2">
+                    <div className="h-5 bg-slate-700/50 rounded-full w-20" />
+                    <div className="h-4 bg-slate-700/50 rounded w-16" />
+                  </div>
+                </td>
+
+                {/* 👤 Agente placeholder */}
+                <td className="py-4 px-4">
+                  <div className="space-y-1.5">
+                    <div className="h-4 bg-slate-700/50 rounded w-24" />
+                    <div className="h-3 bg-slate-700/50 rounded w-32" />
+                  </div>
+                </td>
+
+                {/* ⚡ Acciones placeholder */}
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-1.5">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="w-8 h-8 bg-slate-700/50 rounded-lg" />
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // 🔹 Componente Principal con Suspense
 // ─────────────────────────────────────────────────────────────
 
 export default function PropiedadesPage() {
     return (
-        <Suspense fallback={<div className="text-slate-400 p-8">Cargando propiedades...</div>}>
+        <Suspense fallback={
+          <div className="relative min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
+            </div>
+            <div className="relative z-10 text-center">
+              <div className="w-12 h-12 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-slate-400">Cargando propiedades...</p>
+            </div>
+          </div>
+        }>
             <PageContent />
         </Suspense>
     );
@@ -379,22 +484,18 @@ function PageContent() {
     return (
     <div className="relative min-h-screen bg-slate-950 p-4 sm:p-6 md:p-8 pb-[env(safe-area-inset-bottom)]">
 
-
-            <br />
-            <br />
-            <br />
-            <br />
-    
-    {/* ✨ Background ambiental - ahora con z-0 para no tapar contenido */}
+    {/* ✨ Background ambiental */}
     <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" aria-hidden="true" />
     </div>
 
+    {/* 🔹 Contenido con z-10 */}
+    <div className="relative z-10">
 
             {/* 🏷️ Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-4 sm:pt-8">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
                         <FaHome className="text-violet-400" />
@@ -409,7 +510,7 @@ function PageContent() {
                 </div>
                 <Link
                     href="/gestion/propiedades/nuevo"
-                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50"
+                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50 active:scale-[0.98]"
                 >
                     <FaPlus /> Nueva Propiedad
                 </Link>
@@ -487,7 +588,14 @@ function PageContent() {
 
             {/* 📋 Listado de Propiedades */}
             {loading && !internalSearch.trim() ? (
-                <div className="text-slate-400 text-center py-12">Cargando propiedades...</div>
+              <>
+                {/* Leyenda placeholder */}
+                <div className="mb-4 text-sm text-slate-400">
+                  <div className="h-4 bg-slate-700/50 rounded w-48 animate-pulse" />
+                </div>
+                {/* Skeleton de tabla */}
+                <PropertiesTableSkeleton />
+              </>
             ) : shouldShowEmptyState ? (
                 <div className="text-center py-12 text-slate-500">
                     <FaHome className="text-4xl mb-3 mx-auto text-violet-900/30" />
@@ -707,13 +815,13 @@ function PageContent() {
 
                     {/* 📄 Paginación */}
                     {!internalSearch.trim() && pagination.totalPages > 1 && (
-                        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 pb-8">
                             <div className="text-sm text-slate-400">
                                 Mostrando {(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, pagination.total)} de {pagination.total} propiedades
                             </div>
                             <div className="flex gap-2">
                                 {currentPage > 1 && (
-                                    <Link href={buildUrl(currentPage - 1)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                    <Link href={buildUrl(currentPage - 1)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition active:scale-[0.98]">
                                         Anterior
                                     </Link>
                                 )}
@@ -721,7 +829,7 @@ function PageContent() {
                                     Página {currentPage} de {pagination.totalPages}
                                 </span>
                                 {currentPage < pagination.totalPages && (
-                                    <Link href={buildUrl(currentPage + 1)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                    <Link href={buildUrl(currentPage + 1)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition active:scale-[0.98]">
                                         Siguiente
                                     </Link>
                                 )}
@@ -730,6 +838,7 @@ function PageContent() {
                     )}
                 </>
             ) : null}
+          </div>
         </div>
     );
 }
