@@ -383,6 +383,8 @@ function PageContent() {
                   >
                     Reservar
                   </a>
+                  <br />
+                  
                 </div>
               </div>
             </div>
@@ -399,7 +401,7 @@ function PageContent() {
       {/* ═══════════════════════════════════════════════════════
     SECCIÓN VALOR PRINCIPAL - JIMENA SÁNCHEZ PROPIEDADES
     ═══════════════════════════════════════════════════════ */}
-      <section className="relative -mt-10 py-40 lg:py-28 overflow-hidden bg-slate-950">
+      <section className="relative -mt-4 py-40 lg:py-28 overflow-hidden bg-slate-950">
 
         {/* ✨ Background ambiental con gradientes */}
         <div className="absolute inset-0">
