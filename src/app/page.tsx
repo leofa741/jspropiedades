@@ -394,7 +394,111 @@ function PageContent() {
       </div>
 
 
+   
+
+
+
       {/* ═══════════════════════════════════════════════════════
+    SECCIÓN BENEFICIOS - JIMENA SÁNCHEZ PROPIEDADES
+    ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-20 lg:py-28 overflow-hidden bg-slate-950">
+
+        {/* ✨ Background ambiental coherente */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/15 to-cyan-500/15 opacity-40" style={{ filter: 'blur(150px)' }} />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" aria-hidden="true" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8">
+
+          {/* ───────── HEADER ───────── */}
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fadeInUp">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gradient-to-r from-cyan-400 to-purple-500" />
+              </span>
+              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
+                Nuestra Diferencia
+              </span>
+            </span>
+
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              ¿Por qué confiar en Jimena Sánchez?
+            </h2>
+
+            <p className="text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
+              Una experiencia inmobiliaria transparente, personalizada y orientada a resultados reales para tu inversión.
+            </p>
+          </div>
+
+          {/* ───────── GRID DE BENEFICIOS ───────── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+              }
+              title="Asesoramiento Experto"
+              description="Guía profesional en cada paso: desde la búsqueda hasta la firma. Conocimiento profundo del mercado inmobiliario."
+              delay={0}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                </svg>
+              }
+              title="Negociación Estratégica"
+              description="Maximizo el valor de tu operación con técnicas de negociación probadas y conocimiento del mercado local."
+              delay={100}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              }
+              title="Transacciones Seguras"
+              description="Verificación legal completa de cada propiedad. Acompañamiento en documentación, escrituración y trámites."
+              delay={200}
+            />
+            <BenefitCard
+              icon={
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+              }
+              title="Atención Personalizada"
+              description="Un asesor comercial dedicado a tu negocio. Sin chatbots, sin demoras, solo soluciones."
+              delay={300}
+            />
+          </div>
+
+          {/* ───────── CTA INFERIOR ───────── */}
+          <div className="text-center mt-16 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
+            <a
+              href="/contact"
+              className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {/* Shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <span className="absolute inset-0 rounded-xl border border-white/20 group-hover:border-white/40 transition-colors duration-300" />
+
+              <span className="relative z-10">Agendar una Consulta Gratuita</span>
+              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+
+   {/* ═══════════════════════════════════════════════════════
     SECCIÓN VALOR PRINCIPAL - JIMENA SÁNCHEZ PROPIEDADES
     ═══════════════════════════════════════════════════════ */}
       <section className="relative -mt-20 py-25 lg:py-28 overflow-hidden bg-slate-950">
@@ -612,110 +716,6 @@ function PageContent() {
           </div>
         </div>
       </section>
-
-
-
-
-      {/* ═══════════════════════════════════════════════════════
-    SECCIÓN BENEFICIOS - JIMENA SÁNCHEZ PROPIEDADES
-    ═══════════════════════════════════════════════════════ */}
-      <section className="relative py-20 lg:py-28 overflow-hidden bg-slate-950">
-
-        {/* ✨ Background ambiental coherente */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/15 to-cyan-500/15 opacity-40" style={{ filter: 'blur(150px)' }} />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" aria-hidden="true" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8">
-
-          {/* ───────── HEADER ───────── */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fadeInUp">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gradient-to-r from-cyan-400 to-purple-500" />
-              </span>
-              <span className="text-[11px] tracking-[0.25em] uppercase text-slate-400 font-medium">
-                Nuestra Diferencia
-              </span>
-            </span>
-
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              ¿Por qué confiar en Jimena Sánchez?
-            </h2>
-
-            <p className="text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
-              Una experiencia inmobiliaria transparente, personalizada y orientada a resultados reales para tu inversión.
-            </p>
-          </div>
-
-          {/* ───────── GRID DE BENEFICIOS ───────── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <BenefitCard
-              icon={
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                </svg>
-              }
-              title="Asesoramiento Experto"
-              description="Guía profesional en cada paso: desde la búsqueda hasta la firma. Conocimiento profundo del mercado inmobiliario."
-              delay={0}
-            />
-            <BenefitCard
-              icon={
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                </svg>
-              }
-              title="Negociación Estratégica"
-              description="Maximizo el valor de tu operación con técnicas de negociación probadas y conocimiento del mercado local."
-              delay={100}
-            />
-            <BenefitCard
-              icon={
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-              }
-              title="Transacciones Seguras"
-              description="Verificación legal completa de cada propiedad. Acompañamiento en documentación, escrituración y trámites."
-              delay={200}
-            />
-            <BenefitCard
-              icon={
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-              }
-              title="Atención Personalizada"
-              description="Un asesor comercial dedicado a tu negocio. Sin chatbots, sin demoras, solo soluciones."
-              delay={300}
-            />
-          </div>
-
-          {/* ───────── CTA INFERIOR ───────── */}
-          <div className="text-center mt-16 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
-            <a
-              href="/contact"
-              className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {/* Shine effect */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-              <span className="absolute inset-0 rounded-xl border border-white/20 group-hover:border-white/40 transition-colors duration-300" />
-
-              <span className="relative z-10">Agendar una Consulta Gratuita</span>
-              <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </section>
-
-
 
 
       <br />
