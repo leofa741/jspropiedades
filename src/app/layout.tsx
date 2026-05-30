@@ -67,7 +67,7 @@ export default function RootLayout({
     <html lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} dark`}
       suppressHydrationWarning={true}>
-      <body className="bg-white text-gray-600 dark:bg-[#0d0d0d] dark:text-white transition-colors duration-500">
+      <body className=" dark:bg-[#0d0d0d] dark:text-white transition-colors duration-500">
 
         <Providers>
           <header>
