@@ -382,8 +382,7 @@ function PageContent() {
             <br />
             <br />
             <br />
-            <br />
-            <br />
+
 
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />

@@ -49,7 +49,7 @@ export default function Contact() {
   const [isMobile, setIsMobile] = useState(false);
 
 
-  
+
 
   // Detectar móvil para ajustes de UX
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function Contact() {
   return (
     // ✅ KEY FIX: scroll-pt-20 para compensar navbar fijo + safe-area para iOS
     <div className="relative min-h-screen bg-slate-950 overflow-hidden scroll-pt-20 sm:scroll-pt-24">
-      
+
       {/* ✨ Background ambiental */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950" />
@@ -139,13 +139,11 @@ export default function Contact() {
       {/* ✅ KEY FIX: pt-24 sm:pt-28 + pb-[env(safe-area-inset-bottom)] para iOS */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 lg:py-12 pb-[env(safe-area-inset-bottom)]">
 
-        <br/>
-        <br/>
-         <br/>
-        <br/>
-         <br/>
-        <br/>
-        
+        <br />
+        <br />
+        <br />
+        <br />
+
         {/* ───────── HEADER ───────── */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 animate-fadeInUp">
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-4 sm:mb-6">
@@ -157,33 +155,33 @@ export default function Contact() {
               Contacto
             </span>
           </span>
-          
+
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 leading-tight">
             Comencemos tu próximo proyecto inmobiliario
           </h1>
-          
+
           <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto px-2">
             Ya sea que quieras comprar, vender o alquilar, estoy aquí para guiarte en cada paso con asesoramiento experto y resultados reales.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
-          
+
           {/* ───────── COLUMNA IZQUIERDA: INFO + WHATSAPP ───────── */}
           <div className="lg:col-span-4 space-y-4 sm:space-y-6">
-            
+
             {/* Card: ¿En qué puedo ayudarte? */}
             <div className="group relative p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
               <div className="absolute inset-[1px] rounded-2xl bg-slate-900/90 -z-10" />
-              
+
               <h2 className="relative text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2.5">
                 <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br ${gradients.accent} flex items-center justify-center text-white flex-shrink-0`}>
                   <Icons.Building />
                 </span>
                 ¿En qué puedo ayudarte?
               </h2>
-              
+
               <ul className="relative space-y-3">
                 {[
                   { icon: <Icons.Key />, label: 'Comprar una propiedad', desc: 'Encontrá tu hogar ideal o inversión' },
@@ -206,12 +204,12 @@ export default function Contact() {
             <div className="group relative p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
               <div className="absolute inset-[1px] rounded-2xl bg-slate-900/90 -z-10" />
-              
+
               <h3 className="relative text-base sm:text-lg font-semibold text-white mb-4">Contacto directo</h3>
-              
+
               <div className="relative space-y-3 sm:space-y-4">
                 {/* WhatsApp - CTA principal con touch target ampliado */}
-                <a  
+                <a
                   href={`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me interesa consultarte sobre una propiedad`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -256,9 +254,9 @@ export default function Contact() {
               {/* Glow exterior */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-lg -z-10 pointer-events-none" />
               <div className="absolute inset-[1px] rounded-2xl bg-slate-900/90 -z-10" />
-              
+
               <form onSubmit={handleSubmit} className="relative space-y-4 sm:space-y-6">
-                
+
                 {/* Fila 1: Nombre + Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormFieldMobile
@@ -387,11 +385,10 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`group relative w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden min-h-[52px] ${
-                    loading 
-                      ? 'bg-slate-700 cursor-not-allowed opacity-70' 
+                  className={`group relative w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-500 overflow-hidden min-h-[52px] ${loading
+                      ? 'bg-slate-700 cursor-not-allowed opacity-70'
                       : `bg-gradient-to-r ${gradients.primary} hover:shadow-2xl hover:shadow-purple-900/40 active:scale-[0.98]`
-                  } text-white`}
+                    } text-white`}
                 >
                   {!loading && (
                     <>
@@ -399,7 +396,7 @@ export default function Contact() {
                       <span className="absolute inset-0 rounded-xl border border-white/20 group-hover:border-white/40 transition-colors duration-300" />
                     </>
                   )}
-                  
+
                   {loading ? (
                     <>
                       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -420,13 +417,12 @@ export default function Contact() {
 
                 {/* Status Message - Sticky en móvil para siempre visible */}
                 {status.message && (
-                  <div 
+                  <div
                     id="status-message"
-                    className={`sticky top-20 sm:top-24 z-20 p-4 rounded-xl border backdrop-blur-md ${
-                      status.type === 'success' 
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    className={`sticky top-20 sm:top-24 z-20 p-4 rounded-xl border backdrop-blur-md ${status.type === 'success'
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                         : 'bg-red-500/10 border-red-500/30 text-red-400'
-                    }`}
+                      }`}
                   >
                     <p className="text-sm font-medium text-center">{status.message}</p>
                   </div>
@@ -448,13 +444,13 @@ export default function Contact() {
 // ─────────────────────────────────────────────────────────────
 // COMPONENTE DE CAMPO OPTIMIZADO PARA MÓVIL
 // ─────────────────────────────────────────────────────────────
-const FormFieldMobile = ({ 
-  id, 
-  label, 
-  type = 'text', 
-  value, 
-  onChange, 
-  placeholder, 
+const FormFieldMobile = ({
+  id,
+  label,
+  type = 'text',
+  value,
+  onChange,
+  placeholder,
   required = false,
   isMobile = false
 }: {
