@@ -43,7 +43,7 @@ const Icons = {
   ),
 };
 export default function Contact() {
-  const [form, setForm] = useState({ /* ... */ });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', interest: '', propertyType: '', location: '', budget: '', message: '' });
   const [status, setStatus] = useState<{ type: 'success' | 'error' | ''; message: string }>({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
