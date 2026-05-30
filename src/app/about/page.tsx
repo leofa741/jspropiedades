@@ -144,6 +144,13 @@ export default function AboutPage() {
 
   return (
     <div className="relative min-h-screen bg-slate-950 overflow-hidden">
+
+       <br/>
+        <br/>
+         <br/>
+        <br/>
+         <br/>
+        <br/>
       
       {/* ✨ Background ambiental */}
       <div className="absolute inset-0">

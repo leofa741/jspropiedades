@@ -138,6 +138,13 @@ export default function Contact() {
 
       {/* ✅ KEY FIX: pt-24 sm:pt-28 + pb-[env(safe-area-inset-bottom)] para iOS */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 lg:py-12 pb-[env(safe-area-inset-bottom)]">
+
+        <br/>
+        <br/>
+         <br/>
+        <br/>
+         <br/>
+        <br/>
         
         {/* ───────── HEADER ───────── */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 animate-fadeInUp">
