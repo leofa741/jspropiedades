@@ -71,7 +71,7 @@ export default function RootLayout({
 
         <Providers>
           <header>
-            <div className="pt-10">
+            <div className="pt-1">
               <Navbar />
             </div>
           </header>
