@@ -200,7 +200,7 @@ export default function Navbar() {
           aria-hidden="true"
         />
 
-        {/* ───────── TOP BAR ELEGANTE ───────── */}
+        {/* ───────── TOP BAR ELEGANTE ───────── 
         <div
           className={`hidden lg:block transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-16 opacity-100'
             }`}
@@ -243,7 +243,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-        </div>
+        </div>*/}
 
         {/* ───────── MAIN NAV ───────── */}
         <div className={`max-w-7xl mx-auto px-4 lg:px-8 transition-all duration-500 ${scrolled ? 'py-3' : 'py-4'}`}>
