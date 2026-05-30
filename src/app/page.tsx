@@ -250,15 +250,17 @@ function PageContent() {
 
 
       {/* Hero Banner (ya lo tienes en Banner.tsx) */}
-      <div className="relative w-full -top-10 left-0 right-0 ">
+      <div className="relative w-full  left-0 right-0 ">
 
         <VideoHero
           videoSrc="/videos/videoblocks-od13382-hd_1.mp4"
           overlayOpacity={0.4}
+         
+
         >
 
 
-          <div className="w-full max-w-7xl mx-auto px-6 pt-50">
+          <div className=" max-w-7xl mx-auto px-6 pt-50">
             <RotatingCircle
               text="✦ ANEMIJ ✦ SEDADEIPORP  "
               size={200}
@@ -377,13 +379,16 @@ function PageContent() {
                     </p>
                   </div>
 
+                  <br />
+                  <br />
+
                   <a
                     href="https://wa.me/+5491161959365"
                     className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-bold uppercase tracking-wide hover:bg-purple-300 transition-all duration-300"
                   >
                     Reservar
                   </a>
-                  <br />
+                
                   
                 </div>
               </div>
