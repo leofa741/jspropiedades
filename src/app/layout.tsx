@@ -12,8 +12,6 @@ import { Analytics } from "@vercel/analytics/react"
 import Loader from "./components/loading/Loader";
 import VersionChecker from "./components/version/VersionChecker";
 
-
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,26 +25,38 @@ const geistMono = Geist_Mono({
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
-  weight: ["400"], // Podés elegir los pesos que quieras
+  weight: ["400"],
 });
 
+// 🔹 URL base para SEO (cambiar por tu dominio real en producción)
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jimenasanchezpropiedades.ar';
 
 export const metadata: Metadata = {
   title: "Inmobiliaria Jimena Sánchez",
-  description:
-    "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
-  keywords:
-    "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
-  authors: [{ name: "Inmobiliaria Jimena Sánchez", url: "https://inmobiliariajimena.com.ar" }],
+  description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
+  keywords: "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
+  authors: [{ name: "Inmobiliaria Jimena Sánchez", url: SITE_URL }],
+  
+  // 🔹 URL canónica y base para metadatos
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+  },
+  
+  // ✅ VERIFICACIÓN DE GOOGLE SEARCH CONSOLE
+  verification: {
+    google: 'X1wT9mG1hbcYgCVE2UuovabT8IrZOiSrQPR2CUrFK40',
+  },
+  
+  // 🔹 Open Graph / Redes sociales
   openGraph: {
     title: "Inmobiliaria Jimena Sánchez",
-    description:
-      "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
-    url: "https://inmobiliariajimena.com.ar",
+    description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
+    url: SITE_URL,
     siteName: "Inmobiliaria Jimena Sánchez",
     images: [
       {
-        url: "https://inmobiliariajimena.com.ar/og-image.jpg",
+        url: "/og-image.jpg", // ✅ Usar ruta relativa para que Next.js lo optimice
         width: 1200,
         height: 630,
         alt: "Inmobiliaria Jimena Sánchez",
@@ -55,8 +65,15 @@ export const metadata: Metadata = {
     locale: "es_AR",
     type: "website",
   },
+  
+  // 🔹 Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: "Inmobiliaria Jimena Sánchez",
+    description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
+    images: ["/og-image.jpg"],
+  },
 };
-
 
 export default function RootLayout({
   children,
@@ -64,34 +81,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es"
+    <html 
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} dark`}
-      suppressHydrationWarning={true}>
+      suppressHydrationWarning={true}
+    >
+      <head>
+        {/* ✅ Favicon y manifest (opcional pero recomendado) */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
+      
       <body
         className="bg-[#0d0d0d] text-white font-sans transition-colors duration-300"
         style={{
           backgroundImage: `
-        radial-gradient(circle at 50% 0%, #040d21 0%, transparent 40%),
-        radial-gradient(circle at 0% 50%, #111827 0%, transparent 40%),
-        radial-gradient(circle at 100% 50%, #0b0c1a 0%, transparent 40%),
-        radial-gradient(circle at 50% 100%, #040b16 0%, transparent 40%)
-      `
-        }}>
-      
-
-    
-
-
-
+            radial-gradient(circle at 50% 0%, #040d21 0%, transparent 40%),
+            radial-gradient(circle at 0% 50%, #111827 0%, transparent 40%),
+            radial-gradient(circle at 100% 50%, #0b0c1a 0%, transparent 40%),
+            radial-gradient(circle at 50% 100%, #040b16 0%, transparent 40%)
+          `
+        }}
+      >
         <Providers>
           <header>
             <div className="pt-1">
               <Navbar />
             </div>
           </header>
+          
           <main>
             <VersionChecker />
             {children}
+            
             {/* Botón flotante de WhatsApp — versión mejorada */}
             <a
               href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
@@ -144,12 +166,10 @@ export default function RootLayout({
               theme="light"
               style={{ zIndex: 9999 }}
             />
-
           </main>
 
           <Footer />
         </Providers>
-
       </body>
     </html>
   );
