@@ -99,9 +99,7 @@ interface PropertyResponse {
 function PropertiesTableSkeleton() {
   return (
     <div className="bg-slate-900/80 rounded-xl border border-slate-700/50 overflow-hidden backdrop-blur-sm animate-pulse">
-        <br />
-         <br />
-          <br />
+      
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1200px]">
@@ -494,6 +492,10 @@ function PageContent() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 opacity-40" style={{ filter: 'blur(150px)' }} />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" aria-hidden="true" />
     </div>
+
+        <br />
+         <br />
+          <br />
 
     {/* 🔹 Contenido con z-10 */}
     <div className="relative z-10">
