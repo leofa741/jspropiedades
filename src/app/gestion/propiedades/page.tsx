@@ -99,6 +99,10 @@ interface PropertyResponse {
 function PropertiesTableSkeleton() {
   return (
     <div className="bg-slate-900/80 rounded-xl border border-slate-700/50 overflow-hidden backdrop-blur-sm animate-pulse">
+        <br />
+         <br />
+          <br />
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1200px]">
           <thead className="bg-slate-800/50 text-slate-300 text-xs uppercase tracking-wider">
