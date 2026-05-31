@@ -756,6 +756,7 @@ function PageContent() {
                     <option value="local">Local Comercial</option>
                     <option value="oficina">Oficina</option>
                     <option value="terreno">Terreno</option>
+                    <option value="local">Campo</option>
                     <option value="cochera">Cochera</option>
                     <option value="galpon">Galpón</option>
                     <option value="ph">PH</option>
