@@ -67,7 +67,7 @@ export default function Navbar() {
 
   const watsapp = 5491132538837
   const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
-  
+
 
   useEffect(() => {
     return () => {
@@ -200,7 +200,7 @@ export default function Navbar() {
           aria-hidden="true"
         />
 
-    
+
 
         {/* ───────── MAIN NAV ───────── */}
         <div className={`max-w-7xl mx-auto px-4 lg:px-8 transition-all duration-500 ${scrolled ? 'py-3' : 'py-6'}`}>
@@ -399,12 +399,12 @@ export default function Navbar() {
                       <span
                         className="text-xs font-light">Mi perfil</span>
 
-                   
 
-                    <div>
-                      <span className="font-medium tracking-wide">{name?.split(' ')[0]}</span>
+
+                      <div>
+                        <span className="font-medium tracking-wide">{name?.split(' ')[0]}</span>
+                      </div>
                     </div>
- </div>
                   </Link>
 
                   {(role === 'admin' || role === 'vendedor') && (
@@ -554,7 +554,8 @@ export default function Navbar() {
                         categories.map((cat, index) => (
                           <Link
                             key={cat.slug}
-                            href={`/categoria/${cat.slug}`}
+                            href={`/propiedades?tipo=${cat.slug}`}
+
                             onClick={closeMenu}
                             className="group/item block py-3.5 px-4 text-slate-400 hover:text-white transition-all duration-300 rounded-lg text-sm relative overflow-hidden"
                             style={{ animationDelay: `${index * 25}ms` }}
