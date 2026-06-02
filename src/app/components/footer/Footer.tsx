@@ -11,6 +11,7 @@ const Footer = () => {
 
   const watsapp = 5491132538837
   const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
+  const EMAIL_JIMENA = 'hola@jimenasanchezpropiedades.ar';
 
   // ─────────────────────────────────────────────────────────
   // FUNCIONES DE COMPARTIR
@@ -243,7 +244,7 @@ const Footer = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </span>
-                  <span className="group-hover:text-white transition-colors">contacto@luxuryre.com</span>
+                  <span className="group-hover:text-white transition-colors">{EMAIL_JIMENA}</span>
                 </a>
                 
                 <div className="flex items-center space-x-3 text-slate-400">

@@ -4,6 +4,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+// Email Jimena
+ const EMAIL_JIMENA = 'hola@jimenasanchezpropiedades.ar';
 const Icons = {
   Building: () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -228,9 +231,11 @@ export default function Contact() {
                 </a>
 
                 {/* Email */}
-                <a href="mailto:contacto@jimenasanchezpropiedades.com" className="group/email flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors active:scale-[0.98]">
+                <a href={`mailto:${EMAIL_JIMENA}`} className="group/email flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors active:scale-[0.98]">
                   <span className="text-purple-400 flex-shrink-0"><Icons.Email /></span>
-                  <span className="text-slate-300 group-hover/email:text-white transition-colors text-sm truncate">contacto@jimenasanchezpropiedades.com</span>
+                  <span className="text-slate-300 group-hover/email:text-white transition-colors text-sm truncate">
+                    {EMAIL_JIMENA}
+                  </span>
                 </a>
 
                 {/* Teléfono */}
