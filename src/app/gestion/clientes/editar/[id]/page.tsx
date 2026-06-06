@@ -7,10 +7,10 @@ import Link from 'next/link';
 import { 
     FaUser, FaBuilding, FaPhone, FaEnvelope, FaMapMarkerAlt, 
     FaIdCard, FaCreditCard, FaArrowLeft, FaCheck, FaSpinner,
-    FaUndo
+    FaUndo, FaExclamationTriangle
 } from 'react-icons/fa';
 
-// 🎨 Sistema de diseño premium (consistente con el resto del panel)
+// 🎨 Sistema de diseño premium
 const theme = {
     bg: 'bg-slate-950',
     bgCard: 'bg-slate-900/80',
@@ -34,7 +34,7 @@ interface Cliente {
   nombre: string;
   apellido: string;
   dni: string | null;
-  telefono: string;
+  telefono: string | null;
   email: string | null;
   direccion: string | null;
   ciudad: string | null;
@@ -56,6 +56,14 @@ interface ClienteForm {
   formaPago: 'efectivo' | 'transferencia' | 'qr' | 'tarjeta' | 'cuenta_corriente' | 'otro';
 }
 
+// 🚨 Estado para errores de campos específicos
+interface FieldErrors {
+  razonSocial?: string;
+  dni?: string;
+  telefono?: string;
+  email?: string;
+}
+
 // 🎨 Helper para estilos de forma de pago
 const getFormaPagoStyle = (forma: string) => {
     const styles: Record<string, { bg: string; text: string }> = {
@@ -70,9 +78,6 @@ const getFormaPagoStyle = (forma: string) => {
 };
 
 export default function EditarClientePage() {
-  // ─────────────────────────────────────────────────────
-  // ⚙️ LÓGICA ORIGINAL (SIN CAMBIOS - solo estética)
-  // ─────────────────────────────────────────────────────
   const isAuthorized = useAdminAuthorization();
   const { id } = useParams() as { id?: string };
   const router = useRouter();
@@ -83,6 +88,9 @@ export default function EditarClientePage() {
     email: '', direccion: '', ciudad: '', provincia: '', formaPago: 'efectivo',
   });
   const [originalForm, setOriginalForm] = useState<ClienteForm | null>(null);
+  
+  // 🚨 Estado para errores de validación en campos específicos
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     if (!isAuthorized || !id) return;
@@ -91,16 +99,29 @@ export default function EditarClientePage() {
         const res = await fetch(`/api/gestion/clientes/${id}`);
         if (!res.ok) { toast.error('Cliente no encontrado'); router.push('/gestion/clientes'); return; }
         const cliente: Cliente = await res.json();
-        const formData = {
-          razonSocial: cliente.razonSocial, nombre: cliente.nombre, apellido: cliente.apellido,
-          dni: cliente.dni || '', telefono: cliente.telefono, email: cliente.email || '',
-          direccion: cliente.direccion || '', ciudad: cliente.ciudad || '',
-          provincia: cliente.provincia || '', formaPago: cliente.formaPago,
+        
+        // ✅ FIX: Asegurar que TODOS los campos sean strings (nunca null/undefined)
+        const formData: ClienteForm = {
+          razonSocial: cliente.razonSocial || '',
+          nombre: cliente.nombre || '',
+          apellido: cliente.apellido || '',
+          dni: cliente.dni || '',
+          telefono: cliente.telefono || '',
+          email: cliente.email || '',
+          direccion: cliente.direccion || '',
+          ciudad: cliente.ciudad || '',
+          provincia: cliente.provincia || '',
+          formaPago: cliente.formaPago || 'efectivo',
         };
+        
         setForm(formData);
         setOriginalForm(formData);
-      } catch (err) { toast.error('Error al cargar el cliente'); router.push('/gestion/clientes');
-      } finally { setLoading(false); }
+      } catch (err) { 
+        toast.error('Error al cargar el cliente'); 
+        router.push('/gestion/clientes');
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchCliente();
   }, [isAuthorized, id, router]);
@@ -121,10 +142,16 @@ export default function EditarClientePage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    
+    // 🚨 Limpiar error del campo cuando el usuario empieza a escribir
+    if (fieldErrors[name as keyof FieldErrors]) {
+      setFieldErrors(prev => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleReset = () => {
     if (originalForm) setForm(originalForm);
+    setFieldErrors({});
     toast.info('Cambios descartados');
   };
 
@@ -142,33 +169,120 @@ export default function EditarClientePage() {
     return true;
   };
 
+  // 🚨 Función para mapear errores del backend a campos específicos
+  const mapBackendErrorToField = (errorMessage: string): FieldErrors => {
+    const errors: FieldErrors = {};
+    const lowerError = errorMessage.toLowerCase();
+    
+    if (lowerError.includes('razón social') || lowerError.includes('razon social')) {
+      errors.razonSocial = '⚠️ ' + errorMessage;
+    }
+    if (lowerError.includes('teléfono') || lowerError.includes('telefono')) {
+      errors.telefono = '⚠️ ' + errorMessage;
+    }
+    if (lowerError.includes('dni')) {
+      errors.dni = '⚠️ ' + errorMessage;
+    }
+    if (lowerError.includes('email') || lowerError.includes('correo')) {
+      errors.email = '⚠️ ' + errorMessage;
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm() || !id) return;
+    
+    // 🚨 Limpiar errores anteriores antes de enviar
+    setFieldErrors({});
     setSaving(true);
+    
     try {
       const clienteData = {
-        razonSocial: form.razonSocial.trim(), nombre: form.nombre.trim(), apellido: form.apellido.trim(),
-        dni: form.dni.trim() || null, telefono: form.telefono.trim(), email: form.email.trim() || null,
-        direccion: form.direccion.trim() || null, ciudad: form.ciudad.trim() || null,
-        provincia: form.provincia.trim() || null, formaPago: form.formaPago,
+        razonSocial: form.razonSocial.trim(), 
+        nombre: form.nombre.trim(), 
+        apellido: form.apellido.trim(),
+        dni: form.dni.trim() || null, 
+        telefono: form.telefono.trim(), 
+        email: form.email.trim() || null,
+        direccion: form.direccion.trim() || null, 
+        ciudad: form.ciudad.trim() || null,
+        provincia: form.provincia.trim() || null, 
+        formaPago: form.formaPago,
       };
+      
       const res = await fetch(`/api/gestion/clientes/${id}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(clienteData),
       });
-      if (res.ok) { toast.success('✅ Cliente actualizado con éxito'); router.push('/gestion/clientes');
-      } else { const error = await res.json(); toast.error(error.error || 'Error al actualizar el cliente'); }
-    } catch (err: any) { console.error(err); toast.error('Error de conexión con el servidor');
-    } finally { setSaving(false); }
+      
+      if (res.ok) { 
+        toast.success('✅ Cliente actualizado con éxito'); 
+        router.push('/gestion/clientes');
+      } else { 
+        const error = await res.json();
+        const errorMessage = error.error || 'Error al actualizar el cliente';
+        
+        // 🚨 Si es error 409 (duplicado), mostrar en el campo específico
+        if (res.status === 409) {
+          const fieldErrors = mapBackendErrorToField(errorMessage);
+          setFieldErrors(fieldErrors);
+          
+          // Mostrar toast con el error específico
+          toast.error(errorMessage);
+          
+          // Scroll al primer campo con error
+          const firstErrorField = Object.keys(fieldErrors)[0];
+          if (firstErrorField) {
+            const element = document.querySelector(`[name="${firstErrorField}"]`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              (element as HTMLInputElement).focus();
+            }
+          }
+        } else {
+          toast.error(errorMessage);
+        }
+      }
+    } catch (err: any) { 
+      console.error(err); 
+      toast.error('Error de conexión con el servidor');
+    } finally { 
+      setSaving(false); 
+    }
   };
 
-  // Detectar cambios para habilitar botón de guardar
   const hasChanges = JSON.stringify(form) !== JSON.stringify(originalForm);
 
-  // ─────────────────────────────────────────────────────
-  // 🎨 JSX CON ESTÉTICA PREMIUM (funcionalidad intacta)
-  // ─────────────────────────────────────────────────────
+  // 🚨 Función helper para obtener clases de input según errores
+  const getInputClassName = (fieldName: keyof FieldErrors, baseClasses: string) => {
+    const hasError = fieldErrors[fieldName];
+    
+    if (hasError) {
+      return `${baseClasses} border-rose-500/70 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 bg-rose-950/10`;
+    }
+    
+    return baseClasses;
+  };
+
+  // 🚨 Componente para mostrar mensaje de error debajo del campo
+  const FieldErrorMessage = ({ fieldName }: { fieldName: keyof FieldErrors }) => {
+    const error = fieldErrors[fieldName];
+    if (!error) return null;
+    
+    return (
+      <div className="mt-2 flex items-start gap-2 text-rose-400 text-sm animate-in fade-in slide-in-from-top-1 duration-300">
+        <FaExclamationTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        <span className="font-medium">{error}</span>
+      </div>
+    );
+  };
+
+  // Clases base para inputs
+  const inputBaseClasses = `w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`;
+
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.textPrimary} relative overflow-hidden`}>
       <br/><br/><br/>
@@ -240,10 +354,15 @@ export default function EditarClientePage() {
                       Razón Social <span className="text-rose-400">*</span>
                     </label>
                     <input
-                      type="text" name="razonSocial" value={form.razonSocial} onChange={handleChange} required
-                      className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                      type="text" 
+                      name="razonSocial" 
+                      value={form.razonSocial} 
+                      onChange={handleChange} 
+                      required
+                      className={getInputClassName('razonSocial', inputBaseClasses)}
                       placeholder="Ej: Inmobiliaria Premium SRL"
                     />
+                    <FieldErrorMessage fieldName="razonSocial" />
                   </div>
 
                   {/* Nombre y Apellido */}
@@ -254,8 +373,12 @@ export default function EditarClientePage() {
                         Nombre <span className="text-rose-400">*</span>
                       </label>
                       <input
-                        type="text" name="nombre" value={form.nombre} onChange={handleChange} required
-                        className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                        type="text" 
+                        name="nombre" 
+                        value={form.nombre} 
+                        onChange={handleChange} 
+                        required
+                        className={inputBaseClasses}
                         placeholder="Juan"
                       />
                     </div>
@@ -265,8 +388,12 @@ export default function EditarClientePage() {
                         Apellido <span className="text-rose-400">*</span>
                       </label>
                       <input
-                        type="text" name="apellido" value={form.apellido} onChange={handleChange} required
-                        className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                        type="text" 
+                        name="apellido" 
+                        value={form.apellido} 
+                        onChange={handleChange} 
+                        required
+                        className={inputBaseClasses}
                         placeholder="Pérez"
                       />
                     </div>
@@ -289,11 +416,15 @@ export default function EditarClientePage() {
                       DNI <span className="text-slate-500 font-normal">(opcional)</span>
                     </label>
                     <input
-                      type="text" name="dni" value={form.dni} onChange={handleChange}
-                      className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                      type="text" 
+                      name="dni" 
+                      value={form.dni} 
+                      onChange={handleChange}
+                      className={getInputClassName('dni', inputBaseClasses)}
                       placeholder="22222222"
                     />
                     <p className="text-xs text-slate-500 mt-1.5 ml-1">7 u 8 dígitos, sin puntos</p>
+                    <FieldErrorMessage fieldName="dni" />
                   </div>
                   
                   {/* Teléfono */}
@@ -303,10 +434,15 @@ export default function EditarClientePage() {
                       Teléfono <span className="text-rose-400">*</span>
                     </label>
                     <input
-                      type="text" name="telefono" value={form.telefono} onChange={handleChange} required
-                      className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                      type="text" 
+                      name="telefono" 
+                      value={form.telefono} 
+                      onChange={handleChange} 
+                      required
+                      className={getInputClassName('telefono', inputBaseClasses)}
                       placeholder="11 1234-5678"
                     />
+                    <FieldErrorMessage fieldName="telefono" />
                   </div>
                 </div>
 
@@ -317,10 +453,14 @@ export default function EditarClientePage() {
                     Email <span className="text-slate-500 font-normal">(opcional)</span>
                   </label>
                   <input
-                    type="email" name="email" value={form.email} onChange={handleChange}
-                    className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                    type="email" 
+                    name="email" 
+                    value={form.email} 
+                    onChange={handleChange}
+                    className={getInputClassName('email', inputBaseClasses)}
                     placeholder="contacto@ejemplo.com"
                   />
+                  <FieldErrorMessage fieldName="email" />
                 </div>
               </section>
 
@@ -339,8 +479,11 @@ export default function EditarClientePage() {
                       Dirección <span className="text-slate-500 font-normal">(opcional)</span>
                     </label>
                     <input
-                      type="text" name="direccion" value={form.direccion} onChange={handleChange}
-                      className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                      type="text" 
+                      name="direccion" 
+                      value={form.direccion} 
+                      onChange={handleChange}
+                      className={inputBaseClasses}
                       placeholder="Av. Corrientes 1234, Piso 5"
                     />
                   </div>
@@ -350,71 +493,28 @@ export default function EditarClientePage() {
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-2">Ciudad <span className="text-slate-500 font-normal">(opcional)</span></label>
                       <input
-                        type="text" name="ciudad" value={form.ciudad} onChange={handleChange}
-                        className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                        type="text" 
+                        name="ciudad" 
+                        value={form.ciudad} 
+                        onChange={handleChange}
+                        className={inputBaseClasses}
                         placeholder="Buenos Aires"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-2">Provincia <span className="text-slate-500 font-normal">(opcional)</span></label>
                       <input
-                        type="text" name="provincia" value={form.provincia} onChange={handleChange}
-                        className={`w-full px-4 py-3 ${theme.bgCard} ${theme.border} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all`}
+                        type="text" 
+                        name="provincia" 
+                        value={form.provincia} 
+                        onChange={handleChange}
+                        className={inputBaseClasses}
                         placeholder="CABA"
                       />
                     </div>
                   </div>
                 </div>
               </section>
-
-              {/* 💳 Sección: Forma de Pago 
-              <section>
-                <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-xs font-bold">4</span>
-                  Condiciones Comerciales
-                </h2>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
-                    <FaCreditCard className="text-violet-400 w-4 h-4" />
-                    Forma de Pago Preferida
-                  </label>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {(['efectivo', 'transferencia', 'qr', 'tarjeta', 'cuenta_corriente', 'otro'] as const).map((opcion) => {
-                      const style = getFormaPagoStyle(opcion);
-                      const labels: Record<string, string> = {
-                        efectivo: 'Efectivo', transferencia: 'Transferencia', qr: 'QR / MP',
-                        tarjeta: 'Tarjeta', cuenta_corriente: 'Cta. Cte.', otro: 'Otro'
-                      };
-                      return (
-                        <label 
-                          key={opcion}
-                          className={`
-                            relative cursor-pointer group
-                            px-4 py-3 rounded-xl border text-center transition-all duration-200
-                            ${form.formaPago === opcion 
-                              ? `${style.bg} ${style.text} border-violet-500/50 ring-2 ring-violet-500/30` 
-                              : `bg-slate-800/40 border-slate-600/30 text-slate-400 hover:border-violet-500/30 hover:text-slate-300`
-                            }
-                          `}
-                        >
-                          <input
-                            type="radio" name="formaPago" value={opcion} checked={form.formaPago === opcion} onChange={handleChange}
-                            className="sr-only"
-                          />
-                          <span className="text-sm font-medium">{labels[opcion]}</span>
-                          {form.formaPago === opcion && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                              <FaCheck className="w-2.5 h-2.5 text-white" />
-                            </span>
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              </section> */}
 
               {/* ✨ Divider decorativo */}
               <div className={`h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent`} />
@@ -490,6 +590,9 @@ export default function EditarClientePage() {
             <p className={`${theme.textSecondary} text-[10px] tracking-[0.25em] uppercase`}>
               Los campos marcados con <span className="text-rose-400">*</span> son obligatorios • 
               <span className="ml-1 text-violet-400"> {hasChanges ? '• Cambios sin guardar' : '• Todo actualizado'}</span>
+              {Object.keys(fieldErrors).length > 0 && (
+                <span className="ml-1 text-rose-400">• {Object.keys(fieldErrors).length} campo(s) con duplicados</span>
+              )}
             </p>
           </footer>
         </main>

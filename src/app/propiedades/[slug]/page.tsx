@@ -1,4 +1,3 @@
-// app/propiedad/[slug]/page.tsx
 'use client';
 
 import { useEffect, useState, Suspense, useCallback } from 'react';
@@ -8,7 +7,7 @@ import Image from 'next/image';
 import { 
   FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding, 
   FaStar, FaWhatsapp, FaEnvelope, FaBed, FaBath, FaRulerCombined,
-  FaChevronLeft, FaChevronRight
+  FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
 import AlertButton from '@/app/components/ui/AlertButton';
@@ -107,10 +106,11 @@ function PageContent() {
   const [propiedad, setPropiedad] = useState<PublicProperty | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-  const [initialImageSet, setInitialImageSet] = useState(false); // 🔹 NUEVO: para evitar reseteos
+  const [initialImageSet, setInitialImageSet] = useState(false);
+  const [copied, setCopied] = useState(false); // 🆕 Estado para feedback de copiado
 
-  const watsapp = 5491132538837
-  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad'
+  const watsapp = 5491132538837;
+  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad';
 
   // 📥 Cargar propiedad por slug
   useEffect(() => {
@@ -145,7 +145,7 @@ function PageContent() {
     fetchProperty();
   }, [slug]);
 
-  // 🔹 NUEVO: Establecer imagen principal SOLO UNA VEZ al cargar
+  // 🔹 Establecer imagen principal SOLO UNA VEZ al cargar
   useEffect(() => {
     if (!propiedad || initialImageSet) return;
     
@@ -160,10 +160,10 @@ function PageContent() {
     if (principalIndex !== -1) {
       setActiveImage(principalIndex);
     }
-    setInitialImageSet(true); // 🔹 Marcar como inicializado para no resetear después
+    setInitialImageSet(true);
   }, [propiedad, initialImageSet]);
 
-  // 🔹 Handlers de navegación (con useCallback para optimización)
+  // 🔹 Handlers de navegación
   const goToPrevious = useCallback(() => {
     setActiveImage(prev => Math.max(0, prev - 1));
   }, []);
@@ -179,6 +179,59 @@ function PageContent() {
       return Math.min(allImages.length - 1, prev + 1);
     });
   }, [propiedad]);
+
+  // 🆕 Handler para compartir
+  const handleShare = async () => {
+    if (!propiedad?.slug) return;
+    
+    const url = `${window.location.origin}/propiedad/${propiedad.slug}`;
+    const text = `Mirá esta propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
+    
+    // Intentar usar Web Share API si está disponible
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: propiedad.titulo,
+          text: text,
+          url: url
+        });
+      } catch (err) {
+        // Si el usuario cancela o hay error, copiar al portapapeles
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(url);
+        }
+      }
+    } else {
+      // Fallback: copiar al portapapeles
+      copyToClipboard(url);
+    }
+  };
+
+  // 🆕 Función para copiar al portapapeles
+  const copyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Error al copiar:', err);
+      // Fallback para navegadores antiguos
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Error al copiar:', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   // 🔒 Loading state
   if (loading) {
@@ -218,7 +271,7 @@ function PageContent() {
     caracteristicas = {},
   } = propiedad;
 
-  // 🔹 Preparar array de imágenes (solo para lectura, no afecta estado)
+  // 🔹 Preparar array de imágenes
   const allImages = imagenes.length > 0 
     ? imagenes 
     : propiedad.imagen 
@@ -227,8 +280,8 @@ function PageContent() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-24">
-        <br></br>
-        <br></br>
+      <br></br>
+      <br></br>
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Link href="/propiedades" className="text-slate-400 hover:text-violet-400 flex items-center gap-2 text-sm">
@@ -270,10 +323,9 @@ function PageContent() {
               )}
             </div>
             
-            {/* Navegación de galería - SOLO si hay más de 1 imagen */}
+            {/* Navegación de galería */}
             {allImages.length > 1 && (
               <>
-                {/* Flecha izquierda */}
                 <button
                   onClick={goToPrevious}
                   disabled={activeImage === 0}
@@ -287,7 +339,6 @@ function PageContent() {
                   <FaChevronLeft className="w-5 h-5" />
                 </button>
                 
-                {/* Flecha derecha */}
                 <button
                   onClick={goToNext}
                   disabled={activeImage === allImages.length - 1}
@@ -311,7 +362,7 @@ function PageContent() {
             )}
           </div>
           
-          {/* Thumbnails - SOLO si hay más de 1 imagen */}
+          {/* Thumbnails */}
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {allImages.map((img, index) => (
@@ -341,13 +392,6 @@ function PageContent() {
             </div>
           )}
         </div>
-        
-        {/* Debug: mostrar cuántas imágenes hay (remover en producción)
-        {process.env.NODE_ENV === 'development' && (
-          <p className="text-xs text-slate-500 mt-2 text-center">
-            Debug: {allImages.length} imágenes, activa: {activeImage}
-          </p>
-        )} */}
       </div>
 
       {/* Contenido principal */}
@@ -461,12 +505,34 @@ function PageContent() {
                 </a>
                 
                 <a
-                  href= {`mailto:[EMAIL_ADDRESS]?subject=Consulta: ${encodeURIComponent(titulo)}`}
+                  href={`mailto:info@tumarca.ar?subject=Consulta: ${encodeURIComponent(titulo)}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700/50"
                 >
                   <FaEnvelope className="w-5 h-5" />
                   Enviar email
                 </a>
+
+                {/* 🆕 Botón de compartir */}
+                <button
+                  onClick={handleShare}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${
+                    copied 
+                      ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400' 
+                      : 'bg-violet-600/20 border-violet-500/50 text-violet-400 hover:bg-violet-600/30 hover:border-violet-500/70'
+                  }`}
+                >
+                  {copied ? (
+                    <>
+                      <FaCheck className="w-5 h-5" />
+                      ¡Link copiado!
+                    </>
+                  ) : (
+                    <>
+                      <FaShareAlt className="w-5 h-5" />
+                      Compartir propiedad
+                    </>
+                  )}
+                </button>
               </div>
 
               <div className="absolute top-4 right-4 z-10">
@@ -501,7 +567,7 @@ function PageContent() {
           </div>
         </div>
       </div>
-          <br></br>    <br></br>
+      <br></br>    <br></br>
     </div>
   );
 }

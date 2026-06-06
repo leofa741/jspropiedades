@@ -575,16 +575,9 @@ function PageContent() {
                     )}
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-white/10">
-                    {[
-                      { label: 'Dormitorios', value: '3' },
-                      { label: 'Baños', value: '2' },
-                      { label: 'm²', value: '120' },
-                    ].map((stat, index) => (
-                      <div key={index} className="text-center">
-                        <div className="text-lg font-bold text-white">{stat.value}</div>
-                        <div className="text-[10px] tracking-wide text-slate-500 uppercase">{stat.label}</div>
-                      </div>
-                    ))}
+                    <span>{featuredProperties[0]?.titulo}</span>
+                    <span className="text-xs text-slate-400 block">{featuredProperties[0]?.descripcion}</span>
+
                   </div>
                 </div>
                 <div className="absolute -top-6 -right-6 w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl blur-xl animate-pulse pointer-events-none" aria-hidden="true" />
