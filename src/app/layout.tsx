@@ -11,6 +11,9 @@ import { ToastContainer } from "react-toastify";
 import { Analytics } from "@vercel/analytics/react"
 import Loader from "./components/loading/Loader";
 import VersionChecker from "./components/version/VersionChecker";
+import AudioPlayer from "./components/audioplayer/AudioPlayer";
+import WelcomeModal from "./components/modalplayer/WelcomeModal";
+import FloatingAudioButton from "./components/floatingbut/FloatingAudioButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,18 +39,18 @@ export const metadata: Metadata = {
   description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
   keywords: "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
   authors: [{ name: "Inmobiliaria Jimena Sánchez", url: SITE_URL }],
-  
+
   // 🔹 URL canónica y base para metadatos
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
   },
-  
+
   // ✅ VERIFICACIÓN DE GOOGLE SEARCH CONSOLE
   verification: {
     google: 'X1wT9mG1hbcYgCVE2UuovabT8IrZOiSrQPR2CUrFK40',
   },
-  
+
   // 🔹 Open Graph / Redes sociales
   openGraph: {
     title: "Inmobiliaria Jimena Sánchez",
@@ -65,7 +68,7 @@ export const metadata: Metadata = {
     locale: "es_AR",
     type: "website",
   },
-  
+
   // 🔹 Twitter Card
   twitter: {
     card: "summary_large_image",
@@ -81,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html 
+    <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} dark`}
       suppressHydrationWarning={true}
@@ -91,7 +94,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      
+
       <body
         className="bg-[#0d0d0d] text-white font-sans transition-colors duration-300"
         style={{
@@ -109,11 +112,11 @@ export default function RootLayout({
               <Navbar />
             </div>
           </header>
-          
+
           <main>
             <VersionChecker />
             {children}
-            
+
             {/* Botón flotante de WhatsApp — versión mejorada */}
             <a
               href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
@@ -167,7 +170,8 @@ export default function RootLayout({
               style={{ zIndex: 9999 }}
             />
           </main>
-
+          {/* Reproductor de audio accesible */}
+     <FloatingAudioButton/>
           <Footer />
         </Providers>
       </body>
