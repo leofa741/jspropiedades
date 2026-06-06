@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState, Suspense, useCallback, useRef } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { 
   FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding, 
   FaStar, FaWhatsapp, FaEnvelope, FaBed, FaBath, FaRulerCombined,
@@ -58,36 +57,29 @@ interface PublicProperty {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 🔹 Componente de Imagen Optimizada con fallback
+// 🔹 Componente de Imagen Nativo con Lazy Loading
 // ─────────────────────────────────────────────────────────────
 
-interface OptimizedImageProps {
+interface NativeImageProps {
   src: string;
   alt: string;
   fill?: boolean;
-  width?: number;
-  height?: number;
   className?: string;
   priority?: boolean;
   sizes?: string;
-  quality?: number;
 }
 
-function OptimizedImage({ 
+function NativeImage({ 
   src, 
   alt, 
   fill = false, 
-  width, 
-  height, 
   className = '', 
   priority = false,
-  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
-  quality = 70
-}: OptimizedImageProps) {
+  sizes = "100vw"
+}: NativeImageProps) {
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // Si hay error o la URL no es válida, mostrar placeholder
   if (imgError || !src) {
     return (
       <div className={`w-full h-full flex items-center justify-center bg-slate-800/50 ${className}`}>
@@ -99,23 +91,26 @@ function OptimizedImage({
     );
   }
 
-  const imageProps = {
-    src,
-    alt,
-    className: `${className} transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`,
-    priority,
-    quality,
-    sizes,
-    loading: priority ? 'eager' as const : 'lazy' as const,
-    onLoad: () => setImgLoaded(true),
-    onError: () => setImgError(true),
-  };
-
-  if (fill) {
-    return <Image {...imageProps} fill style={{ objectFit: 'cover' }} />;
-  }
-
-  return <Image {...imageProps} width={width} height={height} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`${className} transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+      style={fill ? { 
+        position: 'absolute', 
+        height: '100%', 
+        width: '100%', 
+        inset: 0, 
+        objectFit: 'cover'
+      } : undefined}
+      loading={priority ? 'eager' : 'lazy'}
+      onLoad={() => setImgLoaded(true)}
+      onError={() => {
+        console.error('Error cargando imagen:', src);
+        setImgError(true);
+      }}
+    />
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -161,7 +156,6 @@ function PageContent() {
   const [activeImage, setActiveImage] = useState(0);
   const [initialImageSet, setInitialImageSet] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [imagesPreloaded, setImagesPreloaded] = useState<Set<number>>(new Set([0]));
 
   const watsapp = 5491132538837;
 
@@ -215,28 +209,6 @@ function PageContent() {
     }
     setInitialImageSet(true);
   }, [propiedad, initialImageSet]);
-
-  // 🆕 Pre-cargar solo las imágenes adyacentes (no todas)
-  useEffect(() => {
-    if (!propiedad) return;
-    
-    const imagenes = propiedad.imagenes || [];
-    const allImages = imagenes.length > 0 
-      ? imagenes 
-      : propiedad.imagen 
-        ? [{ url: propiedad.imagen, principal: true }] 
-        : [];
-
-    if (allImages.length <= 1) return;
-
-    // Solo pre-cargar: actual, anterior y siguiente
-    const toPreload = new Set<number>();
-    toPreload.add(activeImage);
-    if (activeImage > 0) toPreload.add(activeImage - 1);
-    if (activeImage < allImages.length - 1) toPreload.add(activeImage + 1);
-
-    setImagesPreloaded(toPreload);
-  }, [activeImage, propiedad]);
 
   // 🔹 Handlers de navegación
   const goToPrevious = useCallback(() => {
@@ -344,11 +316,6 @@ function PageContent() {
       ? [{ url: propiedad.imagen, principal: true }] 
       : [];
 
-  // 🆕 Limitar thumbnails a máximo 8 para no saturar
-  const MAX_THUMBNAILS = 8;
-  const visibleThumbnails = allImages.slice(0, MAX_THUMBNAILS);
-  const hasMoreThumbnails = allImages.length > MAX_THUMBNAILS;
-
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-24">
       <br></br>
@@ -364,26 +331,19 @@ function PageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Imagen principal - OPTIMIZADA */}
+          {/* Imagen principal */}
           <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-800">
             {allImages[activeImage]?.url ? (
-              <OptimizedImage
+              <NativeImage
                 src={allImages[activeImage].url}
                 alt={`${titulo} - Imagen ${activeImage + 1}`}
                 fill
                 priority={activeImage === 0}
-                quality={75}
-                sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-500">
                 <FaBuilding className="w-16 h-16 opacity-50" />
               </div>
-            )}
-            
-            {/* Skeleton loader mientras carga */}
-            {!allImages[activeImage]?.url && (
-              <div className="absolute inset-0 animate-pulse bg-slate-800" />
             )}
             
             {/* Badges */}
@@ -438,10 +398,10 @@ function PageContent() {
             )}
           </div>
           
-          {/* Thumbnails - OPTIMIZADOS con lazy loading */}
+          {/* Thumbnails - TODAS las imágenes */}
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {visibleThumbnails.map((img, index) => (
+              {allImages.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setActiveImage(index)}
@@ -452,22 +412,12 @@ function PageContent() {
                   }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 >
-                  {/* Solo renderizar Image si está cerca de la imagen activa */}
-                  {imagesPreloaded.has(index) ? (
-                    <OptimizedImage
-                      src={img.url}
-                      alt={`Thumbnail ${index + 1}`}
-                      fill
-                      quality={50}
-                      sizes="(max-width: 768px) 25vw, 100px"
-                      priority={index === 0}
-                    />
-                  ) : (
-                    // Placeholder ligero para thumbnails no visibles
-                    <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-                      <FaImage className="w-4 h-4 text-slate-600" />
-                    </div>
-                  )}
+                  <NativeImage
+                    src={img.url}
+                    alt={`Thumbnail ${index + 1}`}
+                    fill
+                    priority={index === 0}
+                  />
                   
                   {img.principal && activeImage !== index && (
                     <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
@@ -476,15 +426,6 @@ function PageContent() {
                   )}
                 </button>
               ))}
-              
-              {/* Indicador si hay más imágenes */}
-              {hasMoreThumbnails && (
-                <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-slate-700/50 bg-slate-800/50 flex items-center justify-center">
-                  <span className="text-xs text-slate-400 font-medium">
-                    +{allImages.length - MAX_THUMBNAILS}
-                  </span>
-                </div>
-              )}
             </div>
           )}
         </div>

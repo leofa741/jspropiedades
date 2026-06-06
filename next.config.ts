@@ -18,20 +18,17 @@ const nextConfig: NextConfig = {
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
   images: {
-     unoptimized: true,
+    unoptimized: true, // ✅ Mantiene esto para evitar crashes
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        hostname: '**', // ✅ Permite TODOS los dominios HTTPS
       },
       {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        pathname: '/**',
+        protocol: 'http',
+        hostname: '**', // ✅ Permite TODOS los dominios HTTP
       },
     ],
-   
   },
 };
 
