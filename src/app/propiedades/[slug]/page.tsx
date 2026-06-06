@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, Suspense, useCallback } from 'react';
+import { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
   FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding, 
   FaStar, FaWhatsapp, FaEnvelope, FaBed, FaBath, FaRulerCombined,
-  FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck
+  FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck, FaImage
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
 import AlertButton from '@/app/components/ui/AlertButton';
@@ -58,6 +58,67 @@ interface PublicProperty {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 🔹 Componente de Imagen Optimizada con fallback
+// ─────────────────────────────────────────────────────────────
+
+interface OptimizedImageProps {
+  src: string;
+  alt: string;
+  fill?: boolean;
+  width?: number;
+  height?: number;
+  className?: string;
+  priority?: boolean;
+  sizes?: string;
+  quality?: number;
+}
+
+function OptimizedImage({ 
+  src, 
+  alt, 
+  fill = false, 
+  width, 
+  height, 
+  className = '', 
+  priority = false,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
+  quality = 70
+}: OptimizedImageProps) {
+  const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  // Si hay error o la URL no es válida, mostrar placeholder
+  if (imgError || !src) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center bg-slate-800/50 ${className}`}>
+        <div className="text-center text-slate-500">
+          <FaImage className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p className="text-xs">Imagen no disponible</p>
+        </div>
+      </div>
+    );
+  }
+
+  const imageProps = {
+    src,
+    alt,
+    className: `${className} transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`,
+    priority,
+    quality,
+    sizes,
+    loading: priority ? 'eager' as const : 'lazy' as const,
+    onLoad: () => setImgLoaded(true),
+    onError: () => setImgError(true),
+  };
+
+  if (fill) {
+    return <Image {...imageProps} fill style={{ objectFit: 'cover' }} />;
+  }
+
+  return <Image {...imageProps} width={width} height={height} />;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 🔹 Helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -66,14 +127,6 @@ const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta
   if (moneda === 'ARS') return formatARS(monto);
   const suffix = tipo === 'alquiler' ? '/mes' : '';
   return `$ ${monto.toLocaleString('es-AR')} ${moneda}${suffix}`;
-};
-
-const getTipoIcon = (tipo: string) => {
-  const icons: Record<string, string> = {
-    departamento: '🏢', casa: '🏠', local: '🏪', oficina: '🏢',
-    terreno: '🌳', cochera: '🚗', galpon: '🏭', ph: '🏘️',
-  };
-  return icons[tipo] || '🏠';
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -107,10 +160,10 @@ function PageContent() {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [initialImageSet, setInitialImageSet] = useState(false);
-  const [copied, setCopied] = useState(false); // 🆕 Estado para feedback de copiado
+  const [copied, setCopied] = useState(false);
+  const [imagesPreloaded, setImagesPreloaded] = useState<Set<number>>(new Set([0]));
 
   const watsapp = 5491132538837;
-  const mensaje = 'Hola,%20me%20interesa%20consultar%20por%20una%20propiedad';
 
   // 📥 Cargar propiedad por slug
   useEffect(() => {
@@ -145,7 +198,7 @@ function PageContent() {
     fetchProperty();
   }, [slug]);
 
-  // 🔹 Establecer imagen principal SOLO UNA VEZ al cargar
+  // 🔹 Establecer imagen principal SOLO UNA VEZ
   useEffect(() => {
     if (!propiedad || initialImageSet) return;
     
@@ -162,6 +215,28 @@ function PageContent() {
     }
     setInitialImageSet(true);
   }, [propiedad, initialImageSet]);
+
+  // 🆕 Pre-cargar solo las imágenes adyacentes (no todas)
+  useEffect(() => {
+    if (!propiedad) return;
+    
+    const imagenes = propiedad.imagenes || [];
+    const allImages = imagenes.length > 0 
+      ? imagenes 
+      : propiedad.imagen 
+        ? [{ url: propiedad.imagen, principal: true }] 
+        : [];
+
+    if (allImages.length <= 1) return;
+
+    // Solo pre-cargar: actual, anterior y siguiente
+    const toPreload = new Set<number>();
+    toPreload.add(activeImage);
+    if (activeImage > 0) toPreload.add(activeImage - 1);
+    if (activeImage < allImages.length - 1) toPreload.add(activeImage + 1);
+
+    setImagesPreloaded(toPreload);
+  }, [activeImage, propiedad]);
 
   // 🔹 Handlers de navegación
   const goToPrevious = useCallback(() => {
@@ -187,7 +262,6 @@ function PageContent() {
     const url = `${window.location.origin}/propiedad/${propiedad.slug}`;
     const text = `Mirá esta propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
     
-    // Intentar usar Web Share API si está disponible
     if (navigator.share) {
       try {
         await navigator.share({
@@ -196,26 +270,21 @@ function PageContent() {
           url: url
         });
       } catch (err) {
-        // Si el usuario cancela o hay error, copiar al portapapeles
         if ((err as Error).name !== 'AbortError') {
           copyToClipboard(url);
         }
       }
     } else {
-      // Fallback: copiar al portapapeles
       copyToClipboard(url);
     }
   };
 
-  // 🆕 Función para copiar al portapapeles
   const copyToClipboard = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Error al copiar:', err);
-      // Fallback para navegadores antiguos
       const textArea = document.createElement('textarea');
       textArea.value = url;
       textArea.style.position = 'fixed';
@@ -242,7 +311,6 @@ function PageContent() {
     );
   }
 
-  // 🔒 Not found state
   if (!propiedad) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center pt-24">
@@ -257,7 +325,6 @@ function PageContent() {
     );
   }
 
-  // 🔒 Extraer datos
   const {
     _id,
     titulo,
@@ -271,12 +338,16 @@ function PageContent() {
     caracteristicas = {},
   } = propiedad;
 
-  // 🔹 Preparar array de imágenes
   const allImages = imagenes.length > 0 
     ? imagenes 
     : propiedad.imagen 
       ? [{ url: propiedad.imagen, principal: true }] 
       : [];
+
+  // 🆕 Limitar thumbnails a máximo 8 para no saturar
+  const MAX_THUMBNAILS = 8;
+  const visibleThumbnails = allImages.slice(0, MAX_THUMBNAILS);
+  const hasMoreThumbnails = allImages.length > MAX_THUMBNAILS;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-24">
@@ -293,20 +364,26 @@ function PageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Imagen principal */}
+          {/* Imagen principal - OPTIMIZADA */}
           <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-800">
             {allImages[activeImage]?.url ? (
-              <Image
+              <OptimizedImage
                 src={allImages[activeImage].url}
                 alt={`${titulo} - Imagen ${activeImage + 1}`}
                 fill
-                className="object-cover transition-opacity duration-300"
                 priority={activeImage === 0}
+                quality={75}
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-500">
                 <FaBuilding className="w-16 h-16 opacity-50" />
               </div>
+            )}
+            
+            {/* Skeleton loader mientras carga */}
+            {!allImages[activeImage]?.url && (
+              <div className="absolute inset-0 animate-pulse bg-slate-800" />
             )}
             
             {/* Badges */}
@@ -323,7 +400,7 @@ function PageContent() {
               )}
             </div>
             
-            {/* Navegación de galería */}
+            {/* Navegación */}
             {allImages.length > 1 && (
               <>
                 <button
@@ -354,7 +431,6 @@ function PageContent() {
               </>
             )}
             
-            {/* Contador de imágenes */}
             {allImages.length > 1 && (
               <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900/90 text-slate-300 z-10">
                 {activeImage + 1} / {allImages.length}
@@ -362,10 +438,10 @@ function PageContent() {
             )}
           </div>
           
-          {/* Thumbnails */}
+          {/* Thumbnails - OPTIMIZADOS con lazy loading */}
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {allImages.map((img, index) => (
+              {visibleThumbnails.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setActiveImage(index)}
@@ -376,12 +452,23 @@ function PageContent() {
                   }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 >
-                  <Image
-                    src={img.url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                  />
+                  {/* Solo renderizar Image si está cerca de la imagen activa */}
+                  {imagesPreloaded.has(index) ? (
+                    <OptimizedImage
+                      src={img.url}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      quality={50}
+                      sizes="(max-width: 768px) 25vw, 100px"
+                      priority={index === 0}
+                    />
+                  ) : (
+                    // Placeholder ligero para thumbnails no visibles
+                    <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                      <FaImage className="w-4 h-4 text-slate-600" />
+                    </div>
+                  )}
+                  
                   {img.principal && activeImage !== index && (
                     <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
                       <FaStar className="w-2 h-2 text-white" />
@@ -389,6 +476,15 @@ function PageContent() {
                   )}
                 </button>
               ))}
+              
+              {/* Indicador si hay más imágenes */}
+              {hasMoreThumbnails && (
+                <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-slate-700/50 bg-slate-800/50 flex items-center justify-center">
+                  <span className="text-xs text-slate-400 font-medium">
+                    +{allImages.length - MAX_THUMBNAILS}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -401,7 +497,6 @@ function PageContent() {
           {/* Columna izquierda: Detalles */}
           <div className="lg:col-span-2 space-y-8">
             
-            {/* Título y precio */}
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">{titulo}</h1>
               <div className="flex items-center gap-2 text-slate-400 mb-4">
@@ -414,7 +509,6 @@ function PageContent() {
               </p>
             </div>
 
-            {/* Descripción */}
             <div>
               <h2 className="text-xl font-semibold text-white mb-4">Descripción</h2>
               <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
@@ -422,7 +516,6 @@ function PageContent() {
               </p>
             </div>
 
-            {/* Características */}
             {caracteristicas && Object.keys(caracteristicas).length > 0 && (
               <div>
                 <h2 className="text-xl font-semibold text-white mb-4">Características</h2>
@@ -489,8 +582,7 @@ function PageContent() {
           {/* Columna derecha: Contacto */}
           <div className="space-y-6">
             
-            {/* Card de contacto */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-700/50 sticky top-24">
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-700/50 sticky top-24 relative">
               <h3 className="text-lg font-semibold text-white mb-4">¿Te interesa esta propiedad?</h3>
               
               <div className="space-y-4">
@@ -512,7 +604,6 @@ function PageContent() {
                   Enviar email
                 </a>
 
-                {/* 🆕 Botón de compartir */}
                 <button
                   onClick={handleShare}
                   className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${
@@ -542,7 +633,6 @@ function PageContent() {
                 />
               </div>
               
-              {/* Información adicional */}
               <div className="mt-6 pt-6 border-t border-slate-700/50 space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Tipo:</span>
