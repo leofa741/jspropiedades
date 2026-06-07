@@ -538,7 +538,7 @@ function PageContent() {
                 </a>
                 
                 <a
-                  href={`mailto:info@tumarca.ar?subject=Consulta: ${encodeURIComponent(titulo)}`}
+                  href={`mailto:hola@jimenasanchezpropiedades.ar?subject=Consulta: ${encodeURIComponent(titulo)}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700/50"
                 >
                   <FaEnvelope className="w-5 h-5" />
