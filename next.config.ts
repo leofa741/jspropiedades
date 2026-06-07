@@ -1,5 +1,60 @@
-import { NextConfig } from 'next';
+import type { NextConfig } from 'next';
+import withPWAInit from '@ducanh2912/next-pwa';
 
+// 🔹 Configuración del PWA
+const withPWA = withPWAInit({
+  // ✅ Opciones válidas de PluginOptions
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  sw: '/sw.js',
+  scope: '/',
+  cacheOnFrontEndNav: true,
+  reloadOnOnline: true,
+  cacheStartUrl: true,
+  dynamicStartUrl: true,
+  
+  // Excluir archivos grandes del precache
+  publicExcludes: ['!node_modules/**/*'],
+  
+  // ✅ TODO lo de Workbox va DENTRO de workboxOptions
+  workboxOptions: {
+    skipWaiting: true,           // ✅ Aquí SÍ existe
+    clientsClaim: true,          // ✅ Aquí SÍ existe
+    cleanupOutdatedCaches: true, // Limpia caches viejos
+    
+    // ✅ runtimeCaching también va aquí
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'cloudinary-images',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/.*\.(png|jpg|jpeg|webp|svg)$/,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'static-images',
+          expiration: {
+            maxEntries: 60,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+    ],
+  },
+});
+
+// 🔹 Tu configuración existente
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -18,18 +73,19 @@ const nextConfig: NextConfig = {
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
   images: {
-    unoptimized: true, // ✅ Mantiene esto para evitar crashes
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // ✅ Permite TODOS los dominios HTTPS
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: '**', // ✅ Permite TODOS los dominios HTTP
+        hostname: '**',
       },
     ],
   },
 };
 
-export default nextConfig;
+// 🔹 Exportar envuelto con PWA
+export default withPWA(nextConfig);

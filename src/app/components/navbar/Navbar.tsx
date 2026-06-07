@@ -17,10 +17,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useSession, signOut } from 'next-auth/react';
 import { AuthContext } from '@/app/context/AuthContext';
-
-import MobileSearchBar from '../mobilesearch/MobileSearchBar';
 import { faInstagram, faLinkedin, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import { DivideCircle } from 'lucide-react';
+
 
 // ─────────────────────────────────────────────────────────────
 // TIPOS

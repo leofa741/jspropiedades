@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Montserrat } from "next/font/google";
 
@@ -11,9 +11,14 @@ import { ToastContainer } from "react-toastify";
 import { Analytics } from "@vercel/analytics/react"
 import Loader from "./components/loading/Loader";
 import VersionChecker from "./components/version/VersionChecker";
-import AudioPlayer from "./components/audioplayer/AudioPlayer";
-import WelcomeModal from "./components/modalplayer/WelcomeModal";
+
+
+
 import FloatingAudioButton from "./components/floatingbut/FloatingAudioButton";
+
+export const viewport: Viewport = {
+  themeColor: '#8b5cf6', // Color de la barra de estado en móviles
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +42,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jimenasanchezp
 export const metadata: Metadata = {
   title: "Inmobiliaria Jimena Sánchez",
   description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
+  manifest: "/manifest.json",
   keywords: "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
   authors: [{ name: "Inmobiliaria Jimena Sánchez", url: SITE_URL }],
 
@@ -75,6 +81,17 @@ export const metadata: Metadata = {
     title: "Inmobiliaria Jimena Sánchez",
     description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
     images: ["/og-image.jpg"],
+  },
+
+  // PWA
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+  },
+   appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'JS Propiedades',
   },
 };
 

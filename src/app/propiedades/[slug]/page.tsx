@@ -3,13 +3,19 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding, 
+import {
+  FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding,
   FaStar, FaWhatsapp, FaEnvelope, FaBed, FaBath, FaRulerCombined,
-  FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck, FaImage
+  FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck, FaImage,
+  FaEye
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
 import AlertButton from '@/app/components/ui/AlertButton';
+
+
+// Agrega estos imports al inicio
+import { getVisitorId } from '@/app/lib/visitorId';
+
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
@@ -69,11 +75,11 @@ interface NativeImageProps {
   sizes?: string;
 }
 
-function NativeImage({ 
-  src, 
-  alt, 
-  fill = false, 
-  className = '', 
+function NativeImage({
+  src,
+  alt,
+  fill = false,
+  className = '',
   priority = false,
   sizes = "100vw"
 }: NativeImageProps) {
@@ -96,11 +102,11 @@ function NativeImage({
       src={src}
       alt={alt}
       className={`${className} transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-      style={fill ? { 
-        position: 'absolute', 
-        height: '100%', 
-        width: '100%', 
-        inset: 0, 
+      style={fill ? {
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        inset: 0,
         objectFit: 'cover'
       } : undefined}
       loading={priority ? 'eager' : 'lazy'}
@@ -150,32 +156,72 @@ function PageLoader() {
 function PageContent() {
   const { slug } = useParams() as { slug: string };
   const router = useRouter();
-  
+
   const [propiedad, setPropiedad] = useState<PublicProperty | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [initialImageSet, setInitialImageSet] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [visitasCount, setVisitasCount] = useState<number | null>(null);
 
   const watsapp = 5491132538837;
+
+
+
+
+
+  // Agrega este useEffect después del que carga la propiedad
+  useEffect(() => {
+    if (!propiedad?._id || !propiedad?.slug) return;
+
+    const registrarVisita = async () => {
+      try {
+        const visitorId = getVisitorId();
+
+        // Registrar visita única
+        await fetch('/api/visitas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propiedadId: propiedad._id,
+            slug: propiedad.slug,
+            visitorId
+          })
+        });
+
+        // Obtener conteo actualizado
+        const res = await fetch(`/api/visitas?slug=${propiedad.slug}`);
+        const data = await res.json();
+
+        if (data.success) {
+          setVisitasCount(data.count);
+        }
+      } catch (error) {
+        console.error('Error registrando visita:', error);
+      }
+    };
+
+    registrarVisita();
+  }, [propiedad?._id, propiedad?.slug]);
+
 
   // 📥 Cargar propiedad por slug
   useEffect(() => {
     if (!slug) return;
-    
+
     const fetchProperty = async () => {
       try {
         const res = await fetch(`/api/gestion/public/propiedades?slug=${encodeURIComponent(slug)}`);
-        
+
         if (res.status === 404) {
           notFound();
           return;
         }
-        
+
         if (!res.ok) throw new Error(`Error ${res.status}`);
-        
+
         const data = await res.json();
-        
+
         if (data.propiedades?.[0]) {
           setPropiedad(data.propiedades[0]);
         } else {
@@ -188,21 +234,21 @@ function PageContent() {
         setLoading(false);
       }
     };
-    
+
     fetchProperty();
   }, [slug]);
 
   // 🔹 Establecer imagen principal SOLO UNA VEZ
   useEffect(() => {
     if (!propiedad || initialImageSet) return;
-    
+
     const imagenes = propiedad.imagenes || [];
-    const allImages = imagenes.length > 0 
-      ? imagenes 
-      : propiedad.imagen 
-        ? [{ url: propiedad.imagen, principal: true }] 
+    const allImages = imagenes.length > 0
+      ? imagenes
+      : propiedad.imagen
+        ? [{ url: propiedad.imagen, principal: true }]
         : [];
-    
+
     const principalIndex = allImages.findIndex(img => img.principal);
     if (principalIndex !== -1) {
       setActiveImage(principalIndex);
@@ -218,10 +264,10 @@ function PageContent() {
   const goToNext = useCallback(() => {
     setActiveImage(prev => {
       const imagenes = propiedad?.imagenes || [];
-      const allImages = imagenes.length > 0 
-        ? imagenes 
-        : propiedad?.imagen 
-          ? [{ url: propiedad.imagen, principal: true }] 
+      const allImages = imagenes.length > 0
+        ? imagenes
+        : propiedad?.imagen
+          ? [{ url: propiedad.imagen, principal: true }]
           : [];
       return Math.min(allImages.length - 1, prev + 1);
     });
@@ -230,10 +276,10 @@ function PageContent() {
   // 🆕 Handler para compartir
   const handleShare = async () => {
     if (!propiedad?.slug) return;
-    
+
     const url = `${window.location.origin}/propiedad/${propiedad.slug}`;
     const text = `Mirá esta propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -310,10 +356,10 @@ function PageContent() {
     caracteristicas = {},
   } = propiedad;
 
-  const allImages = imagenes.length > 0 
-    ? imagenes 
-    : propiedad.imagen 
-      ? [{ url: propiedad.imagen, principal: true }] 
+  const allImages = imagenes.length > 0
+    ? imagenes
+    : propiedad.imagen
+      ? [{ url: propiedad.imagen, principal: true }]
       : [];
 
   return (
@@ -330,7 +376,7 @@ function PageContent() {
       {/* Galería de imágenes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
+
           {/* Imagen principal */}
           <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-800">
             {allImages[activeImage]?.url ? (
@@ -345,7 +391,7 @@ function PageContent() {
                 <FaBuilding className="w-16 h-16 opacity-50" />
               </div>
             )}
-            
+
             {/* Badges */}
             <div className="absolute top-4 left-4 flex gap-2 z-10">
               {destacado && (
@@ -359,45 +405,43 @@ function PageContent() {
                 </span>
               )}
             </div>
-            
+
             {/* Navegación */}
             {allImages.length > 1 && (
               <>
                 <button
                   onClick={goToPrevious}
                   disabled={activeImage === 0}
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${
-                    activeImage === 0
-                      ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
-                      : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
-                  }`}
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${activeImage === 0
+                    ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
+                    : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
+                    }`}
                   aria-label="Imagen anterior"
                 >
                   <FaChevronLeft className="w-5 h-5" />
                 </button>
-                
+
                 <button
                   onClick={goToNext}
                   disabled={activeImage === allImages.length - 1}
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${
-                    activeImage === allImages.length - 1
-                      ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
-                      : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
-                  }`}
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${activeImage === allImages.length - 1
+                    ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
+                    : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
+                    }`}
                   aria-label="Siguiente imagen"
                 >
                   <FaChevronRight className="w-5 h-5" />
                 </button>
               </>
             )}
-            
+
             {allImages.length > 1 && (
               <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-900/90 text-slate-300 z-10">
                 {activeImage + 1} / {allImages.length}
               </span>
             )}
           </div>
-          
+
           {/* Thumbnails - TODAS las imágenes */}
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
@@ -405,11 +449,10 @@ function PageContent() {
                 <button
                   key={index}
                   onClick={() => setActiveImage(index)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                    activeImage === index 
-                      ? 'border-violet-500 ring-2 ring-violet-500/30' 
-                      : 'border-transparent hover:border-slate-500 opacity-70 hover:opacity-100'
-                  }`}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${activeImage === index
+                    ? 'border-violet-500 ring-2 ring-violet-500/30'
+                    : 'border-transparent hover:border-slate-500 opacity-70 hover:opacity-100'
+                    }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 >
                   <NativeImage
@@ -418,7 +461,7 @@ function PageContent() {
                     fill
                     priority={index === 0}
                   />
-                  
+
                   {img.principal && activeImage !== index && (
                     <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
                       <FaStar className="w-2 h-2 text-white" />
@@ -434,10 +477,10 @@ function PageContent() {
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Columna izquierda: Detalles */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">{titulo}</h1>
               <div className="flex items-center gap-2 text-slate-400 mb-4">
@@ -449,6 +492,14 @@ function PageContent() {
                 {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
               </p>
             </div>
+
+            {/* Después del título, agrega: */}
+            {visitasCount !== null && (
+              <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
+                <FaEye className="w-4 h-4" />
+                <span>{visitasCount} {visitasCount === 1 ? 'visita' : 'visitas'}</span>
+              </div>
+            )}
 
             <div>
               <h2 className="text-xl font-semibold text-white mb-4">Descripción</h2>
@@ -522,10 +573,10 @@ function PageContent() {
 
           {/* Columna derecha: Contacto */}
           <div className="space-y-6">
-            
+
             <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-700/50 sticky top-24 relative">
               <h3 className="text-lg font-semibold text-white mb-4">¿Te interesa esta propiedad?</h3>
-              
+
               <div className="space-y-4">
                 <a
                   href={`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${titulo}`)}`}
@@ -536,7 +587,7 @@ function PageContent() {
                   <FaWhatsapp className="w-5 h-5" />
                   Consultar por WhatsApp
                 </a>
-                
+
                 <a
                   href={`mailto:hola@jimenasanchezpropiedades.ar?subject=Consulta: ${encodeURIComponent(titulo)}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700/50"
@@ -547,11 +598,10 @@ function PageContent() {
 
                 <button
                   onClick={handleShare}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${
-                    copied 
-                      ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400' 
-                      : 'bg-violet-600/20 border-violet-500/50 text-violet-400 hover:bg-violet-600/30 hover:border-violet-500/70'
-                  }`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${copied
+                    ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400'
+                    : 'bg-violet-600/20 border-violet-500/50 text-violet-400 hover:bg-violet-600/30 hover:border-violet-500/70'
+                    }`}
                 >
                   {copied ? (
                     <>
@@ -573,7 +623,7 @@ function PageContent() {
                   propiedadTitulo={titulo}
                 />
               </div>
-              
+
               <div className="mt-6 pt-6 border-t border-slate-700/50 space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Tipo:</span>
