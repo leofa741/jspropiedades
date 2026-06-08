@@ -12,6 +12,9 @@ connectDB();
 // 🔒 Helper: verificar roles autorizados
 const isAuthorized = (role: string) => ['admin', 'superadmin', 'agente'].includes(role);
 
+
+
+
 // 🔍 GET: Listar propiedades con paginación y filtros básicos
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -24,6 +27,9 @@ export async function GET(req: NextRequest) {
 
     // ✅ Soporte para ?all=true (sin paginación)
     const all = searchParams.get('all') === 'true';
+    
+    // ✅ NUEVO: Soporte para ?eliminadas=true (solo propiedades dadas de baja)
+    const soloEliminadas = searchParams.get('eliminadas') === 'true';
 
     // ✅ Filtros básicos desde query params
     const tipoPropiedad = searchParams.get('tipoPropiedad');
@@ -33,11 +39,13 @@ export async function GET(req: NextRequest) {
     const destacado = searchParams.get('destacado');
 
     // Construir query base
-    const query: any = { activo: true };
+    const query: any = soloEliminadas 
+      ? { estado: 'baja', activo: false }  // Solo eliminadas
+      : { activo: true };                   // Solo activas (comportamiento original)
     
     if (tipoPropiedad) query.tipoPropiedad = tipoPropiedad;
     if (tipoOperacion) query.tipoOperacion = tipoOperacion;
-    if (estado) query.estado = estado;
+    if (estado && !soloEliminadas) query.estado = estado; // Ignorar filtro estado si ya estamos filtrando por baja
     if (barrio) query['direccion.barrio'] = { $regex: barrio, $options: 'i' };
     if (destacado !== null) query.destacado = destacado === 'true';
 
@@ -47,11 +55,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (all) {
-      // Devuelve TODAS las propiedades sin paginación
       const propiedades = await Property.find(query)
         .populate('propietario', 'razonSocial nombre apellido telefono email')
         .populate('agente', 'name email')
-        .sort({ fechaPublicacion: -1, titulo: 1 });
+        .sort({ updatedAt: -1, titulo: 1 });
 
       return NextResponse.json(
         { propiedades },
@@ -72,7 +79,7 @@ export async function GET(req: NextRequest) {
     const propiedades = await Property.find(query)
       .populate('propietario', 'razonSocial nombre apellido telefono email')
       .populate('agente', 'name email')
-      .sort({ fechaPublicacion: -1, titulo: 1 })
+      .sort({ updatedAt: -1, titulo: 1 })
       .skip(skip)
       .limit(limit);
 
@@ -89,6 +96,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
+
+
 
 
 
