@@ -1,3 +1,4 @@
+// app/propiedades/[slug]/page.tsx
 'use client';
 
 import { useEffect, useState, Suspense, useCallback } from 'react';
@@ -7,7 +8,7 @@ import {
   FaArrowLeft, FaMapMarkerAlt, FaMoneyBillWave, FaHome, FaBuilding,
   FaStar, FaWhatsapp, FaEnvelope, FaBed, FaBath, FaRulerCombined,
   FaChevronLeft, FaChevronRight, FaShareAlt, FaCheck, FaImage,
-  FaEye
+  FaEye, FaVideo
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
 import AlertButton from '@/app/components/ui/AlertButton';
@@ -44,6 +45,7 @@ interface PublicProperty {
   };
   imagen?: string;
   imagenes?: Array<{ url: string; descripcion?: string; principal: boolean }>;
+  videoUrl?: string;
   slug?: string;
   destacado: boolean;
   urgente: boolean;
@@ -473,6 +475,25 @@ function PageContent() {
           )}
         </div>
       </div>
+
+      {/* 📹 Video de la propiedad */}
+      {propiedad.videoUrl && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <FaVideo className="text-violet-400" /> Video de la propiedad
+          </h2>
+          <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl">
+            <video
+              src={propiedad.videoUrl}
+              controls
+              className="w-full h-full"
+              poster={allImages[0]?.url}
+            >
+              Tu navegador no soporta la reproducción de videos.
+            </video>
+          </div>
+        </div>
+      )}
 
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

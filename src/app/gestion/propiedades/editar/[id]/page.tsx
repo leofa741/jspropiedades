@@ -6,11 +6,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
-import { 
-    FaHome, FaArrowLeft, FaSave, FaTrash, FaPlus, FaImages, 
-    FaStar, FaRegStar, FaUpload, FaVideo, FaFilePdf, FaMapMarkerAlt,
-    FaBuilding, FaMoneyBillWave, FaUser, FaCalendarAlt, FaExclamationTriangle,
-    FaExpand
+import {
+  FaHome, FaArrowLeft, FaSave, FaTrash, FaPlus, FaImages,
+  FaStar, FaRegStar, FaUpload, FaVideo, FaFilePdf, FaMapMarkerAlt,
+  FaBuilding, FaMoneyBillWave, FaUser, FaCalendarAlt, FaExclamationTriangle,
+  FaExpand
 } from 'react-icons/fa';
 import { X, GripVertical, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -136,7 +136,7 @@ const theme = {
 
 const validateProperty = (data: Partial<Property>) => {
   const errors: Record<string, string> = {};
-  
+
   if (!data.titulo?.trim() || data.titulo.trim().length < 10) {
     errors.titulo = 'El título debe tener al menos 10 caracteres';
   }
@@ -145,7 +145,7 @@ const validateProperty = (data: Partial<Property>) => {
   }
   if (!data.tipoPropiedad) errors.tipoPropiedad = 'Seleccioná el tipo de propiedad';
   if (!data.tipoOperacion) errors.tipoOperacion = 'Seleccioná el tipo de operación';
-  
+
   // Validar dirección
   const dir = data.direccion;
   if (!dir?.calle?.trim()) errors['direccion.calle'] = 'La calle es requerida';
@@ -153,7 +153,7 @@ const validateProperty = (data: Partial<Property>) => {
   if (!dir?.barrio?.trim()) errors['direccion.barrio'] = 'El barrio es requerido';
   if (!dir?.ciudad?.trim()) errors['direccion.ciudad'] = 'La ciudad es requerida';
   if (!dir?.provincia?.trim()) errors['direccion.provincia'] = 'La provincia es requerida';
-  
+
   // Validar precios: al menos uno debe tener monto
   const ventaMonto = data.precios?.venta?.monto;
   const alquilerMonto = data.precios?.alquiler?.monto;
@@ -162,7 +162,7 @@ const validateProperty = (data: Partial<Property>) => {
   }
   if (ventaMonto != null && ventaMonto < 0) errors['precios.venta.monto'] = 'Monto inválido';
   if (alquilerMonto != null && alquilerMonto < 0) errors['precios.alquiler.monto'] = 'Monto inválido';
-  
+
   // Validar imágenes
   if (!data.imagenes?.length || data.imagenes.length === 0) {
     errors.imagenes = 'Debe subir al menos una imagen';
@@ -170,7 +170,7 @@ const validateProperty = (data: Partial<Property>) => {
   if (data.imagenes && data.imagenes.length > 10) {
     errors.imagenes = 'Máximo 10 imágenes por propiedad';
   }
-  
+
   return { isValid: Object.keys(errors).length === 0, errors };
 };
 
@@ -204,23 +204,28 @@ function PageContent() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const { data: session, status } = useSession();
-  
+
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string>('');
-  
+
   // Form state
   const [formData, setFormData] = useState<Partial<Property>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
-  
+
   // Image management
   const [previewImages, setPreviewImages] = useState<{ url: string; file?: File; principal?: boolean; orden?: number }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  // Video management
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string>('');
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
   // UI state
   const [activeSection, setActiveSection] = useState<string>('basic');
   const [showPassword, setShowPassword] = useState(false); // Para campos sensibles si los hubiera
@@ -232,10 +237,10 @@ function PageContent() {
     const validateAccess = async () => {
       if (status === 'loading') return;
       if (status === 'unauthenticated') { router.push('/'); return; }
-      
+
       const token = session?.user?.token || localStorage.getItem('token');
       if (!token) { toast.error('Acceso denegado'); router.push('/'); return; }
-      
+
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const role = payload.role || session?.user.role;
@@ -256,7 +261,7 @@ function PageContent() {
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isAuthorized || !id) return;
-    
+
     const fetchProperty = async () => {
       try {
         const res = await fetch(`/api/gestion/propiedades/${id}`);
@@ -274,6 +279,9 @@ function PageContent() {
         setFormData(data);
         // Inicializar preview de imágenes existentes
         setPreviewImages(data.imagenes?.map((img: ImagenProperty) => ({ url: img.url })) || []);
+        if (data.videoUrl) {
+          setVideoPreview(data.videoUrl);
+        }
       } catch (err) {
         console.error('Error fetching property:', err);
         toast.error('Error de conexión');
@@ -281,16 +289,18 @@ function PageContent() {
         setLoading(false);
       }
     };
-    
+
     fetchProperty();
   }, [isAuthorized, id, router]);
+
+
 
   // ─────────────────────────────────────────────────────────────
   // 🔄 Detectar cambios en el formulario
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!property) return;
-    
+
     // Comparar formData con property original (ignorando campos no editables)
     const changes: Partial<Property> = {};
     Object.keys(formData).forEach(key => {
@@ -299,7 +309,7 @@ function PageContent() {
         (changes as any)[k] = formData[k];
       }
     });
-    
+
     setHasChanges(Object.keys(changes).length > 0 || previewImages.length !== property.imagenes?.length);
   }, [formData, previewImages, property]);
 
@@ -316,7 +326,7 @@ function PageContent() {
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setTouchedFields(prev => new Set(prev).add(field));
-    
+
     // Validar en tiempo real si el campo fue tocado
     if (touchedFields.has(field)) {
       const { errors } = validateProperty({ ...formData, [field]: value });
@@ -348,14 +358,14 @@ function PageContent() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    
+
     // Validar límite de 10 imágenes totales
     const totalImages = (formData.imagenes?.length || 0) + previewImages.filter(p => !p.file).length + files.length;
     if (totalImages > 10) {
       toast.error(`Máximo 10 imágenes. Ya tenés ${formData.imagenes?.length || 0} + ${previewImages.filter(p => !p.file).length} pendientes.`);
       return;
     }
-    
+
     files.forEach(file => {
       if (!file.type.startsWith('image/')) {
         toast.error(`El archivo "${file.name}" no es una imagen válida`);
@@ -365,7 +375,7 @@ function PageContent() {
         toast.error(`La imagen "${file.name}" supera los 5MB`);
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const url = e.target?.result as string;
@@ -373,7 +383,7 @@ function PageContent() {
       };
       reader.readAsDataURL(file);
     });
-    
+
     // Reset input para permitir seleccionar el mismo archivo nuevamente
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -408,10 +418,10 @@ function PageContent() {
     const list = isPreview ? [...previewImages] : [...(formData.imagenes || [])];
     const [moved] = list.splice(fromIndex, 1);
     list.splice(toIndex, 0, moved);
-    
+
     // Actualizar orden numérico
     const withOrder = list.map((img, i) => ({ ...img, orden: i }));
-    
+
     if (isPreview) {
       setPreviewImages(withOrder);
     } else {
@@ -424,17 +434,15 @@ function PageContent() {
   // ─────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validar todo el formulario
     const { isValid, errors } = validateProperty(formData);
     setFormErrors(errors);
-    
-    // Marcar todos los campos como touched para mostrar errores
+
     Object.keys(formData).forEach(key => setTouchedFields(prev => new Set(prev).add(key)));
-    
+
     if (!isValid) {
       toast.error('Revisá los campos marcados en rojo');
-      // Scroll al primer error
       const firstError = Object.keys(errors)[0];
       if (firstError) {
         const element = document.getElementById(`field-${firstError.replace(/\./g, '-')}`);
@@ -442,27 +450,35 @@ function PageContent() {
       }
       return;
     }
-    
+
     setSaving(true);
-    
+
     try {
       // Preparar payload: combinar imágenes existentes + nuevas
       let imagenesPayload = [...(formData.imagenes || [])];
-      
-      // Si hay imágenes nuevas para upload, primero subirlas (simulado aquí)
+
+      // Subir imágenes nuevas
       const newImages = previewImages.filter(p => p.file);
       if (newImages.length > 0) {
-        // 🔹 En producción: upload real a Cloudinary/S3 aquí
-        // Por ahora, simulamos que el upload devuelve la URL
         for (const preview of newImages) {
-          // Simular delay de upload
-          await new Promise(resolve => setTimeout(resolve, 300));
-          
-          // En producción: const uploadedUrl = await uploadToStorage(preview.file);
-          const uploadedUrl = preview.url; // Mock: usar data URL
-          
+          const formData = new FormData();
+          formData.append('image', preview.file!);
+          formData.append('folder', 'properties');
+
+          const res = await fetch('/api/uploadImage', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Error al subir imagen');
+          }
+
+          const data = await res.json();
+
           imagenesPayload.push({
-            url: uploadedUrl,
+            url: data.url,
             descripcion: '',
             principal: preview.principal || false,
             orden: imagenesPayload.length,
@@ -470,46 +486,66 @@ function PageContent() {
           });
         }
       }
-      
+
       // Asegurar que haya una imagen principal
       const hasPrincipal = imagenesPayload.some(img => img.principal);
       if (!hasPrincipal && imagenesPayload[0]) {
         imagenesPayload[0].principal = true;
       }
-      
-      // Ordenar por campo 'orden'
+
       imagenesPayload.sort((a, b) => (a.orden || 0) - (b.orden || 0));
-      
+
+      // 👇 Subir video nuevo si existe
+      let finalVideoUrl = formData.videoUrl || null;
+
+      if (videoFile) {
+        const videoFormData = new FormData();
+        videoFormData.append('video', videoFile);
+        videoFormData.append('folder', 'properties/videos');
+
+        const res = await fetch('/api/uploadVideo', {
+          method: 'POST',
+          body: videoFormData,
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Error al subir video');
+        }
+
+        const data = await res.json();
+        finalVideoUrl = data.url;
+      }
+
       // Preparar payload final
       const payload = {
         ...formData,
         imagenes: imagenesPayload,
-        // Limpiar campos null/undefined para no sobreescribir con null
+        videoUrl: finalVideoUrl,
         codigoInterno: formData.codigoInterno || null,
         zona: formData.zona || null,
-        videoUrl: formData.videoUrl || null,
         tourVirtualUrl: formData.tourVirtualUrl || null,
         planoUrl: formData.planoUrl || null,
         notasInternas: formData.notasInternas || null,
       };
-      
+
       const res = await fetch(`/api/gestion/propiedades/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      
+
       if (res.ok) {
         const updated = await res.json();
         toast.success('✅ Propiedad actualizada correctamente');
-        
-        // Actualizar estado local
+
         setProperty(updated);
         setFormData(updated);
         setPreviewImages(updated.imagenes?.map((img: ImagenProperty) => ({ url: img.url })) || []);
+        setVideoPreview(updated.videoUrl || '');
+        setVideoFile(null);
         setHasChanges(false);
-        
-        // Redirigir al detalle después de 1.5s
+
         setTimeout(() => {
           router.push(`/gestion/propiedades/${id}`);
         }, 1500);
@@ -519,12 +555,11 @@ function PageContent() {
       }
     } catch (err: any) {
       console.error('Error saving property:', err);
-      toast.error('Error de conexión con el servidor');
+      toast.error(err.message || 'Error de conexión con el servidor');
     } finally {
       setSaving(false);
     }
   };
-
   const handleCancel = () => {
     if (hasChanges) {
       Swal.fire({
@@ -551,7 +586,7 @@ function PageContent() {
   // ─────────────────────────────────────────────────────────────
   return (
     <div className={`${theme.bg} ${theme.textPrimary} min-h-screen relative overflow-hidden`}>
-      
+
       {/* ✨ Background decorativo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className={`absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br ${theme.gradient} rounded-full blur-3xl opacity-20`} />
@@ -561,13 +596,13 @@ function PageContent() {
       <div className="pt-24 lg:pt-28" />
 
       <div className="relative z-10 px-4 md:px-8 pb-12">
-        
+
         {/* 🏷️ Header */}
         <header className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Link 
+                <Link
                   href={`/gestion/propiedades/${id}`}
                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg ${theme.textSecondary} hover:${theme.textAccent} transition-all text-sm`}
                 >
@@ -586,7 +621,7 @@ function PageContent() {
                 {property.titulo} • <span className="capitalize">{property.tipoPropiedad}</span>
               </p>
             </div>
-            
+
             {/* Indicador de cambios + botones de acción */}
             <div className="flex items-center gap-3">
               {hasChanges && (
@@ -609,8 +644,8 @@ function PageContent() {
                 disabled={saving || !hasChanges}
                 className={`
                   inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm
-                  ${!hasChanges 
-                    ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' 
+                  ${!hasChanges
+                    ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
                     : `bg-gradient-to-r ${theme.gradientPrimary} text-white hover:shadow-lg hover:shadow-violet-900/40 hover:scale-[1.02]`
                   }
                   disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100
@@ -635,7 +670,7 @@ function PageContent() {
 
         {/* 📋 Formulario Principal */}
         <form id="property-form" onSubmit={handleSubmit} className="space-y-6">
-          
+
           {/* 🔘 Navegación de secciones (sticky en desktop) */}
           <div className={`${theme.bgCard} ${theme.border} rounded-xl p-2 backdrop-blur-sm sticky top-24 lg:top-28 z-20 overflow-x-auto`}>
             <div className="flex gap-1 min-w-max">
@@ -660,8 +695,8 @@ function PageContent() {
                     }}
                     className={`
                       relative px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap
-                      ${activeSection === section.id 
-                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30' 
+                      ${activeSection === section.id
+                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
                         : `${theme.textSecondary} hover:text-white hover:bg-slate-800/60`
                       }
                       ${hasError && activeSection !== section.id ? 'text-rose-400 hover:text-rose-300' : ''}
@@ -685,7 +720,7 @@ function PageContent() {
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">1</span>
               Datos Básicos
             </h2>
-            
+
             <div className="space-y-5">
               {/* Título */}
               <div>
@@ -843,7 +878,7 @@ function PageContent() {
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">2</span>
               Ubicación
             </h2>
-            
+
             <div className="space-y-5">
               {/* Calle + Número */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -1028,7 +1063,7 @@ function PageContent() {
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">3</span>
               Características
             </h2>
-            
+
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {[
                 { key: 'ambientes', label: 'Ambientes', type: 'number', min: 1 },
@@ -1137,14 +1172,14 @@ function PageContent() {
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">4</span>
               Precios y Condiciones
             </h2>
-            
+
             {formErrors.precios && touchedFields.has('precios') && (
               <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {formErrors.precios}
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Precio de Venta */}
               {formData.tipoOperacion !== 'alquiler' && (
@@ -1159,7 +1194,7 @@ function PageContent() {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="space-y-4">
                     {/* Monto */}
                     <div>
@@ -1179,7 +1214,7 @@ function PageContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Moneda */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -1207,7 +1242,7 @@ function PageContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Gastos de escrituración */}
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -1221,7 +1256,7 @@ function PageContent() {
                   </div>
                 </div>
               )}
-              
+
               {/* Precio de Alquiler */}
               {formData.tipoOperacion !== 'venta' && (
                 <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
@@ -1235,7 +1270,7 @@ function PageContent() {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="space-y-4">
                     {/* Monto */}
                     <div>
@@ -1255,7 +1290,7 @@ function PageContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Moneda + Ajuste */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -1282,7 +1317,7 @@ function PageContent() {
                         </select>
                       </div>
                     </div>
-                    
+
                     {/* Comisión + Garantía */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -1316,7 +1351,7 @@ function PageContent() {
                 </div>
               )}
             </div>
-            
+
             {/* Expensas + Impuestos */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
               <div>
@@ -1361,21 +1396,20 @@ function PageContent() {
                 {(formData.imagenes?.length || 0) + previewImages.filter(p => p.file).length}/10
               </span>
             </h2>
-            
+
             {formErrors.imagenes && touchedFields.has('imagenes') && (
               <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {formErrors.imagenes}
               </div>
             )}
-            
+
             {/* Upload area */}
-            <div 
-              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 10
-                  ? 'border-slate-700 bg-slate-800/30 cursor-not-allowed opacity-60'
-                  : 'border-slate-600 hover:border-violet-500/50 hover:bg-slate-800/50'
-              }`}
+            <div
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 10
+                ? 'border-slate-700 bg-slate-800/30 cursor-not-allowed opacity-60'
+                : 'border-slate-600 hover:border-violet-500/50 hover:bg-slate-800/50'
+                }`}
               onClick={() => previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) < 10 && fileInputRef.current?.click()}
             >
               <input
@@ -1389,21 +1423,21 @@ function PageContent() {
               />
               <FaUpload className="w-10 h-10 text-slate-500 mx-auto mb-3" />
               <p className="text-white font-medium mb-1">
-                {previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 10 
-                  ? 'Límite de imágenes alcanzado' 
+                {previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 10
+                  ? 'Límite de imágenes alcanzado'
                   : 'hacer click para subir'}
               </p>
               <p className="text-xs text-slate-500">
                 JPG, PNG o WebP • Máx. 5MB cada una • Máx. 10 imágenes
               </p>
             </div>
-            
+
             {/* Lista de imágenes existentes */}
             {formData.imagenes && formData.imagenes.length > 0 && (
               <div className="mt-6">
                 <p className="text-sm text-slate-400 mb-3">Imágenes guardadas</p>
-                <ImageGrid 
-                  images={formData.imagenes} 
+                <ImageGrid
+                  images={formData.imagenes}
                   isPreview={false}
                   onRemove={(i) => removeImage(i, false)}
                   onSetPrincipal={(i) => setPrincipalImage(i, false)}
@@ -1411,13 +1445,13 @@ function PageContent() {
                 />
               </div>
             )}
-            
+
             {/* Lista de imágenes nuevas (preview) */}
             {previewImages.filter(p => p.file).length > 0 && (
               <div className="mt-6">
                 <p className="text-sm text-slate-400 mb-3">Nuevas imágenes (pendientes de guardar)</p>
-                <ImageGrid 
-                  images={previewImages.filter(p => p.file)} 
+                <ImageGrid
+                  images={previewImages.filter(p => p.file)}
                   isPreview={true}
                   onRemove={(i) => removeImage(i, true)}
                   onSetPrincipal={(i) => setPrincipalImage(i, true)}
@@ -1425,13 +1459,13 @@ function PageContent() {
                 />
               </div>
             )}
-            
+
             {/* Tips */}
             <div className="mt-6 p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 text-sm text-slate-400">
               <p className="flex items-start gap-2">
                 <FaExclamationTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                 <span>
-                  <strong>Consejos:</strong> Subí primero la imagen que querés como portada y marcála como "Principal". 
+                  <strong>Consejos:</strong> Subí primero la imagen que querés como portada y marcála como "Principal".
                   Podés reordenar arrastrando las imágenes. Las nuevas se subirán al guardar.
                 </span>
               </p>
@@ -1439,32 +1473,100 @@ function PageContent() {
           </section>
 
           {/* ─────────────────────────────────────────────────────
-              Sección 6: Multimedia Adicional
-              ───────────────────────────────────────────────────── */}
+    Sección 6: Multimedia Adicional
+    ───────────────────────────────────────────────────── */}
           <section id="section-media" className={`${theme.bgCard} ${theme.border} rounded-2xl p-6 backdrop-blur-sm ${activeSection !== 'media' ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>
             <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">6</span>
               Multimedia Adicional
             </h2>
-            
+
             <div className="space-y-5">
-              {/* Video URL */}
+              {/* Video */}
               <div>
-                <label htmlFor="videoUrl" className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
                   <FaVideo className="text-red-400" />
-                  URL de Video <span className="text-slate-500 font-normal">(opcional)</span>
+                  Video de la propiedad <span className="text-slate-500 font-normal">(opcional)</span>
                 </label>
-                <input
-                  id="field-videoUrl"
-                  type="url"
-                  value={formData.videoUrl || ''}
-                  onChange={(e) => handleChange('videoUrl', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-800/60 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
-                  placeholder="https://youtube.com/watch?v=..."
-                />
-                <p className="mt-1 text-xs text-slate-500">YouTube, Vimeo o link directo a video.</p>
+
+                <div className="space-y-4">
+                  {/* Input para subir archivo */}
+                  <div className="flex flex-wrap gap-4">
+                    <label className={`
+            flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-all
+            ${videoFile
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : 'border-slate-600 hover:border-violet-500 hover:bg-slate-800/50'
+                      }
+          `}>
+                      <input
+                        ref={videoInputRef}
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          if (!file.type.startsWith('video/')) {
+                            toast.error('El archivo debe ser un video');
+                            return;
+                          }
+                          if (file.size > 100 * 1024 * 1024) {
+                            toast.error('El video no puede superar los 100MB');
+                            return;
+                          }
+
+                          setVideoFile(file);
+                          const url = URL.createObjectURL(file);
+                          setVideoPreview(url);
+                          handleChange('videoUrl', url); // Marcar como cambiado
+                        }}
+                        className="hidden"
+                      />
+                      {videoFile ? (
+                        <div className="text-center">
+                          <FaVideo className="text-2xl text-emerald-400 mx-auto mb-1" />
+                          <span className="text-xs text-emerald-400">Video nuevo</span>
+                        </div>
+                      ) : (
+                        <>
+                          <FaVideo className="text-2xl text-slate-500" />
+                          <span className="text-xs text-slate-400 mt-1 text-center px-2">
+                            {videoPreview ? 'Cambiar' : 'Subir video'}
+                          </span>
+                        </>
+                      )}
+                    </label>
+
+                    {videoPreview && (
+                      <div className="relative group w-64 h-32 rounded-xl overflow-hidden border-2 border-slate-700">
+                        <video src={videoPreview} className="w-full h-full object-cover" controls />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoFile(null);
+                            setVideoPreview('');
+                            handleChange('videoUrl', '');
+                            if (videoInputRef.current) videoInputRef.current.value = '';
+                          }}
+                          className="absolute top-2 right-2 p-1.5 rounded bg-rose-500 text-white hover:bg-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Eliminar video"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        {videoFile && (
+                          <span className="absolute bottom-2 left-2 px-2 py-1 rounded text-[10px] bg-amber-500 text-white font-medium">
+                            Pendiente de guardar
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-slate-500">MP4, WebM o MOV • Máx. 100MB</p>
+                </div>
               </div>
-              
+
               {/* Tour Virtual */}
               <div>
                 <label htmlFor="tourVirtualUrl" className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
@@ -1481,7 +1583,7 @@ function PageContent() {
                 />
                 <p className="mt-1 text-xs text-slate-500">Link de Matterport, Kuula, o plataforma de tour virtual.</p>
               </div>
-              
+
               {/* Plano */}
               <div>
                 <label htmlFor="planoUrl" className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
@@ -1500,7 +1602,6 @@ function PageContent() {
               </div>
             </div>
           </section>
-
           {/* ─────────────────────────────────────────────────────
               Sección 7: Configuración y Estado
               ───────────────────────────────────────────────────── */}
@@ -1509,7 +1610,7 @@ function PageContent() {
               <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">7</span>
               Configuración y Estado
             </h2>
-            
+
             <div className="space-y-5">
               {/* Estado */}
               <div>
@@ -1532,7 +1633,7 @@ function PageContent() {
                         onClick={() => handleChange('estado', estado)}
                         className={`
                           px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left
-                          ${isSelected 
+                          ${isSelected
                             ? `${styles[estado]} ring-2 ring-offset-2 ring-offset-slate-900 ${estado === 'borrador' ? 'ring-slate-500' : estado === 'publicado' ? 'ring-emerald-500' : estado === 'reservado' ? 'ring-amber-500' : estado === 'alquilado' ? 'ring-blue-500' : estado === 'vendido' ? 'ring-purple-500' : 'ring-rose-500'}`
                             : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-300'
                           }
@@ -1544,7 +1645,7 @@ function PageContent() {
                   })}
                 </div>
               </div>
-              
+
               {/* Fechas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -1566,7 +1667,7 @@ function PageContent() {
                   />
                 </div>
               </div>
-              
+
               {/* Toggles: Destacado + Urgente */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <label className="flex items-center justify-between p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 cursor-pointer hover:border-violet-500/30 transition-all">
@@ -1588,7 +1689,7 @@ function PageContent() {
                     <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
                   </div>
                 </label>
-                
+
                 <label className="flex items-center justify-between p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 cursor-pointer hover:border-rose-500/30 transition-all">
                   <div>
                     <p className="text-white font-medium flex items-center gap-2">
@@ -1609,7 +1710,7 @@ function PageContent() {
                   </div>
                 </label>
               </div>
-              
+
               {/* SEO Meta Tags */}
               <div className="pt-4 border-t border-slate-700/50">
                 <p className="text-sm font-medium text-slate-300 mb-3">SEO - Meta Tags (opcional)</p>
@@ -1663,7 +1764,7 @@ function PageContent() {
                   Solo visible para admin/agente
                 </span>
               </h2>
-              
+
               <div className="space-y-5">
                 {/* Notas Internas */}
                 <div>
@@ -1680,7 +1781,7 @@ function PageContent() {
                   />
                   <p className="mt-1 text-xs text-slate-500">Estas notas NO se muestran en la publicación pública.</p>
                 </div>
-                
+
                 {/* Propietario (solo lectura para admin, editable si se implementa relación) */}
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Propietario</label>
@@ -1723,8 +1824,8 @@ function PageContent() {
                 disabled={saving || !hasChanges}
                 className={`
                   flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium
-                  ${!hasChanges 
-                    ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' 
+                  ${!hasChanges
+                    ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
                     : `bg-gradient-to-r ${theme.gradientPrimary} text-white hover:shadow-lg hover:shadow-violet-900/40 hover:scale-[1.02]`
                   }
                   disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100

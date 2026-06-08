@@ -90,6 +90,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
+
+
+
 // ➕ POST: Crear nueva propiedad
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);

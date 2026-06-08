@@ -8,13 +8,14 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 import {
     FaHome, FaArrowLeft, FaPlus, FaImages, FaBuilding, FaMapMarkerAlt,
-    FaMoneyBillWave, FaExclamationTriangle, FaStar, FaUser, FaCreditCard
+    FaMoneyBillWave, FaExclamationTriangle, FaStar, FaUser, FaVideo
 } from 'react-icons/fa';
 import { Loader2, AlertCircle, X } from 'lucide-react';
 import { parseArgentineNumber, formatArgentineInput, formatArgentineFinal } from '@/app/lib/formatArgentine';
 import { parseJwt } from '@/app/lib/jwt';
 import { isValidObjectId } from '@/app/lib/validateObjectId';
 import NuevoClienteModal from '@/app/components/modals/NuevoClienteModal';
+
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
@@ -55,6 +56,11 @@ export default function NuevaPropiedadPage() {
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isClienteModalOpen, setIsClienteModalOpen] = useState(false);
+
+    // 📹 Gestión de video
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoPreview, setVideoPreview] = useState<string>('');
+    const videoInputRef = useRef<HTMLInputElement>(null);
 
     // 💰 Precios con formato argentino
     const [displayPrecios, setDisplayPrecios] = useState({
@@ -325,6 +331,28 @@ export default function NuevaPropiedadPage() {
                 });
             }
 
+            // 🔹 2. Subir video si existe
+            let uploadedVideoUrl = '';
+
+            if (videoFile) {
+                const formData = new FormData();
+                formData.append('video', videoFile);
+                formData.append('folder', 'properties/videos');
+
+                const res = await fetch('/api/uploadVideo', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al subir video');
+                }
+
+                const data = await res.json();
+                uploadedVideoUrl = data.url;
+            }
+
             // Combinar imágenes existentes + nuevas
             const allImages = [...imagenes, ...uploadedImages];
             if (!allImages.some(img => img.principal) && allImages[0]) {
@@ -344,6 +372,7 @@ export default function NuevaPropiedadPage() {
             const payload = {
                 ...form,
                 imagenes: allImages,
+                videoUrl: uploadedVideoUrl || null, 
                 seo: { slug: seoSlug },
                 codigoInterno: form.codigoInterno || null,
                 zona: form.zona || null,
@@ -448,6 +477,80 @@ export default function NuevaPropiedadPage() {
                             ))}
                         </div>
                         <p className="text-xs text-slate-500 mt-2">JPG, PNG o WebP • Máx. 5MB cada una</p>
+                    </section>
+
+                    {/* 📹 Video */}
+                    <section>
+                        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <FaVideo className="text-violet-400" /> Video <span className="text-xs text-slate-500 font-normal">(opcional)</span>
+                        </h2>
+                        <div className="space-y-4">
+                            <div className="flex flex-wrap gap-4">
+                                <label className={`
+                flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-all
+                ${videoFile
+                                        ? 'border-emerald-500 bg-emerald-500/10'
+                                        : 'border-slate-600 hover:border-violet-500 hover:bg-slate-800/50'
+                                    }
+            `}>
+                                    <input
+                                        ref={videoInputRef}
+                                        type="file"
+                                        accept="video/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+
+                                            if (!file.type.startsWith('video/')) {
+                                                toast.error('El archivo debe ser un video');
+                                                return;
+                                            }
+                                            if (file.size > 100 * 1024 * 1024) {
+                                                toast.error('El video no puede superar los 100MB');
+                                                return;
+                                            }
+
+                                            setVideoFile(file);
+                                            const url = URL.createObjectURL(file);
+                                            setVideoPreview(url);
+                                        }}
+                                        className="hidden"
+                                    />
+                                    {videoFile ? (
+                                        <div className="text-center">
+                                            <FaVideo className="text-2xl text-emerald-400 mx-auto mb-1" />
+                                            <span className="text-xs text-emerald-400">Video cargado</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <FaVideo className="text-2xl text-slate-500" />
+                                            <span className="text-xs text-slate-400 mt-1 text-center px-2">
+                                                Subir video
+                                            </span>
+                                        </>
+                                    )}
+                                </label>
+
+                                {videoPreview && (
+                                    <div className="relative group w-64 h-32 rounded-xl overflow-hidden border-2 border-slate-700">
+                                        <video src={videoPreview} className="w-full h-full object-cover" controls />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setVideoFile(null);
+                                                setVideoPreview('');
+                                                if (videoInputRef.current) videoInputRef.current.value = '';
+                                            }}
+                                            className="absolute top-2 right-2 p-1.5 rounded bg-rose-500 text-white hover:bg-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Eliminar video"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-xs text-slate-500">MP4, WebM o MOV • Máx. 100MB</p>
+                        </div>
                     </section>
 
                     {/* 📋 Datos Básicos - AQUÍ ESTÁ EL TÍTULO QUE FALTABA ✅ */}

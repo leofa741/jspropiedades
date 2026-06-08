@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     // 🔹 CASO 1: Búsqueda por slug (detalle de propiedad)
     if (slug) {
       const propiedades = await Property.find(baseQuery)
-        .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes destacado urgente fechaPublicacion seo')
+        .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes videoUrl destacado urgente fechaPublicacion seo')
         .limit(1)
         .lean();
       
@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
         // Función helper para verificar si el keyword es un tipo de propiedad (sin usar la API)
     
       const searchPropiedades = await Property.find(finalQuery)
-        .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes destacado urgente fechaPublicacion seo')
+        .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes videoUrl destacado urgente fechaPublicacion seo')
         .sort({ destacado: -1, fechaPublicacion: -1 })
         .limit(20)
         .lean();
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
     
     // 🔹 CASO 3: Listado normal con filtros (sin búsqueda textual)
     const propiedades = await Property.find(baseQuery)
-      .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes destacado urgente fechaPublicacion seo')
+      .select('_id titulo descripcion tipoPropiedad tipoOperacion categoria direccion zona caracteristicas precios imagenes videoUrl destacado urgente fechaPublicacion seo')
       .sort({ destacado: -1, fechaPublicacion: -1 })
       .limit(limit)
       .lean();
