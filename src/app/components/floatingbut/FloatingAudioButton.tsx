@@ -32,7 +32,7 @@ export default function FloatingAudioButton() {
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] z-40 shadow-2xl">
           <AudioPlayer
-            src="/audio/presentacion-jimena-1.mp3"
+            src="/audio/presentacion-jimena-2.mp3"
             title="Conocé J. Sánchez Propiedades"
             description="Hacé click en play para escuchar"
           //  autoPlay={true} // ✅ Ahora SÍ funciona porque el usuario hizo click
