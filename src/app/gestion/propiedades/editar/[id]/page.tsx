@@ -495,26 +495,35 @@ function PageContent() {
 
       imagenesPayload.sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
-      // 👇 Subir video nuevo si existe
+      // Subir video nuevo si existe
       let finalVideoUrl = formData.videoUrl || null;
 
       if (videoFile) {
         const videoFormData = new FormData();
-        videoFormData.append('video', videoFile);
+        videoFormData.append('file', videoFile);
+        videoFormData.append('upload_preset', 'propiedades_video');
         videoFormData.append('folder', 'properties/videos');
 
-        const res = await fetch('/api/uploadVideo', {
-          method: 'POST',
-          body: videoFormData,
-        });
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+        toast.info('📹 Subiendo video a Cloudinary...');
+
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+          {
+            method: 'POST',
+            body: videoFormData,
+          }
+        );
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al subir video');
+          const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
+          throw new Error(err.error?.message || 'Error al subir video');
         }
 
         const data = await res.json();
-        finalVideoUrl = data.url;
+        finalVideoUrl = data.secure_url;
+        toast.success('✅ Video subido correctamente');
       }
 
       // Preparar payload final

@@ -332,25 +332,36 @@ export default function NuevaPropiedadPage() {
             }
 
             // 🔹 2. Subir video si existe
+            // 🔹 2. Subir video si existe (DIRECTO a Cloudinary)
             let uploadedVideoUrl = '';
 
             if (videoFile) {
                 const formData = new FormData();
-                formData.append('video', videoFile);
+                formData.append('file', videoFile);
+                formData.append('upload_preset', 'propiedades_video'); // El nombre del preset que creaste
                 formData.append('folder', 'properties/videos');
 
-                const res = await fetch('/api/uploadVideo', {
-                    method: 'POST',
-                    body: formData,
-                });
+                // Upload directo a Cloudinary (sin pasar por tu API)
+                const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // Necesitas esta variable
+
+                toast.info('📹 Subiendo video a Cloudinary...');
+
+                const res = await fetch(
+                    `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                    }
+                );
 
                 if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(err.error || 'Error al subir video');
+                    const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
+                    throw new Error(err.error?.message || 'Error al subir video a Cloudinary');
                 }
 
                 const data = await res.json();
-                uploadedVideoUrl = data.url;
+                uploadedVideoUrl = data.secure_url;
+                toast.success('✅ Video subido correctamente');
             }
 
             // Combinar imágenes existentes + nuevas
@@ -372,7 +383,7 @@ export default function NuevaPropiedadPage() {
             const payload = {
                 ...form,
                 imagenes: allImages,
-                videoUrl: uploadedVideoUrl || null, 
+                videoUrl: uploadedVideoUrl || null,
                 seo: { slug: seoSlug },
                 codigoInterno: form.codigoInterno || null,
                 zona: form.zona || null,
