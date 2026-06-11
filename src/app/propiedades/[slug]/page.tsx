@@ -275,11 +275,11 @@ function PageContent() {
     });
   }, [propiedad]);
 
-  // 🆕 Handler para com
+  // 🆕 Handler para 
   const handleShare = async () => {
+    console.log("propiedad", propiedad);
 
     if (!propiedad?.slug) return;
-
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
    // const text = `Mirá esta propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
 
