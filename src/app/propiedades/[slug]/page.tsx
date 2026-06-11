@@ -275,7 +275,7 @@ function PageContent() {
     });
   }, [propiedad]);
 
-  // 🆕 Handler para comp
+  // 🆕 Handler para com
   const handleShare = async () => {
 
     if (!propiedad?.slug) return;
