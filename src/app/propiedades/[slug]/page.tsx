@@ -275,8 +275,9 @@ function PageContent() {
     });
   }, [propiedad]);
 
-  // 🆕 Handler para compartir
+  // 🆕 Handler para compartirmmmmm
   const handleShare = async () => {
+
     if (!propiedad?.slug) return;
 
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
