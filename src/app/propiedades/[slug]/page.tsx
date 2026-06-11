@@ -277,7 +277,7 @@ function PageContent() {
 
   // 🆕 Handler para 
   const handleShare = async () => {
-    console.log("propiedad", propiedad);
+ 
 
     if (!propiedad?.slug) return;
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
