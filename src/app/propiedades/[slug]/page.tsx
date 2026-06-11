@@ -281,7 +281,7 @@ function PageContent() {
 
     if (!propiedad?.slug) return;
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
-   // const text = `Mirá esta propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
+   // const text = `Mirá  propiedad: ${propiedad.titulo} - ${formatPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
 
     if (navigator.share) {
       try {
