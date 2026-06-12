@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Montserrat } from "next/font/google";
+import Script from "next/script"; // ✅ NUEVO IMPORT
 
 import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
@@ -11,13 +12,10 @@ import { ToastContainer } from "react-toastify";
 import { Analytics } from "@vercel/analytics/react"
 import Loader from "./components/loading/Loader";
 import VersionChecker from "./components/version/VersionChecker";
-
-
-
 import FloatingAudioButton from "./components/floatingbut/FloatingAudioButton";
 
 export const viewport: Viewport = {
-  themeColor: '#8b5cf6', // Color de la barra de estado en móviles
+  themeColor: '#8b5cf6',
 };
 
 const geistSans = Geist({
@@ -36,8 +34,10 @@ const montserrat = Montserrat({
   weight: ["400"],
 });
 
-// 🔹 URL base para SEO (cambiar por tu dominio real en producción)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jimenasanchezpropiedades.ar';
+
+// ✅ NUEVA ID de Google Analytics
+const GA_MEASUREMENT_ID = 'G-W6FM98X2KC';
 
 export const metadata: Metadata = {
   title: "Inmobiliaria Jimena Sánchez",
@@ -46,18 +46,16 @@ export const metadata: Metadata = {
   keywords: "inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
   authors: [{ name: "Inmobiliaria Jimena Sánchez", url: SITE_URL }],
 
-  // 🔹 URL canónica y base para metadatos
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
   },
 
-  // ✅ VERIFICACIÓN DE GOOGLE SEARCH CONSOLE
-  verification: {
-    google: 'X1wT9mG1hbcYgCVE2UuovabT8IrZOiSrQPR2CUrFK40',
-  },
+  // ❌ ELIMINADO: verification de Google Search Console anterior
+  // verification: {
+  //   google: 'X1wT9mG1hbcYgCVE2UuovabT8IrZOiSrQPR2CUrFK40',
+  // },
 
-  // 🔹 Open Graph / Redes sociales
   openGraph: {
     title: "Inmobiliaria Jimena Sánchez",
     description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
@@ -65,7 +63,7 @@ export const metadata: Metadata = {
     siteName: "Inmobiliaria Jimena Sánchez",
     images: [
       {
-        url: "/og-image.jpg", // ✅ Usar ruta relativa para que Next.js lo optimice
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Inmobiliaria Jimena Sánchez",
@@ -75,7 +73,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 
-  // 🔹 Twitter Card
   twitter: {
     card: "summary_large_image",
     title: "Inmobiliaria Jimena Sánchez",
@@ -83,12 +80,11 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
 
-  // PWA
   other: {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
   },
-   appleWebApp: {
+  appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'JS Propiedades',
@@ -107,7 +103,6 @@ export default function RootLayout({
       suppressHydrationWarning={true}
     >
       <head>
-        {/* ✅ Favicon y manifest (opcional pero recomendado) */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
@@ -123,6 +118,20 @@ export default function RootLayout({
           `
         }}
       >
+        {/* ✅ GOOGLE ANALYTICS 4 - Nuevo código G-W6FM98X2KC */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+
         <Providers>
           <header>
             <div className="pt-1">
@@ -134,7 +143,6 @@ export default function RootLayout({
             <VersionChecker />
             {children}
 
-            {/* Botón flotante de WhatsApp — versión mejorada */}
             <a
               href="https://wa.me/5491132538837?text=Hola,%20me%20interesa%20consultar%20por%20una%20propiedad"
               target="_blank"
@@ -143,9 +151,7 @@ export default function RootLayout({
               aria-label="Chatear por WhatsApp"
             >
               <div className="relative group">
-                {/* Fondo verde WhatsApp con hover effect */}
                 <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                  {/* Ícono de WhatsApp en blanco (SVG para mejor calidad) */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -159,12 +165,10 @@ export default function RootLayout({
                   </svg>
                 </div>
 
-                {/* Tooltip opcional: solo en escritorio */}
                 <div className="absolute bottom-full right-0 mb-2 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow">
                     ¿Necesitás ayuda?
                   </div>
-                  {/* Flecha del tooltip */}
                   <div className="absolute top-full right-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
                 </div>
               </div>
@@ -187,8 +191,7 @@ export default function RootLayout({
               style={{ zIndex: 9999 }}
             />
           </main>
-          {/* Reproductor de audio accesible */}
-     <FloatingAudioButton/>
+          <FloatingAudioButton/>
           <Footer />
         </Providers>
       </body>
