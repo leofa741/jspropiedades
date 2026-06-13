@@ -2,7 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Montserrat } from "next/font/google";
-import Script from "next/script"; // ✅ NUEVO IMPORT
+import Script from "next/script"; // ✅ IMPORT PARA SCRIPTS
 
 import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
@@ -36,8 +36,8 @@ const montserrat = Montserrat({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jimenasanchezpropiedades.ar';
 
-// ✅ NUEVA ID de Google Analytics
-const GA_MEASUREMENT_ID = 'G-W6FM98X2KC';
+// ✅ NUEVA ID de Google Ads
+const GOOGLE_ADS_ID = 'AW-18201247782';
 
 export const metadata: Metadata = {
   title: "Inmobiliaria Jimena Sánchez",
@@ -52,9 +52,6 @@ export const metadata: Metadata = {
   },
 
   // ❌ ELIMINADO: verification de Google Search Console anterior
-  // verification: {
-  //   google: 'X1wT9mG1hbcYgCVE2UuovabT8IrZOiSrQPR2CUrFK40',
-  // },
 
   openGraph: {
     title: "Inmobiliaria Jimena Sánchez",
@@ -118,17 +115,17 @@ export default function RootLayout({
           `
         }}
       >
-        {/* ✅ GOOGLE ANALYTICS 4 - Nuevo código G-W6FM98X2KC */}
+        {/* ✅ GOOGLE ADS - Nuevo código AW-18201247782 */}
         <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
           strategy="afterInteractive"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-ads" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
+            gtag('config', '${GOOGLE_ADS_ID}');
           `}
         </Script>
 
