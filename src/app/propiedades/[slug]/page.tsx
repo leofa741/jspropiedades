@@ -17,6 +17,9 @@ import AlertButton from '@/app/components/ui/AlertButton';
 // Agrega estos imports al inicio
 import { getVisitorId } from '@/app/lib/visitorId';
 
+import { trackConversion } from '@/app/lib/gtag';
+
+
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
@@ -519,7 +522,26 @@ function PageContent() {
               <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
                 <FaEye className="w-4 h-4" />
                 <span>{visitasCount} {visitasCount === 1 ? 'visita' : 'visitas'}</span>
-              </div>
+                <button 
+            onClick={() => {
+              // 🎯 EVENTO 1: Clic en WhatsApp desde detalle de propiedad
+              trackConversion('AW-18201247782/KovnCO7-07scEKaAhOdD');
+              
+              window.open(`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me gustaría obtener más información sobre esta propiedad: ${propiedad.titulo} - ${window.location.origin}/propiedades/${propiedad.slug}`)}`, '_blank');
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-full transition-all text-white font-semibold shadow-lg hover:shadow-green-900/50"
+          >
+            <FaWhatsapp className="w-5 h-5" />
+            Contactar por WhatsApp
+          </button>
+          <button
+            onClick={() => handleShare()}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-full transition-all text-white font-semibold shadow-lg"
+          >
+            <FaShareAlt className="w-5 h-5" />
+            {copied ? 'Enlace copiado' : 'Compartir'}
+          </button>
+          </div>
             )}
 
             <div>
