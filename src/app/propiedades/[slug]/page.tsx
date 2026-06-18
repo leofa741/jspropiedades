@@ -286,20 +286,30 @@ function PageContent() {
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
    // const text = `M propiedad: ${propiedad.ttPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
 
+    let success = false;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: propiedad.titulo,         
           url: url
         });
+        success = true;
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
           copyToClipboard(url);
+          success = true;
         }
       }
     } else {
       copyToClipboard(url);
+      success = true;
     }
+
+    if (success) {
+    // ✅ Redirigir a página de gracias (que dispara la conversión)
+    router.push('/gracias');
+  }
   };
 
   const copyToClipboard = async (url: string) => {
@@ -528,6 +538,8 @@ function PageContent() {
               trackConversion('AW-18201247782/KovnCO7-07scEKaAhOdD');
               
               window.open(`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me gustaría obtener más información sobre esta propiedad: ${propiedad.titulo} - ${window.location.origin}/propiedades/${propiedad.slug}`)}`, '_blank');
+              
+           
             }}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-full transition-all text-white font-semibold shadow-lg hover:shadow-green-900/50"
           >
