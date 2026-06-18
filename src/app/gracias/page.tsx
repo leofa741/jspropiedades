@@ -17,9 +17,9 @@ export default function GraciasPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#0d0d0d] text-white">
       <div className="text-center max-w-md mx-auto p-8">
         <div className="text-6xl mb-4">✓</div>
-        <h1 className="text-3xl font-bold mb-4">¡Gracias por contactarnos!</h1>
+        <h1 className="text-3xl font-bold mb-4">¡Gracias por compartir!</h1>
         <p className="text-gray-300 mb-8">
-          Hemos recibido tu consulta. Un asesor se comunicará contigo a la brevedad.
+          Encontrá la propiedad que buscás en nuestra página.
         </p>
         <Link 
           href="/"
