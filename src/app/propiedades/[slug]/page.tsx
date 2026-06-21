@@ -43,8 +43,18 @@ interface PublicProperty {
   };
   precio: {
     monto?: number;
-    moneda: 'ARS' | 'USD';
-    tipo: 'venta' | 'alquiler';
+    moneda?: 'ARS' | 'USD';
+    tipo: 'venta' | 'alquiler' | 'ambos';
+    venta?: { 
+      monto?: number; 
+      moneda: 'ARS' | 'USD'; 
+      tipo: 'venta' 
+    };
+    alquiler?: { 
+      monto?: number; 
+      moneda: 'ARS' | 'USD'; 
+      tipo: 'alquiler' 
+    };
   };
   imagen?: string;
   imagenes?: Array<{ url: string; descripcion?: string; principal: boolean }>;
@@ -66,7 +76,6 @@ interface PublicProperty {
     seguridad?: boolean;
   };
 }
-
 // ─────────────────────────────────────────────────────────────
 // 🔹 Componente de Imagen Nativo con Lazy Loading
 // ─────────────────────────────────────────────────────────────
@@ -521,10 +530,23 @@ function PageContent() {
                 <FaMapMarkerAlt className="w-4 h-4 text-violet-400" />
                 <span>{ubicacion.barrio}, {ubicacion.ciudad}, {ubicacion.provincia}</span>
               </div>
-              <p className="text-3xl font-bold text-emerald-400">
-                {formatPrice(precio.monto, precio.moneda, precio.tipo)}
-                {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
-              </p>
+              <div className="text-3xl font-bold text-emerald-400">
+                {precio.tipo === 'ambos' ? (
+                <div className="space-y-2">
+                  <span className="text-2xl font-bold text-emerald-400">
+                    {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
+                  </span>
+                  <span className="text-xl font-semibold text-blue-400">
+                    {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-3xl font-bold text-emerald-400">
+                  {formatPrice(precio.monto, precio.moneda, precio.tipo)}
+                  {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
+                </span>
+              )}
+              </div>
             </div>
 
             {/* Después del título, agrega: */}
@@ -684,10 +706,38 @@ function PageContent() {
                   <span className="text-slate-400">Tipo:</span>
                   <span className="text-white capitalize">{tipoPropiedad}</span>
                 </div>
+
+
+
+                {/* Precio */}
+                <div>
+                  {precio.tipo === 'ambos' ? (
+                    <div className="space-y-2">
+                      <p className="text-2xl font-bold text-emerald-400">
+                        {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
+                      </p>
+                      <p className="text-xl font-semibold text-blue-400">
+                        {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-3xl font-bold text-emerald-400">
+                      {formatPrice(precio.monto, precio.moneda, precio.tipo)}
+                      {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
+                    </p>
+                  )}
+                </div>
+
+                {/* En la columna derecha, cambiar: */}
                 <div className="flex justify-between">
                   <span className="text-slate-400">Operación:</span>
-                  <span className="text-white capitalize">{precio.tipo}</span>
+                  <span className="text-white capitalize">
+                    {propiedad.tipoOperacion === 'ambos' ? 'Venta o Alquiler' : precio.tipo}
+                  </span>
                 </div>
+
+
+
                 <div className="flex justify-between">
                   <span className="text-slate-400">Moneda:</span>
                   <span className="text-white">{precio.moneda}</span>

@@ -45,6 +45,7 @@ interface ImagenProperty {
   _id?: string;
 }
 
+
 interface Property {
   _id: string;
   titulo: string;
