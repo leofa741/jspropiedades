@@ -4,7 +4,7 @@ import Property from '@/app/models/Property';
 import { authOptions } from '@/app/lib/auth';
 import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
-import {  normalizeProperty, notifyProperties } from '../events/propertiesNotifier';
+import { normalizeProperty, notifyProperties } from '../events/propertiesNotifier';
 import { Types } from 'mongoose';
 
 connectDB();
@@ -18,19 +18,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'ID de propiedad inválido' }, { status: 400 });
     }
-    
+
     const propiedad = await Property.findById(id)
       .populate('propietario', 'razonSocial nombre apellido telefono email')
       .populate('agente', 'name email role');
-      
+
     if (!propiedad) {
       return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
     }
-    
+
     return NextResponse.json(normalizeProperty(propiedad));
   } catch (error) {
     console.error('Error al obtener propiedad:', error);
@@ -84,7 +84,7 @@ export async function PUT(
     }
     updateData.propietario = propValue;
   }
-  
+
   if ('agente' in body && session.user.role !== 'agente') {
     // Solo admin puede reasignar agente
     const agenteValue = body.agente;
@@ -96,25 +96,25 @@ export async function PUT(
 
   if (esParcial) {
     // ✅ Actualización parcial: solo permitir campos específicos
-    
+
     if ('activo' in body) updateData.activo = Boolean(body.activo);
-    
+
     if ('estado' in body) {
       const validEstados = ['borrador', 'publicado', 'reservado', 'alquilado', 'vendido', 'baja'];
       if (!validEstados.includes(body.estado)) {
         return NextResponse.json({ error: 'estado inválido' }, { status: 400 });
       }
       updateData.estado = body.estado;
-      
+
       // Si cambia a vendido/alquilado, actualizar fechaDisponibilidad
       if (['vendido', 'alquilado'].includes(body.estado) && !body.fechaDisponibilidad) {
         updateData.fechaDisponibilidad = new Date();
       }
     }
-    
+
     if ('destacado' in body) updateData.destacado = Boolean(body.destacado);
     if ('urgente' in body) updateData.urgente = Boolean(body.urgente);
-    
+
     // ✅ Actualizar precios parcialmente
     if ('precios' in body) {
       if (body.precios.venta !== undefined) {
@@ -149,7 +149,7 @@ export async function PUT(
         updateData['precios.expensas'] = body.precios.expensas === null ? null : Number(body.precios.expensas);
       }
     }
-    
+
     // ✅ Actualizar imágenes: reemplazar array completo o permitir operaciones parciales vía endpoint separado
     if ('imagenes' in body) {
       if (!Array.isArray(body.imagenes)) {
@@ -172,7 +172,7 @@ export async function PUT(
         updateData.imagenes[0].principal = true;
       }
     }
-    
+
     // ✅ Actualizar características parcialmente
     if ('caracteristicas' in body && typeof body.caracteristicas === 'object') {
       updateData.caracteristicas = {
@@ -180,7 +180,7 @@ export async function PUT(
         ...body.caracteristicas,
       };
     }
-    
+
     // ✅ Actualizar dirección parcialmente
     if ('direccion' in body && typeof body.direccion === 'object') {
       const dir = body.direccion;
@@ -188,7 +188,7 @@ export async function PUT(
       if (dir.calle !== undefined && !dir.calle) return NextResponse.json({ error: 'calle no puede estar vacío' }, { status: 400 });
       if (dir.numero !== undefined && !dir.numero) return NextResponse.json({ error: 'numero no puede estar vacío' }, { status: 400 });
       if (dir.barrio !== undefined && !dir.barrio) return NextResponse.json({ error: 'barrio no puede estar vacío' }, { status: 400 });
-      
+
       updateData.direccion = {
         ...propiedadExistente.direccion?.toObject?.() || propiedadExistente.direccion,
         ...dir,
@@ -199,10 +199,10 @@ export async function PUT(
         provincia: dir.provincia !== undefined ? String(dir.provincia).trim() : undefined,
       };
     }
-    
+
   } else {
     // ✅ Actualización completa: validar todos los campos requeridos
-    
+
     const { titulo, descripcion, tipoPropiedad, tipoOperacion, direccion, precios } = body;
 
     if (!titulo || !descripcion || !tipoPropiedad || !tipoOperacion) {
@@ -233,7 +233,7 @@ export async function PUT(
     }
 
     // Validar enums
-    const validTiposPropiedad = ['departamento', 'casa', 'local', 'oficina', 'terreno', 'cochera', 'galpon', 'ph'];
+    const validTiposPropiedad = ['departamento', 'casa', 'local', 'oficina', 'terreno', 'galpon', 'ph', 'campo', 'barrio cerrado', 'urbanizacion protegida', 'cochera'];
     const validTiposOperacion = ['venta', 'alquiler', 'ambos'];
     if (!validTiposPropiedad.includes(tipoPropiedad) || !validTiposOperacion.includes(tipoOperacion)) {
       return NextResponse.json({ error: 'tipoPropiedad o tipoOperacion inválido' }, { status: 400 });
@@ -369,8 +369,8 @@ export async function DELETE(
     // ✅ Soft delete: marcar como inactivo + estado 'baja'
     const updated = await Property.findByIdAndUpdate(
       id,
-      { 
-        activo: false, 
+      {
+        activo: false,
         estado: 'baja',
         fechaBaja: new Date(),
         bajaPor: session.user.id

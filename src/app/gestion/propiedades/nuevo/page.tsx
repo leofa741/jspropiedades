@@ -76,7 +76,7 @@ export default function NuevaPropiedadPage() {
         descripcion: '',
         codigoInterno: '',
         zona: '',
-        tipoPropiedad: '' as 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph',
+        tipoPropiedad: '' as 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'barrios cerrados' | 'urbanizaciones protegidas' | 'galpón' | 'ph',
         tipoOperacion: 'venta' as 'venta' | 'alquiler' | 'ambos',
         categoria: 'residencial' as 'residencial' | 'comercial' | 'industrial' | 'inversion',
         direccion: {
@@ -630,11 +630,12 @@ export default function NuevaPropiedadPage() {
                                         <option value="local">Local Comercial</option>
                                         <option value="oficina">Oficina</option>
                                         <option value="terreno">Terreno</option>
-                                        <option value="local">Campo</option>
-                                        <option value="cochera">Barrios Cerrados</option>
-                                        <option value="barrio">Urbanizaciones Protegidas</option>
+                                        <option value="campo">Campo</option>
+                                        <option value="barrio cerrado">Barrios Cerrados</option>
+                                        <option value="urbanizacion protegida">Urbanizaciones Protegidas</option>
                                         <option value="galpon">Galpón</option>
                                         <option value="ph">PH</option>
+                                        <option value="cochera">Cochera</option>
                                     </select>
                                 </div>
                                 <div>

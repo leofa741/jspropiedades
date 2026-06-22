@@ -51,7 +51,7 @@ interface Property {
   titulo: string;
   descripcion: string;
   codigoInterno?: string;
-  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph';
+  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'campo' | 'barrio cerrado' | 'urbanizacion protegida' | 'galpon' | 'ph';
   tipoOperacion: 'venta' | 'alquiler' | 'ambos';
   categoria: 'residencial' | 'comercial' | 'industrial' | 'inversion';
   direccion: {
@@ -801,11 +801,13 @@ function PageContent() {
                     <option value="local">Local Comercial</option>
                     <option value="oficina">Oficina</option>
                     <option value="terreno">Terreno</option>
-                    <option value="local">Campo</option>
-                    <option value="cochera">Barrios Cerrados</option>
-                    <option value="barrio">Urbanizaciones Protegidas</option>
+                    <option value="campo">Campo</option>
+                    <option value="barrio cerrado">Barrios Cerrados</option>
+                    <option value="urbanizacion protegida">Urbanizaciones Protegidas</option>
                     <option value="galpon">Galpón</option>
                     <option value="ph">PH</option>
+                    <option value="cochera">Cochera</option>
+
                   </select>
                 </div>
 

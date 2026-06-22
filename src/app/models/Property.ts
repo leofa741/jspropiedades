@@ -108,7 +108,7 @@ const propertySchema = new Schema({
   tipoPropiedad: { 
     type: String, 
     required: true,
-    enum: ['departamento', 'casa', 'local', 'oficina', 'terreno', 'cochera', 'galpon', 'ph'],
+    enum: ['departamento', 'casa', 'local', 'oficina', 'terreno', 'galpon', 'ph','campo', 'barrio cerrado', 'urbanizacion protegida', 'cochera'],
   },
   tipoOperacion: { 
     type: String, 
@@ -260,7 +260,7 @@ export interface IProperty extends Document {
   titulo: string;
   descripcion: string;
   codigoInterno?: string;
-  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph';
+  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'galpon' | 'ph'|'campo' | 'barrio cerrado' | 'urbanizacion protegida' | 'cochera';
   tipoOperacion: 'venta' | 'alquiler' | 'ambos';
   categoria: 'residencial' | 'comercial' | 'industrial' | 'inversion';
   direccion: {

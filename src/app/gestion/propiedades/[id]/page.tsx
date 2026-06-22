@@ -56,7 +56,7 @@ interface Property {
   titulo: string;
   descripcion: string;
   codigoInterno?: string;
-  tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph';
+ tipoPropiedad: 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'campo' | 'barrio cerrado' | 'urbanizacion protegida' | 'galpon' | 'ph';
   tipoOperacion: 'venta' | 'alquiler' | 'ambos';
   categoria: 'residencial' | 'comercial' | 'industrial' | 'inversion';
   direccion: {
@@ -167,7 +167,9 @@ const getTipoPropiedadIcon = (tipo: Property['tipoPropiedad']) => {
     local: <FaBuilding className="w-5 h-5" />,
     oficina: <FaBuilding className="w-5 h-5" />,
     terreno: <FaMapMarkerAlt className="w-5 h-5" />,
-    cochera: <FaHome className="w-5 h-5" />,
+    campo: <FaMapMarkerAlt className="w-5 h-5" />,
+    'barrio cerrado': <FaHome className="w-5 h-5" />,
+    'urbanizacion protegida': <FaHome className="w-5 h-5" />,
     galpon: <FaBuilding className="w-5 h-5" />,
     ph: <FaHome className="w-5 h-5" />,
   };

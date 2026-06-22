@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Validar enums
-    const validTiposPropiedad = ['departamento', 'casa', 'local', 'oficina', 'terreno', 'cochera', 'galpon', 'ph'];
+  const validTiposPropiedad = ['departamento', 'casa', 'local', 'oficina', 'terreno', 'campo', 'barrio cerrado', 'urbanizacion protegida', 'galpon', 'ph'];
     const validTiposOperacion = ['venta', 'alquiler', 'ambos'];
     const validCategorias = ['residencial', 'comercial', 'industrial', 'inversion'];
     const validEstados = ['borrador', 'publicado', 'reservado', 'alquilado', 'vendido', 'baja'];

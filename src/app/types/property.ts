@@ -1,5 +1,17 @@
 // app/types/property.ts
-export type TipoPropiedad = 'departamento' | 'casa' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon' | 'ph';
+
+export type TipoPropiedad = 
+  | 'departamento'
+  | 'casa'
+  | 'local'
+  | 'oficina'
+  | 'terreno'
+  | 'cochera'
+  | 'galpon'
+  | 'ph'
+  | 'campo'
+  | 'barrio cerrado'
+  | 'urbanizacion protegida';
 export type TipoOperacion = 'venta' | 'alquiler' | 'ambos';
 export type CategoriaPropiedad = 'residencial' | 'comercial' | 'industrial' | 'inversion';
 export type EstadoPropiedad = 'borrador' | 'publicado' | 'reservado' | 'alquilado' | 'vendido' | 'baja';
