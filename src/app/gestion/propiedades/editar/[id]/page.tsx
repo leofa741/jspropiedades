@@ -356,14 +356,19 @@ function PageContent() {
   // ─────────────────────────────────────────────────────────────
   // 📸 Gestión de Imágenes
   // ─────────────────────────────────────────────────────────────
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Validar límite de 10 imágenes totales
-    const totalImages = (formData.imagenes?.length || 0) + previewImages.filter(p => !p.file).length + files.length;
+    // ✅ CORREGIDO: contar existentes + nuevas en preview + las que se quieren subir ahora
+    const existentes = formData.imagenes?.length || 0;
+    const nuevasEnPreview = previewImages.filter(p => p.file).length;
+    const totalImages = existentes + nuevasEnPreview + files.length;
+
     if (totalImages > 10) {
-      toast.error(`Máximo 10 imágenes. Ya tenés ${formData.imagenes?.length || 0} + ${previewImages.filter(p => !p.file).length} pendientes.`);
+      toast.error(
+        `Máximo 10 imágenes. Tenés ${existentes} guardadas + ${nuevasEnPreview} en preview. Solo podés subir ${10 - existentes - nuevasEnPreview} más.`
+      );
       return;
     }
 
@@ -385,9 +390,8 @@ function PageContent() {
       reader.readAsDataURL(file);
     });
 
-    // Reset input para permitir seleccionar el mismo archivo nuevamente
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+};
 
   const removeImage = (index: number, isPreview: boolean) => {
     if (isPreview) {
