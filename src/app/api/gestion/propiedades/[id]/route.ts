@@ -155,8 +155,8 @@ export async function PUT(
       if (!Array.isArray(body.imagenes)) {
         return NextResponse.json({ error: 'imagenes debe ser un arreglo' }, { status: 400 });
       }
-      if (body.imagenes.length > 10) {
-        return NextResponse.json({ error: 'Máximo 10 imágenes por propiedad' }, { status: 400 });
+      if (body.imagenes.length > 15) {
+        return NextResponse.json({ error: 'Máximo 15 imágenes por propiedad' }, { status: 400 });
       }
       // Validar y procesar
       const hasPrincipal = body.imagenes.some((img: any) => img.principal === true);
@@ -228,8 +228,8 @@ export async function PUT(
     }
 
     // Validar imágenes
-    if (!Array.isArray(body.imagenes) || body.imagenes.length === 0 || body.imagenes.length > 10) {
-      return NextResponse.json({ error: 'Se requieren entre 1 y 10 imágenes válidas' }, { status: 400 });
+    if (!Array.isArray(body.imagenes) || body.imagenes.length === 0 || body.imagenes.length > 15) {
+      return NextResponse.json({ error: 'Se requieren entre 1 y 15 imágenes válidas' }, { status: 400 });
     }
 
     // Validar enums

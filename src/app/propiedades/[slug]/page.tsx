@@ -45,15 +45,15 @@ interface PublicProperty {
     monto?: number;
     moneda?: 'ARS' | 'USD';
     tipo: 'venta' | 'alquiler' | 'ambos';
-    venta?: { 
-      monto?: number; 
-      moneda: 'ARS' | 'USD'; 
-      tipo: 'venta' 
+    venta?: {
+      monto?: number;
+      moneda: 'ARS' | 'USD';
+      tipo: 'venta'
     };
-    alquiler?: { 
-      monto?: number; 
-      moneda: 'ARS' | 'USD'; 
-      tipo: 'alquiler' 
+    alquiler?: {
+      monto?: number;
+      moneda: 'ARS' | 'USD';
+      tipo: 'alquiler'
     };
   };
   imagen?: string;
@@ -289,18 +289,18 @@ function PageContent() {
 
   // 🆕 Handler para 
   const handleShare = async () => {
- 
+
 
     if (!propiedad?.slug) return;
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
-   // const text = `M propiedad: ${propiedad.ttPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
+    // const text = `M propiedad: ${propiedad.ttPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
 
     let success = false;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: propiedad.titulo,         
+          title: propiedad.titulo,
           url: url
         });
         success = true;
@@ -316,9 +316,9 @@ function PageContent() {
     }
 
     if (success) {
-    // ✅ Redirigir a página de gracias (que dispara la conversión)
-    router.push('/gracias');
-  }
+      // ✅ Redirigir a página de gracias (que dispara la conversión)
+      router.push('/gracias');
+    }
   };
 
   const copyToClipboard = async (url: string) => {
@@ -530,22 +530,26 @@ function PageContent() {
                 <FaMapMarkerAlt className="w-4 h-4 text-violet-400" />
                 <span>{ubicacion.barrio}, {ubicacion.ciudad}, {ubicacion.provincia}</span>
               </div>
-              <div className="text-3xl font-bold text-emerald-400">
+              <div>
                 {precio.tipo === 'ambos' ? (
-                <div className="space-y-2">
-                  <span className="text-2xl font-bold text-emerald-400">
-                    {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
-                  </span>
-                  <span className="text-xl font-semibold text-blue-400">
-                    {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
-                  </span>
-                </div>
-              ) : (
-                <span className="text-3xl font-bold text-emerald-400">
-                  {formatPrice(precio.monto, precio.moneda, precio.tipo)}
-                  {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
-                </span>
-              )}
+                  <div className="space-y-1">
+                    <div className="text-2xl sm:text-3xl font-light text-white tabular-nums">
+                      {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
+                      <span className="text-xs font-normal text-slate-500 ml-2 align-middle">venta</span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-light text-slate-400 tabular-nums">
+                      {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
+                      <span className="text-xs text-slate-500 ml-1">/mes</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-2xl sm:text-3xl font-light text-white tabular-nums">
+                    {formatPrice(precio.monto, precio.moneda, precio.tipo)}
+                    {precio.tipo === 'alquiler' && (
+                      <span className="text-sm font-normal text-slate-500 ml-2">/mes</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -554,28 +558,28 @@ function PageContent() {
               <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
                 <FaEye className="w-4 h-4" />
                 <span>{visitasCount} {visitasCount === 1 ? 'visita' : 'visitas'}</span>
-                <button 
-            onClick={() => {
-              // 🎯 EVENTO 1: Clic en WhatsApp desde detalle de propiedad
-              trackConversion('AW-18201247782/KovnCO7-07scEKaAhOdD');
-              
-              window.open(`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me gustaría obtener más información sobre esta propiedad: ${propiedad.titulo} - ${window.location.origin}/propiedades/${propiedad.slug}`)}`, '_blank');
-              
-           
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-full transition-all text-white font-semibold shadow-lg hover:shadow-green-900/50"
-          >
-            <FaWhatsapp className="w-5 h-5" />
-            Contactar por WhatsApp
-          </button>
-          <button
-            onClick={() => handleShare()}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-full transition-all text-white font-semibold shadow-lg"
-          >
-            <FaShareAlt className="w-5 h-5" />
-            {copied ? 'Enlace copiado' : 'Compartir'}
-          </button>
-          </div>
+                <button
+                  onClick={() => {
+                    // 🎯 EVENTO 1: Clic en WhatsApp desde detalle de propiedad
+                    trackConversion('AW-18201247782/KovnCO7-07scEKaAhOdD');
+
+                    window.open(`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me gustaría obtener más información sobre esta propiedad: ${propiedad.titulo} - ${window.location.origin}/propiedades/${propiedad.slug}`)}`, '_blank');
+
+
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-full transition-all text-white font-semibold shadow-lg hover:shadow-green-900/50"
+                >
+                  <FaWhatsapp className="w-5 h-5" />
+                  Contactar por WhatsApp
+                </button>
+                <button
+                  onClick={() => handleShare()}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-full transition-all text-white font-semibold shadow-lg"
+                >
+                  <FaShareAlt className="w-5 h-5" />
+                  {copied ? 'Enlace copiado' : 'Compartir'}
+                </button>
+              </div>
             )}
 
             <div>
@@ -710,23 +714,25 @@ function PageContent() {
 
 
                 {/* Precio */}
-                <div>
-                  {precio.tipo === 'ambos' ? (
-                    <div className="space-y-2">
-                      <p className="text-2xl font-bold text-emerald-400">
-                        {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
-                      </p>
-                      <p className="text-xl font-semibold text-blue-400">
-                        {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-3xl font-bold text-emerald-400">
-                      {formatPrice(precio.monto, precio.moneda, precio.tipo)}
-                      {precio.tipo === 'alquiler' && <span className="text-lg text-slate-400">/mes</span>}
-                    </p>
-                  )}
-                </div>
+             <div>
+  {precio.tipo === 'ambos' ? (
+    <div className="inline-flex rounded-lg bg-slate-900/60 border border-slate-800 p-1.5 gap-1.5">
+      <span className="px-2.5 py-1 rounded-md bg-slate-800/60 text-sm font-semibold text-slate-100 tabular-nums">
+        {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
+      </span>
+      <span className="px-2.5 py-1 text-sm font-medium text-slate-400 tabular-nums">
+        {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}/mes
+      </span>
+    </div>
+  ) : (
+    <p className="text-xl sm:text-2xl font-semibold text-slate-100 tabular-nums">
+      {formatPrice(precio.monto, precio.moneda, precio.tipo)}
+      {precio.tipo === 'alquiler' && (
+        <span className="text-sm font-normal text-slate-500 ml-1">/mes</span>
+      )}
+    </p>
+  )}
+</div>
 
                 {/* En la columna derecha, cambiar: */}
                 <div className="flex justify-between">

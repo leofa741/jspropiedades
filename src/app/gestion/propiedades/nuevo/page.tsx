@@ -203,37 +203,52 @@ export default function NuevaPropiedadPage() {
     };
 
     // 📸 Gestión de imágenes múltiples
-    const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
-        if (imagenes.length + imageFiles.length + files.length > 10) {
-            toast.error(`Máximo 10 imágenes. Ya tenés ${imagenes.length + imageFiles.length}.`);
+        const currentTotal = imagenes.length + imageFiles.length;
+        const availableSlots = 15 - currentTotal;
+
+        if (availableSlots <= 0) {
+            toast.error('Ya alcanzaste el máximo de 15 imágenes');
             return;
         }
 
-        files.forEach(file => {
+        const filesToProcess = files.slice(0, availableSlots);
+
+        if (files.length > availableSlots) {
+            toast.warning(`Solo se agregarán ${availableSlots} imágenes (límite de 15)`);
+        }
+
+        // Procesar archivos secuencialmente para mantener el orden
+        for (const file of filesToProcess) {
             if (!file.type.startsWith('image/')) {
                 toast.error(`"${file.name}" no es una imagen válida`);
-                return;
+                continue;
             }
             if (file.size > 5 * 1024 * 1024) {
                 toast.error(`"${file.name}" supera los 5MB`);
-                return;
+                continue;
             }
 
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const url = ev.target?.result as string;
+            try {
+                const url = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => resolve(ev.target?.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
                 setImagePreviews(prev => [...prev, url]);
                 setImageFiles(prev => [...prev, file]);
-            };
-            reader.readAsDataURL(file);
-        });
+            } catch (err) {
+                toast.error(`Error al procesar "${file.name}"`);
+            }
+        }
 
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
-
     const removeImage = (index: number) => {
         setImagenes(prev => prev.filter((_, i) => i !== index));
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
@@ -249,7 +264,7 @@ export default function NuevaPropiedadPage() {
 
     // 🔍 Validación del formulario
     const validateForm = (): boolean => {
-        if (!form.titulo.trim() || form.titulo.length < 10) {
+        if (!form.titulo.trim() || form.titulo.length < 15) {
             toast.error('El título debe tener al menos 10 caracteres');
             return false;
         }
@@ -414,6 +429,13 @@ export default function NuevaPropiedadPage() {
         }
     };
 
+    // Eliminar imagen existente del servidor
+
+    const removePreview = (index: number) => {
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        setImageFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
     if (!isAuthorized) return null;
 
     return (
@@ -445,18 +467,20 @@ export default function NuevaPropiedadPage() {
                 <form onSubmit={handleSubmit} className="space-y-8">
 
                     {/* 📸 Imágenes */}
+                    {/* 📸 Imágenes */}
                     <section>
                         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <FaImages className="text-violet-400" /> Imágenes * <span className="text-xs text-slate-500 font-normal">(máx. 10)</span>
+                            <FaImages className="text-violet-400" /> Imágenes * <span className="text-xs text-slate-500 font-normal">(máx. 15)</span>
                         </h2>
                         <div className="flex flex-wrap gap-4">
+                            {/* Botón para agregar */}
                             <label className={`
-                                flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-all
-                                ${imagenes.length + imageFiles.length >= 10
+            flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-all
+            ${imagenes.length + imageFiles.length >= 15
                                     ? 'border-slate-700 bg-slate-800/30 cursor-not-allowed opacity-50'
                                     : 'border-slate-600 hover:border-violet-500 hover:bg-slate-800/50'
                                 }
-                            `}>
+        `}>
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -464,26 +488,61 @@ export default function NuevaPropiedadPage() {
                                     multiple
                                     onChange={handleImagesChange}
                                     className="hidden"
-                                    disabled={imagenes.length + imageFiles.length >= 10}
+                                    disabled={imagenes.length + imageFiles.length >= 15}
                                 />
                                 <FaPlus className="text-2xl text-slate-500" />
                                 <span className="text-xs text-slate-400 mt-1 text-center px-2">
-                                    {imagenes.length + imageFiles.length >= 10 ? 'Límite' : 'Agregar'}
+                                    {imagenes.length + imageFiles.length >= 15 ? 'Límite' : 'Agregar'}
                                 </span>
                             </label>
 
-                            {[...imagenes.map(img => img.url), ...imagePreviews].map((url, index) => (
-                                <div key={index} className="relative group w-32 h-32 rounded-xl overflow-hidden border-2 border-slate-700">
-                                    <img src={url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                            {/* 🖼️ Imágenes ya subidas al servidor */}
+                            {imagenes.map((img, index) => (
+                                <div key={`uploaded-${index}`} className="relative group w-32 h-32 rounded-xl overflow-hidden border-2 border-slate-700">
+                                    <img src={img.url} alt={`Imagen ${index + 1}`} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                        <button type="button" onClick={() => setPrincipalImage(index)} className={`p-1.5 rounded ${imagenes[index]?.principal ? 'bg-amber-500 text-white' : 'bg-slate-700 text-slate-300'}`} title="Principal">
-                                            {imagenes[index]?.principal ? <FaStar className="w-4 h-4" /> : <FaStar className="w-4 h-4 opacity-50" />}
+                                        <button
+                                            type="button"
+                                            onClick={() => setPrincipalImage(index)}
+                                            className={`p-1.5 rounded ${img.principal ? 'bg-amber-500 text-white' : 'bg-slate-700 text-slate-300'}`}
+                                            title="Marcar como principal"
+                                        >
+                                            <FaStar className={`w-4 h-4 ${img.principal ? '' : 'opacity-50'}`} />
                                         </button>
-                                        <button type="button" onClick={() => removeImage(index)} className="p-1.5 rounded bg-rose-500 text-white hover:bg-rose-600" title="Eliminar">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="p-1.5 rounded bg-rose-500 text-white hover:bg-rose-600"
+                                            title="Eliminar"
+                                        >
                                             <X className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    {imagenes[index]?.principal && <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-white font-medium">Principal</span>}
+                                    {img.principal && (
+                                        <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-white font-medium">
+                                            Principal
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+
+                            {/* 📷 Previews locales (aún no subidos) */}
+                            {imagePreviews.map((url, index) => (
+                                <div key={`preview-${index}`} className="relative group w-32 h-32 rounded-xl overflow-hidden border-2 border-violet-500/50">
+                                    <img src={url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => removePreview(index)}
+                                            className="p-1.5 rounded bg-rose-500 text-white hover:bg-rose-600"
+                                            title="Quitar"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[10px] bg-violet-500/80 text-white font-medium">
+                                        Nueva
+                                    </span>
                                 </div>
                             ))}
                         </div>
