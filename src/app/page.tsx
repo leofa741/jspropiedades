@@ -276,7 +276,7 @@ function PageContent() {
           <div className="max-w-7xl mx-auto px-6 pt-40 sm:pt-48">
             <RotatingCircle text="✦ ANEMIJ ✦ SEDADEIPORP  " size={200} duration={10} />
 
-            <div className="absolute bottom-20 left-0 right-0 pb-20 sm:pb-32 px-4 opacity-80">
+            <div className="absolute bottom-100 left-0 right-0 pb-40 sm:pb-32 px-4 opacity-80">
               <div className="max-w-4xl mx-auto">
                 {/* Search Container */}
                 <div className="relative w-full max-w-2xl mx-auto group">
@@ -321,6 +321,8 @@ function PageContent() {
                 </div>
               </div>
             </div>
+
+
 
             <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-8 items-center">
               <div className="hidden lg:flex justify-center">
