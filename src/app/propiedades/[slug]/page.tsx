@@ -321,18 +321,37 @@ function PageContent() {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────
-  // 🔹 Helper para optimizar videos de Cloudinary
-  // ─────────────────────────────────────────────────────────────
-  const getOptimizedVideoUrl = (url: string) => {
-    if (!url || !url.includes('cloudinary.com')) return url;
-
-    // Insertar vc_auto (códec automático) después de /video/upload/
+// ─────────────────────────────────────────────────────────────
+// 🔹 Helpers para optimizar URLs de Cloudinary
+// ─────────────────────────────────────────────────────────────
+const getOptimizedVideoUrl = (url: string) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  
+  // Si es video, forzar códec compatible
+  if (url.includes('/video/upload/')) {
     return url.replace(
       '/video/upload/',
       '/video/upload/vc_auto,q_auto:good,w_1280/'
     );
-  };
+  }
+  
+  return url;
+};
+
+const getOptimizedImageUrl = (url: string) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  
+  // Si es imagen, optimizarla
+  if (url.includes('/image/upload/')) {
+    return url.replace(
+      '/image/upload/',
+      '/image/upload/w_1280,q_auto:good,f_auto/'
+    );
+  }
+  
+  return url;
+};
+
 
   const copyToClipboard = async (url: string) => {
     try {
@@ -510,35 +529,36 @@ function PageContent() {
           )}
         </div>
       </div>
-      {/* 📹 Video de la propiedad */}
-      {propiedad.videoUrl && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <FaVideo className="text-violet-400" /> Video de la propiedad
-          </h2>
-          <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl relative">
-            <video
-              key={propiedad.videoUrl}
-              controls
-              preload="metadata"
-              playsInline
-              crossOrigin="anonymous"
-              poster={allImages[0]?.url}
-              className="w-full h-full object-contain bg-black"
-              onLoadedData={() => console.log('✅ Video listo')}
-              onError={(e) => {
-                console.error('❌ Error cargando video:', e, propiedad.videoUrl);
-              }}
-            >
-              <source
-                src={getOptimizedVideoUrl(propiedad.videoUrl)}
-                type="video/mp4"
-              />
-              Tu navegador no soporta la reproducción de videos.
-            </video>
-          </div>
-        </div>
-      )}
+   
+
+   {/* 📹 Video de la propiedad */}
+{propiedad.videoUrl && (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+      <FaVideo className="text-violet-400" /> Video de la propiedad
+    </h2>
+    <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl relative">
+      <video
+        key={propiedad.videoUrl}
+        controls
+        preload="metadata"
+        playsInline
+        poster={getOptimizedImageUrl(allImages[0]?.url)}
+        className="w-full h-full object-contain bg-black"
+        onLoadedData={() => console.log('✅ Video listo')}
+        onError={(e) => {
+          console.error('❌ Error cargando video:', e, propiedad.videoUrl);
+        }}
+      >
+        <source 
+          src={getOptimizedVideoUrl(propiedad.videoUrl)} 
+          type="video/mp4" 
+        />
+        Tu navegador no soporta la reproducción de videos.
+      </video>
+    </div>
+  </div>
+)}
 
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
