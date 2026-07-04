@@ -123,7 +123,8 @@ const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta
 // ✅ CORREGIDO: ahora detecta correctamente URLs con cloud name en el medio
 const getOptimizedVideoUrl = (url: string) => {
   if (!url || !url.includes('cloudinary.com')) return url;
-  // ✅ Forzar video H.264 + audio AAC + formato MP4
+  
+  // 🔒 Forzar H.264 + AAC + MP4 (compatible con TODOS los navegadores)
   return url.replace(
     /\/video\/upload\//,
     '/video/upload/vc_h264,ac_aac,f_mp4,q_auto:good,w_1280/'
