@@ -12,19 +12,12 @@ import {
 } from 'react-icons/fa';
 import { formatARS } from '@/app/lib/formatcurrenci';
 import AlertButton from '@/app/components/ui/AlertButton';
-
-
-// Agrega estos imports al inicio
 import { getVisitorId } from '@/app/lib/visitorId';
-
 import { trackConversion } from '@/app/lib/gtag';
-
-
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos
 // ─────────────────────────────────────────────────────────────
-
 interface PublicProperty {
   _id: string;
   titulo: string;
@@ -45,16 +38,8 @@ interface PublicProperty {
     monto?: number;
     moneda?: 'ARS' | 'USD';
     tipo: 'venta' | 'alquiler' | 'ambos';
-    venta?: {
-      monto?: number;
-      moneda: 'ARS' | 'USD';
-      tipo: 'venta'
-    };
-    alquiler?: {
-      monto?: number;
-      moneda: 'ARS' | 'USD';
-      tipo: 'alquiler'
-    };
+    venta?: { monto?: number; moneda: 'ARS' | 'USD'; tipo: 'venta' };
+    alquiler?: { monto?: number; moneda: 'ARS' | 'USD'; tipo: 'alquiler' };
   };
   imagen?: string;
   imagenes?: Array<{ url: string; descripcion?: string; principal: boolean }>;
@@ -76,10 +61,10 @@ interface PublicProperty {
     seguridad?: boolean;
   };
 }
+
 // ─────────────────────────────────────────────────────────────
 // 🔹 Componente de Imagen Nativo con Lazy Loading
 // ─────────────────────────────────────────────────────────────
-
 interface NativeImageProps {
   src: string;
   alt: string;
@@ -90,12 +75,7 @@ interface NativeImageProps {
 }
 
 function NativeImage({
-  src,
-  alt,
-  fill = false,
-  className = '',
-  priority = false,
-  sizes = "100vw"
+  src, alt, fill = false, className = '', priority = false, sizes = "100vw"
 }: NativeImageProps) {
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -117,11 +97,7 @@ function NativeImage({
       alt={alt}
       className={`${className} transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
       style={fill ? {
-        position: 'absolute',
-        height: '100%',
-        width: '100%',
-        inset: 0,
-        objectFit: 'cover'
+        position: 'absolute', height: '100%', width: '100%', inset: 0, objectFit: 'cover'
       } : undefined}
       loading={priority ? 'eager' : 'lazy'}
       onLoad={() => setImgLoaded(true)}
@@ -136,7 +112,6 @@ function NativeImage({
 // ─────────────────────────────────────────────────────────────
 // 🔹 Helpers
 // ─────────────────────────────────────────────────────────────
-
 const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta' | 'alquiler' = 'venta') => {
   if (!monto) return 'Consultar';
   if (moneda === 'ARS') return formatARS(monto);
@@ -144,10 +119,31 @@ const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta
   return `$ ${monto.toLocaleString('es-AR')} ${moneda}${suffix}`;
 };
 
+// 🔹 Helpers para optimizar URLs de Cloudinary
+// ✅ CORREGIDO: ahora detecta correctamente URLs con cloud name en el medio
+const getOptimizedVideoUrl = (url: string) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  // ✅ Forzar video H.264 + audio AAC + formato MP4
+  return url.replace(
+    /\/video\/upload\//,
+    '/video/upload/vc_h264,ac_aac,f_mp4,q_auto:good,w_1280/'
+  );
+};
+
+const getOptimizedImageUrl = (url: string) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  if (url.includes('/image/upload/')) {
+    return url.replace(
+      /\/image\/upload\//,
+      '/image/upload/w_1280,q_auto:good,f_auto/'
+    );
+  }
+  return url;
+};
+
 // ─────────────────────────────────────────────────────────────
 // 🔹 Componente Principal
 // ─────────────────────────────────────────────────────────────
-
 export default function PropiedadDetallePage() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -180,19 +176,13 @@ function PageContent() {
 
   const watsapp = 5491132538837;
 
-
-
-
-
-  // Agrega este useEffect después del que carga la propiedad
+  // 📊 Registrar visita
   useEffect(() => {
     if (!propiedad?._id || !propiedad?.slug) return;
 
     const registrarVisita = async () => {
       try {
         const visitorId = getVisitorId();
-
-        // Registrar visita única
         await fetch('/api/visitas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -202,45 +192,27 @@ function PageContent() {
             visitorId
           })
         });
-
-        // Obtener conteo actualizado
         const res = await fetch(`/api/visitas?slug=${propiedad.slug}`);
         const data = await res.json();
-
-        if (data.success) {
-          setVisitasCount(data.count);
-        }
+        if (data.success) setVisitasCount(data.count);
       } catch (error) {
         console.error('Error registrando visita:', error);
       }
     };
-
     registrarVisita();
   }, [propiedad?._id, propiedad?.slug]);
 
-
-  // 📥 Cargar propiedad por slug
+  // 📥 Cargar propiedad
   useEffect(() => {
     if (!slug) return;
-
     const fetchProperty = async () => {
       try {
         const res = await fetch(`/api/gestion/public/propiedades?slug=${encodeURIComponent(slug)}`);
-
-        if (res.status === 404) {
-          notFound();
-          return;
-        }
-
+        if (res.status === 404) { notFound(); return; }
         if (!res.ok) throw new Error(`Error ${res.status}`);
-
         const data = await res.json();
-
-        if (data.propiedades?.[0]) {
-          setPropiedad(data.propiedades[0]);
-        } else {
-          notFound();
-        }
+        if (data.propiedades?.[0]) setPropiedad(data.propiedades[0]);
+        else notFound();
       } catch (err) {
         console.error('Error loading property:', err);
         notFound();
@@ -248,25 +220,18 @@ function PageContent() {
         setLoading(false);
       }
     };
-
     fetchProperty();
   }, [slug]);
 
-  // 🔹 Establecer imagen principal SOLO UNA VEZ
+  // 🔹 Establecer imagen principal
   useEffect(() => {
     if (!propiedad || initialImageSet) return;
-
     const imagenes = propiedad.imagenes || [];
     const allImages = imagenes.length > 0
       ? imagenes
-      : propiedad.imagen
-        ? [{ url: propiedad.imagen, principal: true }]
-        : [];
-
+      : propiedad.imagen ? [{ url: propiedad.imagen, principal: true }] : [];
     const principalIndex = allImages.findIndex(img => img.principal);
-    if (principalIndex !== -1) {
-      setActiveImage(principalIndex);
-    }
+    if (principalIndex !== -1) setActiveImage(principalIndex);
     setInitialImageSet(true);
   }, [propiedad, initialImageSet]);
 
@@ -280,29 +245,20 @@ function PageContent() {
       const imagenes = propiedad?.imagenes || [];
       const allImages = imagenes.length > 0
         ? imagenes
-        : propiedad?.imagen
-          ? [{ url: propiedad.imagen, principal: true }]
-          : [];
+        : propiedad?.imagen ? [{ url: propiedad.imagen, principal: true }] : [];
       return Math.min(allImages.length - 1, prev + 1);
     });
   }, [propiedad]);
 
-  // 🆕 Handler para 
+  // 🆕 Compartir
   const handleShare = async () => {
-
-
     if (!propiedad?.slug) return;
     const url = `${window.location.origin}/propiedades/${propiedad.slug}`;
-    // const text = `M propiedad: ${propiedad.ttPrice(propiedad.precio.monto, propiedad.precio.moneda, propiedad.precio.tipo)}`;
-
     let success = false;
 
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: propiedad.titulo,
-          url: url
-        });
+        await navigator.share({ title: propiedad.titulo, url });
         success = true;
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
@@ -315,43 +271,8 @@ function PageContent() {
       success = true;
     }
 
-    if (success) {
-      // ✅ Redirigir a página de gracias (que dispara la conversión)
-      router.push('/gracias');
-    }
+    if (success) router.push('/gracias');
   };
-
-// ─────────────────────────────────────────────────────────────
-// 🔹 Helpers para optimizar URLs de Cloudinary
-// ─────────────────────────────────────────────────────────────
-const getOptimizedVideoUrl = (url: string) => {
-  if (!url || !url.includes('cloudinary.com')) return url;
-  
-  // Si es video, forzar códec compatible
-  if (url.includes('/video/upload/')) {
-    return url.replace(
-      '/video/upload/',
-      '/video/upload/vc_auto,q_auto:good,w_1280/'
-    );
-  }
-  
-  return url;
-};
-
-const getOptimizedImageUrl = (url: string) => {
-  if (!url || !url.includes('cloudinary.com')) return url;
-  
-  // Si es imagen, optimizarla
-  if (url.includes('/image/upload/')) {
-    return url.replace(
-      '/image/upload/',
-      '/image/upload/w_1280,q_auto:good,f_auto/'
-    );
-  }
-  
-  return url;
-};
-
 
   const copyToClipboard = async (url: string) => {
     try {
@@ -400,28 +321,17 @@ const getOptimizedImageUrl = (url: string) => {
   }
 
   const {
-    _id,
-    titulo,
-    descripcion,
-    tipoPropiedad,
-    ubicacion,
-    precio,
-    imagenes = [],
-    destacado,
-    urgente,
-    caracteristicas = {},
+    _id, titulo, descripcion, tipoPropiedad, ubicacion, precio,
+    imagenes = [], destacado, urgente, caracteristicas = {},
   } = propiedad;
 
   const allImages = imagenes.length > 0
     ? imagenes
-    : propiedad.imagen
-      ? [{ url: propiedad.imagen, principal: true }]
-      : [];
+    : propiedad.imagen ? [{ url: propiedad.imagen, principal: true }] : [];
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-24">
-      <br></br>
-      <br></br>
+      <br /><br />
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Link href="/propiedades" className="text-slate-400 hover:text-violet-400 flex items-center gap-2 text-sm">
@@ -432,8 +342,6 @@ const getOptimizedImageUrl = (url: string) => {
       {/* Galería de imágenes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* Imagen principal */}
           <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-800">
             {allImages[activeImage]?.url ? (
               <NativeImage
@@ -448,7 +356,6 @@ const getOptimizedImageUrl = (url: string) => {
               </div>
             )}
 
-            {/* Badges */}
             <div className="absolute top-4 left-4 flex gap-2 z-10">
               {destacado && (
                 <span className="px-3 py-1 rounded-full bg-amber-500/90 text-white text-xs font-medium flex items-center gap-1">
@@ -456,34 +363,32 @@ const getOptimizedImageUrl = (url: string) => {
                 </span>
               )}
               {urgente && (
-                <span className="px-3 py-1 rounded-full bg-rose-500/90 text-white text-xs font-medium">
-                  Urgente
-                </span>
+                <span className="px-3 py-1 rounded-full bg-rose-500/90 text-white text-xs font-medium">Urgente</span>
               )}
             </div>
 
-            {/* Navegación */}
             {allImages.length > 1 && (
               <>
                 <button
                   onClick={goToPrevious}
                   disabled={activeImage === 0}
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${activeImage === 0
-                    ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
-                    : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
-                    }`}
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${
+                    activeImage === 0
+                      ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
+                      : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
+                  }`}
                   aria-label="Imagen anterior"
                 >
                   <FaChevronLeft className="w-5 h-5" />
                 </button>
-
                 <button
                   onClick={goToNext}
                   disabled={activeImage === allImages.length - 1}
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${activeImage === allImages.length - 1
-                    ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
-                    : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
-                    }`}
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-10 ${
+                    activeImage === allImages.length - 1
+                      ? 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
+                      : 'bg-slate-900/80 text-white hover:bg-slate-900 hover:scale-105'
+                  }`}
                   aria-label="Siguiente imagen"
                 >
                   <FaChevronRight className="w-5 h-5" />
@@ -498,26 +403,20 @@ const getOptimizedImageUrl = (url: string) => {
             )}
           </div>
 
-          {/* Thumbnails - TODAS las imágenes */}
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {allImages.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setActiveImage(index)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${activeImage === index
-                    ? 'border-violet-500 ring-2 ring-violet-500/30'
-                    : 'border-transparent hover:border-slate-500 opacity-70 hover:opacity-100'
-                    }`}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                    activeImage === index
+                      ? 'border-violet-500 ring-2 ring-violet-500/30'
+                      : 'border-transparent hover:border-slate-500 opacity-70 hover:opacity-100'
+                  }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 >
-                  <NativeImage
-                    src={img.url}
-                    alt={`Thumbnail ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                  />
-
+                  <NativeImage src={img.url} alt={`Thumbnail ${index + 1}`} fill priority={index === 0} />
                   {img.principal && activeImage !== index && (
                     <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
                       <FaStar className="w-2 h-2 text-white" />
@@ -529,31 +428,41 @@ const getOptimizedImageUrl = (url: string) => {
           )}
         </div>
       </div>
-   
 
-   {/* 📹 Video de la propiedad */}
+    {/* 📹 Video de la propiedad */}
 {propiedad.videoUrl && (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
     <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
       <FaVideo className="text-violet-400" /> Video de la propiedad
     </h2>
-    <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl relative">
+    <div className="rounded-2xl overflow-hidden bg-slate-800 shadow-xl relative max-h-[80vh] mx-auto" style={{ maxWidth: 'min(100%, 900px)' }}>
       <video
         key={propiedad.videoUrl}
         controls
-        preload="metadata"
+        preload="auto"
         playsInline
         poster={getOptimizedImageUrl(allImages[0]?.url)}
-        className="w-full h-full object-contain bg-black"
-        onLoadedData={() => console.log('✅ Video listo')}
+        className="w-full h-auto max-h-[80vh] object-cover bg-black"
+        onLoadedMetadata={(e) => {
+          const v = e.currentTarget;
+          console.log('✅ Video listo:', {
+            src: v.currentSrc,
+            duration: v.duration,
+            width: v.videoWidth,
+            height: v.videoHeight,
+            aspectRatio: (v.videoWidth / v.videoHeight).toFixed(2)
+          });
+        }}
         onError={(e) => {
-          console.error('❌ Error cargando video:', e, propiedad.videoUrl);
+          const v = e.currentTarget;
+          console.error('❌ Error video:', {
+            code: v.error?.code,
+            message: v.error?.message,
+            src: v.currentSrc
+          });
         }}
       >
-        <source 
-          src={getOptimizedVideoUrl(propiedad.videoUrl)} 
-          type="video/mp4" 
-        />
+        <source src={getOptimizedVideoUrl(propiedad.videoUrl)} />
         Tu navegador no soporta la reproducción de videos.
       </video>
     </div>
@@ -563,10 +472,7 @@ const getOptimizedImageUrl = (url: string) => {
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* Columna izquierda: Detalles */}
           <div className="lg:col-span-2 space-y-8">
-
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">{titulo}</h1>
               <div className="flex items-center gap-2 text-slate-400 mb-4">
@@ -582,7 +488,7 @@ const getOptimizedImageUrl = (url: string) => {
                     </div>
                     <div className="text-lg sm:text-xl font-light text-slate-400 tabular-nums">
                       {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}
-                      <span className="text-xs text-slate-500 ml-1">/mes</span>
+                      <span className="text-xs font-normal text-slate-500 ml-1">/mes</span>
                     </div>
                   </div>
                 ) : (
@@ -596,19 +502,14 @@ const getOptimizedImageUrl = (url: string) => {
               </div>
             </div>
 
-            {/* Después del título, agrega: */}
             {visitasCount !== null && (
               <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
                 <FaEye className="w-4 h-4" />
                 <span>{visitasCount} {visitasCount === 1 ? 'visita' : 'visitas'}</span>
                 <button
                   onClick={() => {
-                    // 🎯 EVENTO 1: Clic en WhatsApp desde detalle de propiedad
                     trackConversion('AW-18201247782/KovnCO7-07scEKaAhOdD');
-
                     window.open(`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me gustaría obtener más información sobre esta propiedad: ${propiedad.titulo} - ${window.location.origin}/propiedades/${propiedad.slug}`)}`, '_blank');
-
-
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-full transition-all text-white font-semibold shadow-lg hover:shadow-green-900/50"
                 >
@@ -695,12 +596,10 @@ const getOptimizedImageUrl = (url: string) => {
             )}
           </div>
 
-          {/* Columna derecha: Contacto */}
+          {/* Columna derecha */}
           <div className="space-y-6">
-
             <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-700/50 sticky top-24 relative">
               <h3 className="text-lg font-semibold text-white mb-4">¿Te interesa esta propiedad?</h3>
-
               <div className="space-y-4">
                 <a
                   href={`https://wa.me/${watsapp}?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${titulo}`)}`}
@@ -711,7 +610,6 @@ const getOptimizedImageUrl = (url: string) => {
                   <FaWhatsapp className="w-5 h-5" />
                   Consultar por WhatsApp
                 </a>
-
                 <a
                   href={`mailto:hola@jimenasanchezpropiedades.ar?subject=Consulta: ${encodeURIComponent(titulo)}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700/50"
@@ -719,33 +617,24 @@ const getOptimizedImageUrl = (url: string) => {
                   <FaEnvelope className="w-5 h-5" />
                   Enviar email
                 </a>
-
                 <button
                   onClick={handleShare}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${copied
-                    ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400'
-                    : 'bg-violet-600/20 border-violet-500/50 text-violet-400 hover:bg-violet-600/30 hover:border-violet-500/70'
-                    }`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all border ${
+                    copied
+                      ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400'
+                      : 'bg-violet-600/20 border-violet-500/50 text-violet-400 hover:bg-violet-600/30 hover:border-violet-500/70'
+                  }`}
                 >
                   {copied ? (
-                    <>
-                      <FaCheck className="w-5 h-5" />
-                      ¡Link copiado!
-                    </>
+                    <><FaCheck className="w-5 h-5" /> ¡Link copiado!</>
                   ) : (
-                    <>
-                      <FaShareAlt className="w-5 h-5" />
-                      Compartir propiedad
-                    </>
+                    <><FaShareAlt className="w-5 h-5" /> Compartir propiedad</>
                   )}
                 </button>
               </div>
 
               <div className="absolute top-4 right-4 z-10">
-                <AlertButton
-                  propiedadId={_id}
-                  propiedadTitulo={titulo}
-                />
+                <AlertButton propiedadId={_id} propiedadTitulo={titulo} />
               </div>
 
               <div className="mt-6 pt-6 border-t border-slate-700/50 space-y-3 text-sm">
@@ -753,10 +642,6 @@ const getOptimizedImageUrl = (url: string) => {
                   <span className="text-slate-400">Tipo:</span>
                   <span className="text-white capitalize">{tipoPropiedad}</span>
                 </div>
-
-
-
-                {/* Precio */}
                 <div>
                   {precio.tipo === 'ambos' ? (
                     <div className="inline-flex rounded-lg bg-slate-900/60 border border-slate-800 p-1.5 gap-1.5">
@@ -776,17 +661,12 @@ const getOptimizedImageUrl = (url: string) => {
                     </p>
                   )}
                 </div>
-
-                {/* En la columna derecha, cambiar: */}
                 <div className="flex justify-between">
                   <span className="text-slate-400">Operación:</span>
                   <span className="text-white capitalize">
                     {propiedad.tipoOperacion === 'ambos' ? 'Venta o Alquiler' : precio.tipo}
                   </span>
                 </div>
-
-
-
                 <div className="flex justify-between">
                   <span className="text-slate-400">Moneda:</span>
                   <span className="text-white">{precio.moneda}</span>
@@ -802,7 +682,7 @@ const getOptimizedImageUrl = (url: string) => {
           </div>
         </div>
       </div>
-      <br></br>    <br></br>
+      <br /><br />
     </div>
   );
 }
