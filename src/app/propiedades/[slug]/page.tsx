@@ -321,6 +321,19 @@ function PageContent() {
     }
   };
 
+  // ─────────────────────────────────────────────────────────────
+  // 🔹 Helper para optimizar videos de Cloudinary
+  // ─────────────────────────────────────────────────────────────
+  const getOptimizedVideoUrl = (url: string) => {
+    if (!url || !url.includes('cloudinary.com')) return url;
+
+    // Insertar vc_auto (códec automático) después de /video/upload/
+    return url.replace(
+      '/video/upload/',
+      '/video/upload/vc_auto,q_auto:good,w_1280/'
+    );
+  };
+
   const copyToClipboard = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
@@ -497,20 +510,30 @@ function PageContent() {
           )}
         </div>
       </div>
-
       {/* 📹 Video de la propiedad */}
       {propiedad.videoUrl && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
             <FaVideo className="text-violet-400" /> Video de la propiedad
           </h2>
-          <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl">
+          <div className="rounded-2xl overflow-hidden bg-slate-800 aspect-video shadow-xl relative">
             <video
-              src={propiedad.videoUrl}
+              key={propiedad.videoUrl}
               controls
-              className="w-full h-full"
+              preload="metadata"
+              playsInline
+              crossOrigin="anonymous"
               poster={allImages[0]?.url}
+              className="w-full h-full object-contain bg-black"
+              onLoadedData={() => console.log('✅ Video listo')}
+              onError={(e) => {
+                console.error('❌ Error cargando video:', e, propiedad.videoUrl);
+              }}
             >
+              <source
+                src={getOptimizedVideoUrl(propiedad.videoUrl)}
+                type="video/mp4"
+              />
               Tu navegador no soporta la reproducción de videos.
             </video>
           </div>
@@ -714,25 +737,25 @@ function PageContent() {
 
 
                 {/* Precio */}
-             <div>
-  {precio.tipo === 'ambos' ? (
-    <div className="inline-flex rounded-lg bg-slate-900/60 border border-slate-800 p-1.5 gap-1.5">
-      <span className="px-2.5 py-1 rounded-md bg-slate-800/60 text-sm font-semibold text-slate-100 tabular-nums">
-        {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
-      </span>
-      <span className="px-2.5 py-1 text-sm font-medium text-slate-400 tabular-nums">
-        {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}/mes
-      </span>
-    </div>
-  ) : (
-    <p className="text-xl sm:text-2xl font-semibold text-slate-100 tabular-nums">
-      {formatPrice(precio.monto, precio.moneda, precio.tipo)}
-      {precio.tipo === 'alquiler' && (
-        <span className="text-sm font-normal text-slate-500 ml-1">/mes</span>
-      )}
-    </p>
-  )}
-</div>
+                <div>
+                  {precio.tipo === 'ambos' ? (
+                    <div className="inline-flex rounded-lg bg-slate-900/60 border border-slate-800 p-1.5 gap-1.5">
+                      <span className="px-2.5 py-1 rounded-md bg-slate-800/60 text-sm font-semibold text-slate-100 tabular-nums">
+                        {formatPrice(precio.venta?.monto, precio.venta?.moneda, 'venta')}
+                      </span>
+                      <span className="px-2.5 py-1 text-sm font-medium text-slate-400 tabular-nums">
+                        {formatPrice(precio.alquiler?.monto, precio.alquiler?.moneda, 'alquiler')}/mes
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xl sm:text-2xl font-semibold text-slate-100 tabular-nums">
+                      {formatPrice(precio.monto, precio.moneda, precio.tipo)}
+                      {precio.tipo === 'alquiler' && (
+                        <span className="text-sm font-normal text-slate-500 ml-1">/mes</span>
+                      )}
+                    </p>
+                  )}
+                </div>
 
                 {/* En la columna derecha, cambiar: */}
                 <div className="flex justify-between">
