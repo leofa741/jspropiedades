@@ -21,6 +21,8 @@ import ImageGrid from './components/ImageGrid';
 // 🔹 Tipos (mismos que en el detalle)
 // ─────────────────────────────────────────────────────────────
 
+
+
 interface Propietario {
   _id: string;
   razonSocial: string;
@@ -437,143 +439,215 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   // ─────────────────────────────────────────────────────────────
   // 💾 Submit del formulario
   // ─────────────────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    // Validar todo el formulario
-    const { isValid, errors } = validateProperty(formData);
-    setFormErrors(errors);
+  const { isValid, errors } = validateProperty(formData);
+  setFormErrors(errors);
+  Object.keys(formData).forEach(key => setTouchedFields(prev => new Set(prev).add(key)));
 
-    Object.keys(formData).forEach(key => setTouchedFields(prev => new Set(prev).add(key)));
-
-    if (!isValid) {
-      toast.error('Revisá los campos marcados en rojo');
-      const firstError = Object.keys(errors)[0];
-      if (firstError) {
-        const element = document.getElementById(`field-${firstError.replace(/\./g, '-')}`);
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
+  if (!isValid) {
+    toast.error('Revisá los campos marcados en rojo');
+    const firstError = Object.keys(errors)[0];
+    if (firstError) {
+      const element = document.getElementById(`field-${firstError.replace(/\./g, '-')}`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+    return;
+  }
 
-    setSaving(true);
+  setSaving(true);
 
-    try {
-      // Preparar payload: combinar imágenes existentes + nuevas
-      let imagenesPayload = [...(formData.imagenes || [])];
+  try {
+    // Preparar payload: combinar imágenes existentes + nuevas
+    let imagenesPayload = [...(formData.imagenes || [])];
 
-      // Subir imágenes nuevas
-      const newImages = previewImages.filter(p => p.file);
-      if (newImages.length > 0) {
-        for (const preview of newImages) {
-          const formData = new FormData();
-          formData.append('image', preview.file!);
-          formData.append('folder', 'properties');
+    // Subir imágenes nuevas
+    const newImages = previewImages.filter(p => p.file);
+    if (newImages.length > 0) {
+      for (const preview of newImages) {
+        const formDataImg = new FormData();
+        formDataImg.append('image', preview.file!);
+        formDataImg.append('folder', 'properties');
 
-          const res = await fetch('/api/uploadImage', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Error al subir imagen');
-          }
-
-          const data = await res.json();
-
-          imagenesPayload.push({
-            url: data.url,
-            descripcion: '',
-            principal: preview.principal || false,
-            orden: imagenesPayload.length,
-            tipo: 'foto'
-          });
-        }
-      }
-
-      // Asegurar que haya una imagen principal
-      const hasPrincipal = imagenesPayload.some(img => img.principal);
-      if (!hasPrincipal && imagenesPayload[0]) {
-        imagenesPayload[0].principal = true;
-      }
-
-      imagenesPayload.sort((a, b) => (a.orden || 0) - (b.orden || 0));
-
-      // Subir video nuevo si existe
-      let finalVideoUrl = formData.videoUrl || null;
-
-      if (videoFile) {
-        const videoFormData = new FormData();
-        videoFormData.append('file', videoFile);
-        videoFormData.append('upload_preset', 'propiedades_video');
-        videoFormData.append('folder', 'properties/videos');
-
-        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-        toast.info('📹 Subiendo video a Cloudinary...');
-
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-          {
-            method: 'POST',
-            body: videoFormData,
-          }
-        );
+        const res = await fetch('/api/uploadImage', {
+          method: 'POST',
+          body: formDataImg,
+        });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
-          throw new Error(err.error?.message || 'Error al subir video');
+          const err = await res.json();
+          throw new Error(err.error || 'Error al subir imagen');
         }
 
         const data = await res.json();
-        finalVideoUrl = data.secure_url;
-        toast.success('✅ Video subido correctamente');
+        imagenesPayload.push({
+          url: data.url,
+          descripcion: '',
+          principal: preview.principal || false,
+          orden: imagenesPayload.length,
+          tipo: 'foto'
+        });
       }
-
-      // Preparar payload final
-      const payload = {
-        ...formData,
-        imagenes: imagenesPayload,
-        videoUrl: finalVideoUrl,
-        codigoInterno: formData.codigoInterno || null,
-        zona: formData.zona || null,
-        tourVirtualUrl: formData.tourVirtualUrl || null,
-        planoUrl: formData.planoUrl || null,
-        notasInternas: formData.notasInternas || null,
-      };
-
-      const res = await fetch(`/api/gestion/propiedades/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        const updated = await res.json();
-        toast.success('✅ Propiedad actualizada correctamente');
-
-        setProperty(updated);
-        setFormData(updated);
-        setPreviewImages(updated.imagenes?.map((img: ImagenProperty) => ({ url: img.url })) || []);
-        setVideoPreview(updated.videoUrl || '');
-        setVideoFile(null);
-        setHasChanges(false);
-
-        setTimeout(() => {
-          router.push(`/gestion/propiedades/${id}`);
-        }, 1500);
-      } else {
-        const error = await res.json().catch(() => ({}));
-        toast.error(error.error || 'Error al actualizar la propiedad');
-      }
-    } catch (err: any) {
-      console.error('Error saving property:', err);
-      toast.error(err.message || 'Error de conexión con el servidor');
-    } finally {
-      setSaving(false);
     }
-  };
+
+    // Asegurar que haya una imagen principal
+    const hasPrincipal = imagenesPayload.some(img => img.principal);
+    if (!hasPrincipal && imagenesPayload[0]) {
+      imagenesPayload[0].principal = true;
+    }
+    imagenesPayload.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+
+    // Subir video nuevo si existe
+    let finalVideoUrl = formData.videoUrl || null;
+    if (videoFile) {
+      const videoFormData = new FormData();
+      videoFormData.append('file', videoFile);
+      videoFormData.append('upload_preset', 'propiedades_video');
+      videoFormData.append('folder', 'properties/videos');
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+      toast.info('📹 Subiendo video a Cloudinary...');
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+        { method: 'POST', body: videoFormData }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
+        throw new Error(err.error?.message || 'Error al subir video');
+      }
+
+      const data = await res.json();
+      finalVideoUrl = data.secure_url;
+      toast.success('✅ Video subido correctamente');
+    }
+
+    // ✅ CORREGIR: Extraer solo el ID del propietario si es un objeto
+    const propietarioId = typeof formData.propietario === 'object' 
+      ? formData.propietario._id 
+      : formData.propietario;
+
+    // ✅ CORREGIR: Extraer solo el ID del agente si es un objeto
+    const agenteId = typeof formData.agente === 'object'
+      ? formData.agente._id
+      : formData.agente;
+
+    // ✅ CORREGIR: Limpiar el payload para que coincida con lo que espera la API
+    const payload = {
+      // Campos básicos
+      titulo: formData.titulo?.trim(),
+      descripcion: formData.descripcion?.trim(),
+      codigoInterno: formData.codigoInterno?.trim() || null,
+      tipoPropiedad: formData.tipoPropiedad,
+      tipoOperacion: formData.tipoOperacion,
+      categoria: formData.categoria || 'residencial',
+      
+      // Dirección (asegurar que todos los campos requeridos estén presentes)
+      direccion: {
+        calle: formData.direccion?.calle?.trim() || '',
+        numero: formData.direccion?.numero?.trim() || '',
+        piso: formData.direccion?.piso?.trim() || null,
+        depto: formData.direccion?.depto?.trim() || null,
+        barrio: formData.direccion?.barrio?.trim() || '',
+        ciudad: formData.direccion?.ciudad?.trim() || '',
+        provincia: formData.direccion?.provincia?.trim() || '',
+        codigoPostal: formData.direccion?.codigoPostal?.trim() || null,
+        coordenadas: formData.direccion?.coordenadas || null,
+        mostrarDireccionExacta: formData.direccion?.mostrarDireccionExacta ?? true,
+      },
+      
+      zona: formData.zona?.trim() || null,
+      
+      // Características
+      caracteristicas: formData.caracteristicas || {},
+      
+      // Precios (estructura correcta)
+      precios: {
+        venta: formData.precios?.venta ? {
+          moneda: formData.precios.venta.moneda || 'USD',
+          monto: formData.precios.venta.monto,
+          comision: formData.precios.venta.comision ?? 3,
+          gastosEscrituracion: formData.precios.venta.gastosEscrituracion ?? true,
+        } : undefined,
+        alquiler: formData.precios?.alquiler ? {
+          moneda: formData.precios.alquiler.moneda || 'USD',
+          monto: formData.precios.alquiler.monto,
+          comision: formData.precios.alquiler.comision ?? 4.5,
+          ajuste: formData.precios.alquiler.ajuste || 'anual',
+          garantiaRequerida: formData.precios.alquiler.garantiaRequerida || 'propiedad',
+        } : undefined,
+        expensas: formData.precios?.expensas ?? null,
+        impuestos: formData.precios?.impuestos ?? null,
+      },
+      
+      // Imágenes procesadas
+      imagenes: imagenesPayload,
+      
+      // Multimedia
+      videoUrl: finalVideoUrl,
+      tourVirtualUrl: formData.tourVirtualUrl?.trim() || null,
+      planoUrl: formData.planoUrl?.trim() || null,
+      
+      // Estado y configuración
+      estado: formData.estado || 'borrador',
+      fechaPublicacion: formData.fechaPublicacion || undefined,
+      fechaDisponibilidad: formData.fechaDisponibilidad || undefined,
+      destacado: formData.destacado || false,
+      urgente: formData.urgente || false,
+      
+      // SEO
+      seo: formData.seo ? {
+        slug: formData.seo.slug?.trim() || null,
+        metaTitle: formData.seo.metaTitle?.trim() || null,
+        metaDescription: formData.seo.metaDescription?.trim() || null,
+      } : undefined,
+      
+      // Notas internas
+      notasInternas: formData.notasInternas?.trim() || null,
+      
+      // ✅ IDs de relaciones (no objetos completos)
+      propietario: propietarioId,
+      agente: agenteId,
+    };
+
+    // ✅ DEBUG: Ver qué se está enviando
+    console.log('📤 Payload enviado:', payload);
+
+    const res = await fetch(`/api/gestion/propiedades/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const updated = await res.json();
+      toast.success('✅ Propiedad actualizada correctamente');
+
+      setProperty(updated);
+      setFormData(updated);
+      setPreviewImages(updated.imagenes?.map((img: ImagenProperty) => ({ url: img.url })) || []);
+      setVideoPreview(updated.videoUrl || '');
+      setVideoFile(null);
+      setHasChanges(false);
+
+      setTimeout(() => {
+        router.push(`/gestion/propiedades/${id}`);
+      }, 1500);
+    } else {
+      // ✅ MEJOR MANEJO DE ERRORES
+      const error = await res.json().catch(() => ({}));
+      console.error('❌ Error del servidor:', error);
+      toast.error(error.error || `Error ${res.status}: No se pudo actualizar`);
+    }
+  } catch (err: any) {
+    console.error('💥 Error saving property:', err);
+    toast.error(err.message || 'Error de conexión con el servidor');
+  } finally {
+    setSaving(false);
+  }
+};
+
   const handleCancel = () => {
     if (hasChanges) {
       Swal.fire({
