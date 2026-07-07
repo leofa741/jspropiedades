@@ -170,8 +170,8 @@ const validateProperty = (data: Partial<Property>) => {
   if (!data.imagenes?.length || data.imagenes.length === 0) {
     errors.imagenes = 'Debe subir al menos una imagen';
   }
-  if (data.imagenes && data.imagenes.length > 15) {
-    errors.imagenes = 'Máximo 15 imágenes por propiedad';
+  if (data.imagenes && data.imagenes.length > 22) {
+    errors.imagenes = 'Máximo 22 imágenes por propiedad';
   }
 
   return { isValid: Object.keys(errors).length === 0, errors };
@@ -367,9 +367,9 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nuevasEnPreview = previewImages.filter(p => p.file).length;
     const totalImages = existentes + nuevasEnPreview + files.length;
 
-    if (totalImages > 15) {
+    if (totalImages > 22) {
       toast.error(
-        `Máximo 15 imágenes. Tenés ${existentes} guardadas + ${nuevasEnPreview} en preview. Solo podés subir ${15 - existentes - nuevasEnPreview} más.`
+        `Máximo 22 imágenes. Tenés ${existentes} guardadas + ${nuevasEnPreview} en preview. Solo podés subir ${22 - existentes - nuevasEnPreview} más.`
       );
       return;
     }
@@ -767,7 +767,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 { id: 'location', label: '📍 Ubicación', fields: ['direccion'] },
                 { id: 'features', label: '🏠 Características', fields: ['caracteristicas'] },
                 { id: 'prices', label: '💰 Precios', fields: ['precios'] },
-                { id: 'images', label: `📸 Imágenes (${(formData.imagenes?.length || 0) + previewImages.filter(p => p.file).length}/15)`, fields: ['imagenes'] },
+                { id: 'images', label: `📸 Imágenes (${(formData.imagenes?.length || 0) + previewImages.filter(p => p.file).length}/22)`, fields: ['imagenes'] },
                 { id: 'media', label: '🎬 Multimedia', fields: ['videoUrl', 'tourVirtualUrl', 'planoUrl'] },
                 { id: 'settings', label: '⚙️ Configuración', fields: ['estado', 'destacado', 'urgente', 'seo'] },
                 ...(userRole !== 'agente' ? [{ id: 'internal', label: '🔒 Internas', fields: ['notasInternas', 'propietario'] }] : []),
@@ -1481,10 +1481,10 @@ const handleSubmit = async (e: React.FormEvent) => {
               ───────────────────────────────────────────────────── */}
           <section id="section-images" className={`${theme.bgCard} ${theme.border} rounded-2xl p-6 backdrop-blur-sm ${activeSection !== 'images' ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>
             <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">15</span>
+              <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold">22</span>
               Imágenes
               <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">
-                {(formData.imagenes?.length || 0) + previewImages.filter(p => p.file).length}/15
+                {(formData.imagenes?.length || 0) + previewImages.filter(p => p.file).length}/22
               </span>
             </h2>
 
@@ -1497,11 +1497,11 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             {/* Upload area */}
             <div
-              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 15
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 22
                 ? 'border-slate-700 bg-slate-800/30 cursor-not-allowed opacity-60'
                 : 'border-slate-600 hover:border-violet-500/50 hover:bg-slate-800/50'
                 }`}
-              onClick={() => previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) < 15 && fileInputRef.current?.click()}
+              onClick={() => previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) < 22 && fileInputRef.current?.click()}
             >
               <input
                 ref={fileInputRef}
@@ -1510,16 +1510,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                 multiple
                 onChange={handleImageUpload}
                 className="hidden"
-                disabled={previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 15}
+                disabled={previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 22}
               />
               <FaUpload className="w-10 h-10 text-slate-500 mx-auto mb-3" />
               <p className="text-white font-medium mb-1">
-                {previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 15
+                {previewImages.filter(p => p.file).length + (formData.imagenes?.length || 0) >= 22
                   ? 'Límite de imágenes alcanzado'
                   : 'hacer click para subir'}
               </p>
               <p className="text-xs text-slate-500">
-                JPG, PNG o WebP • Máx. 5MB cada una • Máx. 15 imágenes
+                JPG, PNG o WebP • Máx. 5MB cada una • Máx. 22 imágenes
               </p>
             </div>
 

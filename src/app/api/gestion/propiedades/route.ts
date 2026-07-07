@@ -149,12 +149,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Precio de alquiler inválido (debe ser número ≥ 0)' }, { status: 400 });
     }
 
-    // ✅ Validar imágenes: mínimo 1, máximo 15
+    // ✅ Validar imágenes: mínimo 1, máximo 22
     if (!Array.isArray(data.imagenes) || data.imagenes.length === 0) {
       return NextResponse.json({ error: 'Se requiere al menos una imagen' }, { status: 400 });
     }
-    if (data.imagenes.length > 15) {
-      return NextResponse.json({ error: 'Máximo 15 imágenes por propiedad' }, { status: 400 });
+    if (data.imagenes.length > 22) {
+      return NextResponse.json({ error: 'Máximo 22 imágenes por propiedad' }, { status: 400 });
     }
     // Validar cada imagen
     for (const img of data.imagenes) {

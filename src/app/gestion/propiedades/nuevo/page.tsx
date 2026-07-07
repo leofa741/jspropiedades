@@ -208,17 +208,17 @@ export default function NuevaPropiedadPage() {
         if (files.length === 0) return;
 
         const currentTotal = imagenes.length + imageFiles.length;
-        const availableSlots = 15 - currentTotal;
+        const availableSlots = 22 - currentTotal;
 
         if (availableSlots <= 0) {
-            toast.error('Ya alcanzaste el máximo de 15 imágenes');
+            toast.error('Ya alcanzaste el máximo de 22 imágenes');
             return;
         }
 
         const filesToProcess = files.slice(0, availableSlots);
 
         if (files.length > availableSlots) {
-            toast.warning(`Solo se agregarán ${availableSlots} imágenes (límite de 15)`);
+            toast.warning(`Solo se agregarán ${availableSlots} imágenes (límite de 22)`);
         }
 
         // Procesar archivos secuencialmente para mantener el orden
@@ -265,7 +265,7 @@ export default function NuevaPropiedadPage() {
     // 🔍 Validación del formulario
     const validateForm = (): boolean => {
         if (!form.titulo.trim() || form.titulo.length < 15) {
-            toast.error('El título debe tener al menos 10 caracteres');
+            toast.error('El título debe tener al menos 15 caracteres');
             return false;
         }
         if (!form.descripcion.trim() || form.descripcion.length < 50) {
@@ -470,13 +470,13 @@ export default function NuevaPropiedadPage() {
                     {/* 📸 Imágenes */}
                     <section>
                         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <FaImages className="text-violet-400" /> Imágenes * <span className="text-xs text-slate-500 font-normal">(máx. 15)</span>
+                            <FaImages className="text-violet-400" /> Imágenes * <span className="text-xs text-slate-500 font-normal">(máx. 22)</span>
                         </h2>
                         <div className="flex flex-wrap gap-4">
                             {/* Botón para agregar */}
                             <label className={`
             flex flex-col items-center justify-center w-32 h-32 rounded-xl border-2 border-dashed cursor-pointer transition-all
-            ${imagenes.length + imageFiles.length >= 15
+            ${imagenes.length + imageFiles.length >= 22
                                     ? 'border-slate-700 bg-slate-800/30 cursor-not-allowed opacity-50'
                                     : 'border-slate-600 hover:border-violet-500 hover:bg-slate-800/50'
                                 }
@@ -488,11 +488,11 @@ export default function NuevaPropiedadPage() {
                                     multiple
                                     onChange={handleImagesChange}
                                     className="hidden"
-                                    disabled={imagenes.length + imageFiles.length >= 15}
+                                    disabled={imagenes.length + imageFiles.length >= 22}
                                 />
                                 <FaPlus className="text-2xl text-slate-500" />
                                 <span className="text-xs text-slate-400 mt-1 text-center px-2">
-                                    {imagenes.length + imageFiles.length >= 15 ? 'Límite' : 'Agregar'}
+                                    {imagenes.length + imageFiles.length >= 22 ? 'Límite' : 'Agregar'}
                                 </span>
                             </label>
 
