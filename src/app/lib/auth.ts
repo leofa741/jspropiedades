@@ -230,7 +230,7 @@ export const authOptions: NextAuthOptions = {
             zipCode: user.zipCode
           },
           process.env.JWT_SECRET as string,
-          { expiresIn: '5h' }
+          { expiresIn: '30d' }
         );
 
         return {
@@ -456,7 +456,7 @@ Jimena Sánchez Propiedades · Buenos Aires, Argentina
             zipCode: existingUser.zipCode,
           },
           process.env.JWT_SECRET as string,
-          { expiresIn: '5h' }
+          { expiresIn: '30d' }
         );
 
         // 🔗 Mapear user para NextAuth

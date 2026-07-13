@@ -42,7 +42,7 @@ interface OpcionesAPI {
 // ─────────────────────────────────────────────────────────────
 
 export default function NuevaPropiedadPage() {
-    const { data: session, status } = useSession();
+const { data: session, status, update } = useSession();
     const router = useRouter();
 
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -146,6 +146,20 @@ export default function NuevaPropiedadPage() {
         validateAccess();
     }, [status, session, router]);
 
+  // 🔄 Mantener sesión viva al volver a la pestaña
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        // Forzar la renovación silenciosa de la sesión al volver a la pestaña
+        await update();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [update]);
+
+
     // 📥 Cargar opciones dinámicas
     const fetchOpciones = useCallback(async () => {
         if (!isAuthorized) return;
@@ -187,6 +201,30 @@ export default function NuevaPropiedadPage() {
             }));
         }
     };
+
+
+      // 💾 1. Cargar borrador al montar (si el formulario está vacío)
+  useEffect(() => {
+    if (isAuthorized) {
+      const savedDraft = localStorage.getItem('propiedad_nueva_draft');
+      if (savedDraft && !form.titulo) { 
+        try {
+          const parsed = JSON.parse(savedDraft);
+          setForm(parsed);
+          toast.info('📝 Se recuperó el borrador de la propiedad.');
+        } catch (e) {
+          console.error('Error al cargar borrador', e);
+        }
+      }
+    }
+  }, [isAuthorized]);
+
+  // 💾 2. Guardar borrador cada vez que el usuario escribe
+  useEffect(() => {
+    if (isAuthorized && form.titulo) { // Guardar solo si ya empezó a escribir
+      localStorage.setItem('propiedad_nueva_draft', JSON.stringify(form));
+    }
+  }, [form, isAuthorized]);
 
     const handlePriceBlur = (section: 'venta' | 'alquiler' | 'expensas' | 'impuestos') => {
         const value = section === 'venta' || section === 'alquiler'
@@ -346,7 +384,7 @@ export default function NuevaPropiedadPage() {
                 });
             }
 
-            // 🔹 2. Subir video si existe
+            
             // 🔹 2. Subir video si existe (DIRECTO a Cloudinary)
             let uploadedVideoUrl = '';
 
@@ -413,9 +451,11 @@ export default function NuevaPropiedadPage() {
                 body: JSON.stringify(payload),
             });
 
-            if (res.ok) {
-                toast.success('✅ Propiedad creada con éxito');
-                router.push('/gestion/propiedades');
+                       if (res.ok) {
+              localStorage.removeItem('propiedad_nueva_draft'); // ✅ AGREGAR ESTA LÍNEA
+              toast.success('✅ Propiedad creada con éxito');
+              router.push('/gestion/propiedades');
+            
             } else {
                 const err = await res.json();
                 toast.error(err.error || 'Error al crear la propiedad');

@@ -5,7 +5,7 @@ import { Schema, model, models, Document } from 'mongoose';
 // 🔹 Sub-esquemas para propiedades
 // ─────────────────────────────────────────────────────────────
 
-// 📸 Imágenes de la propiedad (hasta ~10 por propiedad)
+// 📸 Imágenes de la propiedad (hasta ~22 por propiedad)
 const imagenSchema = new Schema({
   url: { type: String, required: true },
   descripcion: { type: String, trim: true },
