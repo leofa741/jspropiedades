@@ -42,7 +42,7 @@ interface OpcionesAPI {
 // ─────────────────────────────────────────────────────────────
 
 export default function NuevaPropiedadPage() {
-const { data: session, status, update } = useSession();
+    const { data: session, status, update } = useSession();
     const router = useRouter();
 
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -146,18 +146,18 @@ const { data: session, status, update } = useSession();
         validateAccess();
     }, [status, session, router]);
 
-  // 🔄 Mantener sesión viva al volver a la pestaña
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        // Forzar la renovación silenciosa de la sesión al volver a la pestaña
-        await update();
-      }
-    };
+    // 🔄 Mantener sesión viva al volver a la pestaña
+    useEffect(() => {
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'visible') {
+                // Forzar la renovación silenciosa de la sesión al volver a la pestaña
+                await update();
+            }
+        };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [update]);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [update]);
 
 
     // 📥 Cargar opciones dinámicas
@@ -203,28 +203,28 @@ const { data: session, status, update } = useSession();
     };
 
 
-      // 💾 1. Cargar borrador al montar (si el formulario está vacío)
-  useEffect(() => {
-    if (isAuthorized) {
-      const savedDraft = localStorage.getItem('propiedad_nueva_draft');
-      if (savedDraft && !form.titulo) { 
-        try {
-          const parsed = JSON.parse(savedDraft);
-          setForm(parsed);
-          toast.info('📝 Se recuperó el borrador de la propiedad.');
-        } catch (e) {
-          console.error('Error al cargar borrador', e);
+    // 💾 1. Cargar borrador al montar (si el formulario está vacío)
+    useEffect(() => {
+        if (isAuthorized) {
+            const savedDraft = localStorage.getItem('propiedad_nueva_draft');
+            if (savedDraft && !form.titulo) {
+                try {
+                    const parsed = JSON.parse(savedDraft);
+                    setForm(parsed);
+                    toast.info('📝 Se recuperó el borrador de la propiedad.');
+                } catch (e) {
+                    console.error('Error al cargar borrador', e);
+                }
+            }
         }
-      }
-    }
-  }, [isAuthorized]);
+    }, [isAuthorized]);
 
-  // 💾 2. Guardar borrador cada vez que el usuario escribe
-  useEffect(() => {
-    if (isAuthorized && form.titulo) { // Guardar solo si ya empezó a escribir
-      localStorage.setItem('propiedad_nueva_draft', JSON.stringify(form));
-    }
-  }, [form, isAuthorized]);
+    // 💾 2. Guardar borrador cada vez que el usuario escribe
+    useEffect(() => {
+        if (isAuthorized && form.titulo) { // Guardar solo si ya empezó a escribir
+            localStorage.setItem('propiedad_nueva_draft', JSON.stringify(form));
+        }
+    }, [form, isAuthorized]);
 
     const handlePriceBlur = (section: 'venta' | 'alquiler' | 'expensas' | 'impuestos') => {
         const value = section === 'venta' || section === 'alquiler'
@@ -384,7 +384,7 @@ const { data: session, status, update } = useSession();
                 });
             }
 
-            
+
             // 🔹 2. Subir video si existe (DIRECTO a Cloudinary)
             let uploadedVideoUrl = '';
 
@@ -451,11 +451,11 @@ const { data: session, status, update } = useSession();
                 body: JSON.stringify(payload),
             });
 
-                       if (res.ok) {
-              localStorage.removeItem('propiedad_nueva_draft'); // ✅ AGREGAR ESTA LÍNEA
-              toast.success('✅ Propiedad creada con éxito');
-              router.push('/gestion/propiedades');
-            
+            if (res.ok) {
+                localStorage.removeItem('propiedad_nueva_draft'); // ✅ AGREGAR ESTA LÍNEA
+                toast.success('✅ Propiedad creada con éxito');
+                router.push('/gestion/propiedades');
+
             } else {
                 const err = await res.json();
                 toast.error(err.error || 'Error al crear la propiedad');
@@ -1106,7 +1106,9 @@ const { data: session, status, update } = useSession();
                         <button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-medium py-3 rounded-xl transition disabled:opacity-70 shadow-lg shadow-violet-900/30 flex items-center justify-center gap-2">
                             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Creando...</> : 'Crear Propiedad'}
                         </button>
-                        <Link href="/gestion/propiedades" className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl text-center transition">Cancelar</Link>
+                        <Link href="/gestion/propiedades" 
+                            onClick={() => localStorage.removeItem('propiedad_nueva_draft')} // ✅ AGREGAR ESTA LÍNEA
+                            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl text-center transition">Cancelar</Link>
                     </div>
                 </form>
             </div>
