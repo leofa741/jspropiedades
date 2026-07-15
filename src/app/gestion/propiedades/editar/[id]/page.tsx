@@ -853,8 +853,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
                 <div className="flex justify-between mt-1.5 text-xs">
                   <span className="text-slate-500">Mínimo 50 caracteres</span>
-                  <span className={`${(formData.descripcion?.length || 0) >= 2000 ? 'text-rose-400' : 'text-slate-500'}`}>
-                    {(formData.descripcion?.length || 0)}/2000
+                  <span className={`${(formData.descripcion?.length || 0) >= 4000 ? 'text-rose-400' : 'text-slate-500'}`}>
+                    {(formData.descripcion?.length || 0)}/4000
                   </span>
                 </div>
               </div>

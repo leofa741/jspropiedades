@@ -707,8 +707,8 @@ export default function NuevaPropiedadPage() {
                                 />
                                 <div className="flex justify-between mt-1.5 text-xs">
                                     <span className="text-slate-500">Mínimo 50 caracteres</span>
-                                    <span className={`${(form.descripcion?.length || 0) >= 2000 ? 'text-rose-400' : 'text-slate-500'}`}>
-                                        {(form.descripcion?.length || 0)}/2000
+                                    <span className={`${(form.descripcion?.length || 0) >= 4000 ? 'text-rose-400' : 'text-slate-500'}`}>
+                                        {(form.descripcion?.length || 0)}/4000
                                     </span>
                                 </div>
                             </div>

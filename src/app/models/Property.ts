@@ -101,7 +101,7 @@ const preciosSchema = new Schema({
 const propertySchema = new Schema({
   // 📋 Identificación básica
   titulo: { type: String, required: true, trim: true, maxlength: 100 }, // Ej: "Departamento 3 ambientes en Palermo"
-  descripcion: { type: String, required: true, trim: true, maxlength: 2000 },
+  descripcion: { type: String, required: true, trim: true, maxlength: 4000 },
   codigoInterno: { type: String, unique: true, sparse: true, trim: true }, // Para referencia interna
   
   // 🏷️ Clasificación
