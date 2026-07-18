@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   title: "Inmobiliaria Jimena Sánchez",
   description: "Encontrá la casa que buscás en Inmobiliaria Jimena Sánchez",
   manifest: "/manifest.json",
-  keywords: "lotes en san vicente, terrenos en san vicente, inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
+  keywords: "lotes en san vicente,lotes ,terrenos en san vicente, terrenos,inmobiliaria, venta, alquiler, casas, departamentos, propiedades, casas en venta, casas en alquiler, departamentos en venta, departamentos en alquiler, Jimena Sánchez",
   authors: [{ name: "Inmobiliaria Jimena Sánchez", url: SITE_URL }],
 
   metadataBase: new URL(SITE_URL),
