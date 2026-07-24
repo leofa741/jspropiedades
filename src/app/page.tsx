@@ -11,6 +11,7 @@ import Image from 'next/image';
 import PropertyCard from './components/public/PropertyCard';
 import { useRouter } from 'next/navigation';
 import RotatingCircle from './components/ui/RotatingCircle';
+import PopUpDemo from './components/popupdemo/PopUpDemo';
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Tipos (basados en tu JSON real)
@@ -264,7 +265,9 @@ function PageContent() {
   // ✅ Render principal - CONTENIDO ESTÁTICO SE MUESTRA INMEDIATAMENTE
   return (
     <div ref={containerRef} className="min-h-screen bg-slate-950 text-white">
-      
+
+      <PopUpDemo />
+
       {/* ═══════════════════════════════════════════════════════
           HERO CON VIDEO - ESTÁTICO (se muestra inmediatamente)
           ═══════════════════════════════════════════════════════ */}
