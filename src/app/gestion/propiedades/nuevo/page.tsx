@@ -403,8 +403,7 @@ export default function NuevaPropiedadPage() {
                 // vc_h264: Usa el códec de video más eficiente y universal
                 // q_auto:good: Compresión inteligente de buena calidad (reduce peso sin perder nitidez visible)
                 // w_1280,c_scale: Escala el video a un máximo de 1280px de ancho (HD). ¡Esto destruye el peso de los videos 4K de iPhone!
-                const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:good,w_1280,c_scale`;
-
+              const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:eco,w_854,c_scale,fps_24`;
                 toast.info('📹 Subiendo y optimizando video automáticamente...');
 
                 const res = await fetch(optimizedUploadUrl, { // 🔹 Usamos la URL optimizada

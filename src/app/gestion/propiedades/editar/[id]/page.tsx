@@ -508,8 +508,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
       // 🚀 URL CON TRANSFORMACIÓN DE ENTRADA (Incoming Transformation)
-      const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:good,w_1280,c_scale`;
-;
+     const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:eco,w_854,c_scale,fps_24`;
 
       toast.info('📹 Subiendo video...');
       const res = await fetch(optimizedUploadUrl, { method: 'POST', body: videoFormData });
