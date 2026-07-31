@@ -414,7 +414,7 @@ export default function NuevaPropiedadPage() {
 
                 if (!res.ok) {
                     const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
-                    throw new Error(err.error?.message || 'Error al subir video a Cloudinary');
+                    throw new Error(err.error?.message || 'Error al subir video');
                 }
 
                 const data = await res.json();

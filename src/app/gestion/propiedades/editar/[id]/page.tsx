@@ -511,7 +511,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:good,w_1280,c_scale`;
 ;
 
-      toast.info('📹 Subiendo video a Cloudinary...');
+      toast.info('📹 Subiendo video...');
       const res = await fetch(optimizedUploadUrl, { method: 'POST', body: videoFormData });
       console.log(res);
 
