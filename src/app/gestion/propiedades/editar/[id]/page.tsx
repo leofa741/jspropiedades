@@ -507,11 +507,13 @@ const handleSubmit = async (e: React.FormEvent) => {
       videoFormData.append('folder', 'properties/videos');
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
+      // 🚀 URL CON TRANSFORMACIÓN DE ENTRADA (Incoming Transformation)
+      const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:good,w_1280,c_scale`;
+;
+
       toast.info('📹 Subiendo video a Cloudinary...');
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-        { method: 'POST', body: videoFormData }
-      );
+      const res = await fetch(optimizedUploadUrl, { method: 'POST', body: videoFormData });
+      console.log(res);
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
@@ -1602,8 +1604,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                             toast.error('El archivo debe ser un video');
                             return;
                           }
-                          if (file.size > 100 * 1024 * 1024) {
-                            toast.error('El video no puede superar los 100MB');
+                          if (file.size > 50 * 1024 * 1024) {
+                            toast.error('El video no puede superar los 50MB');
                             return;
                           }
 
@@ -1654,7 +1656,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     )}
                   </div>
 
-                  <p className="text-xs text-slate-500">MP4, WebM o MOV • Máx. 100MB</p>
+                  <p className="text-xs text-slate-500">MP4, WebM o MOV • Máx. 50MB</p>
                 </div>
               </div>
 
