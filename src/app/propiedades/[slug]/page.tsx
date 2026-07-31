@@ -120,14 +120,15 @@ const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta
 };
 
 // 🔹 Helpers para optimizar URLs de Cloudinary
-// ✅ CORREGIDO: ahora detecta correctamente URLs con cloud name en el medio
-const getOptimizedVideoUrl = (url: string) => {
+const getOptimizedVideoUrl = (url: string, isSlowConnection: boolean = false) => {
   if (!url || !url.includes('cloudinary.com')) return url;
   
-  // 🔒 Forzar H.264 + AAC + MP4 (compatible con TODOS los navegadores)
+  // 🔹 Si es conexión lenta, reducimos drásticamente la calidad y resolución (640px) para facilitar la carga
+  const quality = isSlowConnection ? 'q_auto:eco,w_640,c_scale' : 'q_auto:good,w_1280,c_scale';
+  
   return url.replace(
     /\/video\/upload\//,
-    '/video/upload/vc_h264,ac_aac,f_mp4,q_auto:good,w_1280/'
+    `/video/upload/vc_h264,ac_aac,f_mp4,${quality}/`
   );
 };
 
@@ -141,6 +142,102 @@ const getOptimizedImageUrl = (url: string) => {
   }
   return url;
 };
+
+// ─────────────────────────────────────────────────────────────
+// 🔹 Componente de Video con Detección de Conexión
+// ─────────────────────────────────────────────────────────────
+function VideoPlayer({ videoUrl, posterUrl }: { videoUrl: string; posterUrl: string }) {
+  const [isSlowConnection, setIsSlowConnection] = useState(false);
+  const [forceLoad, setForceLoad] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    // Detectar conexión lenta usando Network Information API
+    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    if (connection && (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g')) {
+      setIsSlowConnection(true);
+    }
+  }, []);
+
+  const optimizedUrl = getOptimizedVideoUrl(videoUrl, isSlowConnection && !forceLoad);
+
+  // 🚨 Mensaje de error: La culpa es de la conexión del usuario
+  if (hasError) {
+    return (
+      <div className="rounded-2xl overflow-hidden bg-slate-800 border border-rose-500/30 p-6 text-center max-h-[80vh] mx-auto" style={{ maxWidth: 'min(100%, 900px)' }}>
+        <FaVideo className="w-12 h-12 text-rose-400 mx-auto mb-3 opacity-80" />
+        <h3 className="text-lg font-semibold text-white mb-2">No se pudo cargar el video</h3>
+        <p className="text-slate-300 text-sm mb-4 max-w-md mx-auto leading-relaxed">
+          Esto suele ocurrir cuando la <strong>señal de internet es inestable o la velocidad de tu proveedor es insuficiente</strong> para cargar archivos multimedia pesados. 
+          <br /><br />
+          Nuestra plataforma funciona correctamente, pero la reproducción depende exclusivamente de la calidad y estabilidad de tu conexión actual.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button 
+            onClick={() => { setHasError(false); setForceLoad(true); }}
+            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            Intentar cargar nuevamente
+          </button>
+          <a 
+            href={`https://wa.me/5491132538837?text=${encodeURIComponent('Hola, el video de la propiedad no me carga por mi conexión. ¿Podrían enviármelo por WhatsApp?')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <FaWhatsapp className="w-4 h-4" /> Pedir video por WhatsApp
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // ⚠️ Mensaje preventivo: Advertencia antes de cargar
+  if (isSlowConnection && !forceLoad) {
+    return (
+      <div className="rounded-2xl overflow-hidden bg-slate-800 border border-amber-500/30 p-6 text-center max-h-[80vh] mx-auto relative" style={{ maxWidth: 'min(100%, 900px)' }}>
+        <div 
+          className="absolute inset-0 opacity-10 bg-cover bg-center" 
+          style={{ backgroundImage: `url(${posterUrl})` }}
+        ></div>
+        <div className="relative z-10">
+          <FaVideo className="w-12 h-12 text-amber-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-white mb-2">Conexión a internet lenta detectada</h3>
+          <p className="text-slate-300 text-sm mb-4 max-w-md mx-auto leading-relaxed">
+            Tu proveedor de internet parece tener una señal débil o baja velocidad. 
+            Cargar este video podría consumir muchos datos o fallar. 
+            <br /><br />
+            <span className="text-amber-400 font-medium">La reproducción exitosa depende de la estabilidad de tu red.</span>
+          </p>
+          <button 
+            onClick={() => setForceLoad(true)}
+            className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg"
+          >
+            Cargar video de todos modos
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Carga normal optimizada
+  return (
+    <div className="rounded-2xl overflow-hidden bg-slate-800 shadow-xl relative max-h-[80vh] mx-auto" style={{ maxWidth: 'min(100%, 900px)' }}>
+      <video
+        key={optimizedUrl}
+        controls
+        preload="metadata" // 🔹 CLAVE: Cambiado de 'auto' a 'metadata' para no descargar el video pesado automáticamente
+        playsInline
+        poster={posterUrl}
+        className="w-full h-auto max-h-[80vh] object-cover bg-black"
+        onError={() => setHasError(true)}
+      >
+        <source src={optimizedUrl} type="video/mp4" />
+        Tu navegador no soporta la reproducción de videos.
+      </video>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────
 // 🔹 Componente Principal
@@ -430,45 +527,18 @@ function PageContent() {
         </div>
       </div>
 
-    {/* 📹 Video de la propiedad */}
-{propiedad.videoUrl && (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-    <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-      <FaVideo className="text-violet-400" /> Video de la propiedad
-    </h2>
-    <div className="rounded-2xl overflow-hidden bg-slate-800 shadow-xl relative max-h-[80vh] mx-auto" style={{ maxWidth: 'min(100%, 900px)' }}>
-      <video
-        key={propiedad.videoUrl}
-        controls
-        preload="auto"
-        playsInline
-        poster={getOptimizedImageUrl(allImages[0]?.url)}
-        className="w-full h-auto max-h-[80vh] object-cover bg-black"
-        onLoadedMetadata={(e) => {
-          const v = e.currentTarget;
-          console.log('✅ Video listo:', {
-            src: v.currentSrc,
-            duration: v.duration,
-            width: v.videoWidth,
-            height: v.videoHeight,
-            aspectRatio: (v.videoWidth / v.videoHeight).toFixed(2)
-          });
-        }}
-        onError={(e) => {
-          const v = e.currentTarget;
-          console.error('❌ Error video:', {
-            code: v.error?.code,
-            message: v.error?.message,
-            src: v.currentSrc
-          });
-        }}
-      >
-        <source src={getOptimizedVideoUrl(propiedad.videoUrl)} />
-        Tu navegador no soporta la reproducción de videos.
-      </video>
-    </div>
-  </div>
-)}
+      {/* 📹 Video de la propiedad (Optimizado con detección de conexión) */}
+      {propiedad.videoUrl && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <FaVideo className="text-violet-400" /> Video de la propiedad
+          </h2>
+          <VideoPlayer 
+            videoUrl={propiedad.videoUrl} 
+            posterUrl={getOptimizedImageUrl(allImages[0]?.url || '')} 
+          />
+        </div>
+      )}
 
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
