@@ -1607,8 +1607,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                             toast.error('El archivo debe ser un video');
                             return;
                           }
-                          if (file.size > 50 * 1024 * 1024) {
-                            toast.error('El video no puede superar los 50MB');
+                          if (file.size > 100 * 1024 * 1024) {
+                            toast.error('El video no puede superar los 100MB');
                             return;
                           }
 

@@ -617,8 +617,8 @@ export default function NuevaPropiedadPage() {
                                                 return;
                                             }
                                             // Dentro del onChange del input de video:
-                                            if (file.size > 50 * 1024 * 1024) { // 🔹 Cambiado de 100MB a 50MB
-                                                toast.error('El video no puede superar los 50MB. Se optimizará automáticamente al subirlo.');
+                                            if (file.size > 100 * 1024 * 1024) { // 🔹 Cambiado de 100MB a 50MB
+                                                toast.error('El video no puede superar los 100MB. Se optimizará automáticamente al subirlo.');
                                                 return;
                                             }
 
