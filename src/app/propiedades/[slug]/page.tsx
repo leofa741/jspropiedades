@@ -120,15 +120,23 @@ const formatPrice = (monto?: number, moneda: 'ARS' | 'USD' = 'USD', tipo: 'venta
 };
 
 // 🔹 Helpers para optimizar URLs de Cloudinary
+// 🔹 Helpers para optimizar URLs de Cloudinary (EN LA PÁGINA DE VISUALIZACIÓN)
 const getOptimizedVideoUrl = (url: string, isSlowConnection: boolean = false) => {
   if (!url || !url.includes('cloudinary.com')) return url;
   
-  // 🔹 Si es conexión lenta, reducimos drásticamente la calidad y resolución (640px) para facilitar la carga
-  const quality = isSlowConnection ? 'q_auto:eco,w_640,c_scale' : 'q_auto:good,w_1280,c_scale';
+  // 🚀 COMPRESIÓN AGRESIVA DE ENTREGA (Delivery Transformation)
+  // w_854: Resolución 480p (suficiente para celular/web)
+  // q_auto:eco: Máxima compresión con calidad aceptable
+  // fps_24: Limita a 24 cuadros por segundo (ahorra muchísimo peso)
+  // vc_h264,ac_aac,f_mp4: Garantiza compatibilidad total
   
+  const qualityParams = isSlowConnection 
+    ? 'q_auto:eco,w_640,c_scale,fps_24' // Ultra liviano para 2G/3G
+    : 'q_auto:good,w_854,c_scale,fps_24'; // Liviano y nítido para 4G/WiFi
+
   return url.replace(
     /\/video\/upload\//,
-    `/video/upload/vc_h264,ac_aac,f_mp4,${quality}/`
+    `/video/upload/vc_h264,ac_aac,f_mp4,${qualityParams}/`
   );
 };
 

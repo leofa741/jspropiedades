@@ -386,8 +386,7 @@ export default function NuevaPropiedadPage() {
 
 
 
-
-            // 🔹 2. Subir video si existe (CON OPTIMIZACIÓN AUTOMÁTICA EN LA NUBE)
+            // 🔹 2. Subir video si existe
             let uploadedVideoUrl = '';
 
             if (videoFile) {
@@ -398,15 +397,14 @@ export default function NuevaPropiedadPage() {
 
                 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-                // 🚀 URL CON TRANSFORMACIÓN DE ENTRADA (Incoming Transformation)
-                // f_mp4: Fuerza el formato MP4 (máxima compatibilidad)
-                // vc_h264: Usa el códec de video más eficiente y universal
-                // q_auto:good: Compresión inteligente de buena calidad (reduce peso sin perder nitidez visible)
-                // w_1280,c_scale: Escala el video a un máximo de 1280px de ancho (HD). ¡Esto destruye el peso de los videos 4K de iPhone!
-              const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:eco,w_854,c_scale,fps_24`;
-                toast.info('📹 Subiendo y optimizando video automáticamente...');
+                // ✅ URL DE SUBIDA LIMPIA (Sin transformaciones)
+                // Esto evita que el servidor se cuelgue procesando el video mientras se sube.
+                // La compresión real se aplicará automáticamente cuando el cliente lo vea en la web.
+                const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
+                
+                toast.info('📹 Subiendo video a la nube...');
 
-                const res = await fetch(optimizedUploadUrl, { // 🔹 Usamos la URL optimizada
+                const res = await fetch(uploadUrl, { 
                     method: 'POST',
                     body: formData,
                 });
@@ -417,8 +415,8 @@ export default function NuevaPropiedadPage() {
                 }
 
                 const data = await res.json();
-                uploadedVideoUrl = data.secure_url; // 🔹 Esta URL YA ES LA VERSIÓN LIVIANA
-                toast.success('✅ Video subido y optimizado correctamente');
+                uploadedVideoUrl = data.secure_url; // Se guarda la URL base
+                toast.success('✅ Video subido correctamente');
             }
             // Combinar imágenes existentes + nuevas
             const allImages = [...imagenes, ...uploadedImages];

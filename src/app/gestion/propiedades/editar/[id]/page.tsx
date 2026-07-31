@@ -499,6 +499,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     imagenesPayload.sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
     // Subir video nuevo si existe
+     // Subir video nuevo si existe
     let finalVideoUrl = formData.videoUrl || null;
     if (videoFile) {
       const videoFormData = new FormData();
@@ -507,12 +508,15 @@ const handleSubmit = async (e: React.FormEvent) => {
       videoFormData.append('folder', 'properties/videos');
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-      // 🚀 URL CON TRANSFORMACIÓN DE ENTRADA (Incoming Transformation)
-     const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:eco,w_854,c_scale,fps_24`;
+      toast.info('📹 Subiendo video a Cloudinary...');
+      
+      // ✅ URL DE SUBIDA LIMPIA (Sin transformaciones, para evitar cuelgues)
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
 
-      toast.info('📹 Subiendo video...');
-      const res = await fetch(optimizedUploadUrl, { method: 'POST', body: videoFormData });
-      console.log(res);
+      const res = await fetch(uploadUrl, { 
+        method: 'POST', 
+        body: videoFormData 
+      });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
