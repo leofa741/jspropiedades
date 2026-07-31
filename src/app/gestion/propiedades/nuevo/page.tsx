@@ -385,27 +385,32 @@ export default function NuevaPropiedadPage() {
             }
 
 
-            // 🔹 2. Subir video si existe (DIRECTO a Cloudinary)
+
+
+            // 🔹 2. Subir video si existe (CON OPTIMIZACIÓN AUTOMÁTICA EN LA NUBE)
             let uploadedVideoUrl = '';
 
             if (videoFile) {
                 const formData = new FormData();
                 formData.append('file', videoFile);
-                formData.append('upload_preset', 'propiedades_video'); // El nombre del preset que creaste
+                formData.append('upload_preset', 'propiedades_video');
                 formData.append('folder', 'properties/videos');
 
-                // Upload directo a Cloudinary (sin pasar por tu API)
-                const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // Necesitas esta variable
+                const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-                toast.info('📹 Subiendo video a Cloudinary...');
+                // 🚀 URL CON TRANSFORMACIÓN DE ENTRADA (Incoming Transformation)
+                // f_mp4: Fuerza el formato MP4 (máxima compatibilidad)
+                // vc_h264: Usa el códec de video más eficiente y universal
+                // q_auto:good: Compresión inteligente de buena calidad (reduce peso sin perder nitidez visible)
+                // w_1280,c_scale: Escala el video a un máximo de 1280px de ancho (HD). ¡Esto destruye el peso de los videos 4K de iPhone!
+                const optimizedUploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload/f_mp4,vc_h264,q_auto:good,w_1280,c_scale`;
 
-                const res = await fetch(
-                    `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-                    {
-                        method: 'POST',
-                        body: formData,
-                    }
-                );
+                toast.info('📹 Subiendo y optimizando video automáticamente...');
+
+                const res = await fetch(optimizedUploadUrl, { // 🔹 Usamos la URL optimizada
+                    method: 'POST',
+                    body: formData,
+                });
 
                 if (!res.ok) {
                     const err = await res.json().catch(() => ({ error: { message: 'Error desconocido' } }));
@@ -413,10 +418,9 @@ export default function NuevaPropiedadPage() {
                 }
 
                 const data = await res.json();
-                uploadedVideoUrl = data.secure_url;
-                toast.success('✅ Video subido correctamente');
+                uploadedVideoUrl = data.secure_url; // 🔹 Esta URL YA ES LA VERSIÓN LIVIANA
+                toast.success('✅ Video subido y optimizado correctamente');
             }
-
             // Combinar imágenes existentes + nuevas
             const allImages = [...imagenes, ...uploadedImages];
             if (!allImages.some(img => img.principal) && allImages[0]) {
@@ -506,7 +510,7 @@ export default function NuevaPropiedadPage() {
             <div className="bg-slate-900/80 rounded-xl p-6 border border-slate-700/50 backdrop-blur-sm">
                 <form onSubmit={handleSubmit} className="space-y-8">
 
-                    {/* 📸 Imágenes */}
+
                     {/* 📸 Imágenes */}
                     <section>
                         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -615,8 +619,9 @@ export default function NuevaPropiedadPage() {
                                                 toast.error('El archivo debe ser un video');
                                                 return;
                                             }
-                                            if (file.size > 100 * 1024 * 1024) {
-                                                toast.error('El video no puede superar los 100MB');
+                                            // Dentro del onChange del input de video:
+                                            if (file.size > 50 * 1024 * 1024) { // 🔹 Cambiado de 100MB a 50MB
+                                                toast.error('El video no puede superar los 50MB. Se optimizará automáticamente al subirlo.');
                                                 return;
                                             }
 
@@ -659,7 +664,9 @@ export default function NuevaPropiedadPage() {
                                     </div>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-500">MP4, WebM o MOV • Máx. 100MB</p>
+                            <p className="text-xs text-slate-500 mt-2">
+                                MP4, WebM o MOV • Máx. 50MB • <span className="text-violet-400">Se optimiza y comprime automáticamente al subirlo</span>
+                            </p>
                         </div>
                     </section>
 
@@ -1106,7 +1113,7 @@ export default function NuevaPropiedadPage() {
                         <button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-medium py-3 rounded-xl transition disabled:opacity-70 shadow-lg shadow-violet-900/30 flex items-center justify-center gap-2">
                             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Creando...</> : 'Crear Propiedad'}
                         </button>
-                        <Link href="/gestion/propiedades" 
+                        <Link href="/gestion/propiedades"
                             onClick={() => localStorage.removeItem('propiedad_nueva_draft')} // ✅ AGREGAR ESTA LÍNEA
                             className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl text-center transition">Cancelar</Link>
                     </div>
